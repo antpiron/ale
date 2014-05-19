@@ -10,6 +10,7 @@ static void
 error_free(void *ptr)
 {
   free(ptr);
+  pthread_setspecific(errno_key, NULL);
 }
 
 static void 
