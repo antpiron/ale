@@ -7,18 +7,17 @@
 #include <syslog.h>
 #include <string.h>
 
+// (Not in POSIX.1-2001.)  Print to stderr as well.
 #ifndef LOG_PERROR
 # define LOG_PERROR 0
 #endif
 
 #define ERR_SUCCESS 0
-#define ERR_ERRNO  -1
-#define ERR_RPC    -2
-#define ERR_FERROR -3
-#define ERR_GAI    -4
-#define ERR_UNDEF  -5
-#define ERR_ANY    -16
-#define ERR_LAST   ERR_ANY
+#define ERR_UNDEF   1
+#define ERR_ERRNO   2
+#define ERR_FERROR  3
+#define ERR_GAI     4
+#define ERR_LAST   16
 
 int* error_get_errno();
 

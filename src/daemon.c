@@ -15,11 +15,10 @@ drop_privileges(uid_t uid, gid_t gid)
   ERROR_ERRNO_RET( -1 == setregid(gid, gid), -1);
   ERROR_ERRNO_RET( -1 == setreuid(uid, uid), -1);
 
-  return ERR_SUCCESS;
+  return 0;
 }
 
-static
-int
+static int
 write_pid(char *pidfile)
 {
   pid_t pid = getpid();
@@ -31,7 +30,7 @@ write_pid(char *pidfile)
 
   ERROR_ERRNO_RET( 0 != fclose(file), -1 );
   
-  return ERR_SUCCESS;
+  return 0;
 }
 
 /* Stevens Advanced Unix Programming in the UNIX Environment */
@@ -54,5 +53,5 @@ daemon_init(char *pidfile)
 
   ERROR_RET( (ret = write_pid(pidfile)) < 0, ret);
 
-  return ERR_SUCCESS;
+  return 0;
 }
