@@ -52,15 +52,66 @@ libale provides basic error handling, unlimited size bitset, portability layer f
 @node Bitset, Index, Error, Top
 @chapter Bitset
 
+@example
+
+#include <ale/bitset.h>
+
+int
+main(int argc, char *argv[ ]) 
+@{
+  struct bitset bs;
+
+  bitset_init(&bs, 1024);
+  bitset_free(bs);
+
+  return EXIT_SUCCESS;
+@}
+
+@end example
+
 @deftypefn {C Function} static inline int @
            bitset_init(struct bitset *@var{bs}, size_t @var{n})
-Initialise the bitset @var{bs} to zero (unset) with a maximal size of @var{n} bits.
+
+Initialise the bitset @var{bs} to zero (unset) with a maximal size of @var{n} bits. Return -1 on error and set error_errno accordingly.
+@end deftypefn
+
+@deftypefn {C Function} static inline void @
+           bitset_free(struct bitset @var{bs})
+
+Desallocate @var{bs}.
 @end deftypefn
 
 @deftypefn {C Function} static inline void @
            bitset_reset(struct bitset @var{bs})
+
 Reset the bitset @var{bs}.
 @end deftypefn
+
+@deftypefn {C Function} static inline void @
+           bitset_set(struct bitset @var{bs}, size_t @var{index})
+
+Set the bit at position @var{index} of the bitset @var{bs}.
+@end deftypefn
+
+@deftypefn {C Function} static inline void @
+           bitset_unset(struct bitset @var{bs}, size_t @var{index})
+
+Unset the bit at position @var{index} from the bitset @var{bs}.
+@end deftypefn
+
+@deftypefn {C Function} static inline int @
+           bitset_isset(struct bitset @var{bs}, size_t @var{index})
+
+Test the bit at position @var{index} from the bitset @var{bs}. Return 1 if the bit is set, 0 otherwise.
+@end deftypefn
+
+@deftypefn {C Function} static inline void @
+           bitset_setrange(struct bitset @var{bs}, size_t @var{index}, size_t @var{len})
+
+Set @var{len} bits from position @var{index} of the bitset @var{bs}.
+@end deftypefn
+
+
 
 @node Index,  , Bitset, Top
 @unnumbered Index
