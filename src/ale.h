@@ -3,6 +3,6 @@
 
 
 #include <ale/error.h>
-
+#include <ale/daemon.h>
 
 #endif

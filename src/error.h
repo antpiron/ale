@@ -24,10 +24,6 @@ int* error_get_errno();
 
 #define error_errno (*error_get_errno())
 
-
-
-
-
 #define ERROR_RET(test,val)			\
   do						\
     {						\
