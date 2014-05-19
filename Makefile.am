@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = src test
+SUBDIRS = src test doc
 
 perf-check:
 	cd src/ && $(MAKE) $(AM_MAKEFLAGS)

@@ -1,0 +1,71 @@
+\input texinfo @c -*-texinfo-*-
+@c %**start of header
+@setfilename libale.info
+@include version.texi
+@settitle libale reference manual @value{VERSION}
+@syncodeindex pg cp
+@c %**end of header
+
+@copying
+This manual is for libale (version @value{VERSION}, @value{UPDATED}).
+
+Copyright @copyright{} 2013 Anthony PIRON.
+@end copying
+
+@titlepage
+@title libale reference manual
+@subtitle for version @value{VERSION}, @value{UPDATED}
+@author Anthony PIRON (@email{anthony.piron@@skynet.be})     
+@c The following two commands start the copyright page.
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+     
+@c Output the table of contents at the beginning.
+@contents
+
+@ifnottex
+@node Top, Introduction, (dir), (dir)
+@top Short Sample
+     
+This manual is for libale (version @value{VERSION}, @value{UPDATED}).
+@end ifnottex
+
+@menu
+* Introduction::                
+* Error::        
+* Bitset::   
+* Index::                       Complete index.
+@end menu
+
+@node Introduction, Error, Top, Top
+@chapter Introduction
+
+libale provides basic error handling, unlimited size bitset, portability layer for posix.
+
+
+@node Error, Bitset, Introduction, Top
+@chapter Error
+
+
+@node Bitset, Index, Error, Top
+@chapter Bitset
+
+@deftypefn {C Function} static inline int @
+           bitset_init(struct bitset *@var{bs}, size_t @var{n})
+Initialise the bitset @var{bs} to zero (unset) with a maximal size of @var{n} bits.
+@end deftypefn
+
+@deftypefn {C Function} static inline void @
+           bitset_reset(struct bitset @var{bs})
+Reset the bitset @var{bs}.
+@end deftypefn
+
+@node Index,  , Bitset, Top
+@unnumbered Index
+     
+@printindex cp
+ 
+@bye
+
