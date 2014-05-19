@@ -7,10 +7,6 @@
 #include <syslog.h>
 #include <string.h>
 
-// (Not in POSIX.1-2001.)  Print to stderr as well.
-#ifndef LOG_PERROR
-# define LOG_PERROR 0
-#endif
 
 #define ERR_SUCCESS 0
 #define ERR_UNDEF   1

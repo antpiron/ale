@@ -2,6 +2,7 @@
 #define __ALE_H
 
 
+#include <ale/portability.h>
 #include <ale/error.h>
 #include <ale/daemon.h>
 
