@@ -30,6 +30,7 @@ AC_TYPE_UINT64_T
 
 # Checks for library functions.
 AC_CHECK_FUNCS([])
+AC_FUNC_STRERROR_R
 
 # Checks for pthread.
 AC_SEARCH_LIBS([pthread_create], [pthread],,[AC_MSG_ERROR([

@@ -60,7 +60,7 @@ int* error_get_errno();
     {									\
       fprintf(stderr, fmt, __VA_ARGS__);				\
       if (ERR_ERRNO == error_errno)					\
-	fprintf(stderr, "%s\n", strerror(errno)); 			\
+	perror(NULL);							\
       else if (ERR_FERROR == error_errno)				\
 	fprintf(stderr, "%s\n", "file error\n");			\
       else if (ERR_GAI == error_errno)					\
@@ -112,7 +112,11 @@ int* error_get_errno();
     {									\
       int lev = (level);						\
       if (ERR_ERRNO == error_errno)					\
-	syslog(lev, fmt": %s", __VA_ARGS__, strerror(errno));		\
+	{								\
+	  char buf[4096] = "";						\
+	  strerror_r(errno, buf, 4096);					\
+	  syslog(lev, fmt": %s", __VA_ARGS__, buf);		\
+	}								\
       else if (ERR_FERROR == error_errno)				\
 	syslog(lev, fmt"%s\n", __VA_ARGS__, "file error\n");		\
       else if (ERR_GAI == error_errno)					\
