@@ -115,7 +115,7 @@ int* error_get_errno();
 	{								\
 	  char buf[4096] = "";						\
 	  strerror_r(errno, buf, 4096);					\
-	  syslog(lev, fmt": %s", __VA_ARGS__, buf);		\
+	  syslog(lev, fmt": %s", __VA_ARGS__, buf);			\
 	}								\
       else if (ERR_FERROR == error_errno)				\
 	syslog(lev, fmt"%s\n", __VA_ARGS__, "file error\n");		\
