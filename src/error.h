@@ -102,10 +102,10 @@ int* error_get_errno();
 #define ERROR_FERROR_FATAL_FMT(test,fmt,...) ERROR_TYPE_FATAL_FMT((test),ERR_FERROR,fmt, __VA_ARGS__)
 #define ERROR_UNDEF_FATAL_FMT(test,fmt,...)  ERROR_TYPE_FATAL_FMT((test),ERR_UNDEF,fmt, __VA_ARGS__)
 
-#define ERROR_ERRNO_FATAL(test,str,...)  ERROR_TYPE_FATAL((test),ERR_ERRNO,str)
-#define ERROR_GAI_FATAL(test,str,...)    ERROR_TYPE_FATAL((test),ERR_GAI,str)
-#define ERROR_FERROR_FATAL(test,str,...) ERROR_TYPE_FATAL((test),ERR_FERROR,str)
-#define ERROR_UNDEF_FATAL(test,str,...)  ERROR_TYPE_FATAL((test),ERR_UNDEF,str)
+#define ERROR_ERRNO_FATAL(test,str)  ERROR_TYPE_FATAL((test),ERR_ERRNO,str)
+#define ERROR_GAI_FATAL(test,str)    ERROR_TYPE_FATAL((test),ERR_GAI,str)
+#define ERROR_FERROR_FATAL(test,str) ERROR_TYPE_FATAL((test),ERR_FERROR,str)
+#define ERROR_UNDEF_FATAL(test,str)  ERROR_TYPE_FATAL((test),ERR_UNDEF,str)
 
 #define ERROR_SYSLOG(level,fmt,...)					\
   do									\
