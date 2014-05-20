@@ -36,13 +36,14 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 * Introduction::                
 * Error::        
 * Bitset::   
+* Daemon::   
 * Index::                       Complete index.
 @end menu
 
 @node Introduction, Error, Top, Top
 @chapter Introduction
 
-libale provides basic error handling, unlimited size bitset, portability layer for posix.
+libale provides basic error handling, unlimited size bitset, portability layer for posix, daemon creating boiler plate code.
 
 
 @node Error, Bitset, Introduction, Top
@@ -127,7 +128,7 @@ The following macro are used to send the error to the logging facility
 Sends to the logging facility an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true. The log entry is sent @code{syslog(...)} with the level @var{level}.
 @end deftypefn
 
-@node Bitset, Index, Error, Top
+@node Bitset, Daemon, Error, Top
 @chapter Bitset
 
 @example
@@ -190,8 +191,41 @@ Set @var{len} bits from position @var{index} of the bitset @var{bs}.
 @end deftypefn
 
 
+@node Daemon, Index, Bitset, Top
+@chapter Daemon
 
-@node Index,  , Bitset, Top
+@example
+
+#include <ale/daemon.h>
+
+int
+main(int argc, char *argv[ ]) 
+@{
+
+  ERROR_FATAL(-1 == daemon_init("/tmp/myprog.pid"), "Unable to daemonize");
+  ERROR_FATAL(-1 == drop_privileges(1000,1000), "Unable to set uid and gid");
+
+  return EXIT_SUCCESS;
+@}
+
+@end example
+
+
+@deftypefn {C Function} int @
+                        drop_privileges (uid_t @var{uid}, gid_t @var{gid})
+Drop the privileges of the current process.
+@end deftypefn
+
+
+@deftypefn {C Function} int @
+                        daemon_init (char *@var{pidfile})
+Initialize the daemon and stores the process id in the file with path @var{pidfile}.
+@end deftypefn
+
+
+
+
+@node Index,  , Daemon, Top
 @unnumbered Index
      
 @printindex cp
