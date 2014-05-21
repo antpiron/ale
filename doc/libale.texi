@@ -37,6 +37,7 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 * Error::        
 * Bitset::   
 * Daemon::   
+* Fileutils::   
 * Index::                       Complete index.
 @end menu
 
@@ -191,7 +192,7 @@ Set @var{len} bits from position @var{index} of the bitset @var{bs}.
 @end deftypefn
 
 
-@node Daemon, Index, Bitset, Top
+@node Daemon, Fileutils, Bitset, Top
 @chapter Daemon
 
 @example
@@ -223,9 +224,49 @@ Initialize the daemon and stores the process id in the file with path @var{pidfi
 @end deftypefn
 
 
+@node Fileutils, Index, Daemon, Top
+@chapter Fileutils
+
+@example
+
+#include <ale/fileutils.h>
+
+int
+main(int argc, char *argv[ ]) 
+@{
+  ERROR_FATAL(-1 == mkpath("/tmp/path/path/", S_IRWXU), "Unable to mkpath()");
+  ERROR_FATAL(-1 == rmpath("/tmp/","path/path"), "Unable to rmpath()");
+
+  return EXIT_SUCCESS;
+@}
+
+@end example
 
 
-@node Index,  , Daemon, Top
+@deftypefn {C Function} int @
+                        rmpath (const char *@var{dname}, const char *@var{pathname})
+
+Remove recursively the directory @var{pathname} rooted at @var{dname}. Returns 0 on success and -1 on failure.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        unlink_path (const char *@var{dname}, const char *@var{pathname});
+Unlink the file @var{pathname} rooted at @var{dname} and remove recursively the directory component of @var{pathname}. Returns 0 on success and -1 on failure.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        mkpath (const char *@var{pathname}, mode_t @var{mode});
+Create recursively the directory @var{pathname} with the mode @var{mode} as for posix function mkdir. Returns 0 on success and -1 on failure.
+@end deftypefn
+
+@deftypefn {C Function} FILE* @
+                        mkpath_fopen (const char *@var{pathname}, const char *@var{mode});
+
+Open the file @var{pathname} with mode @var{mode} as for posix fopen(). If the directory components of @var{pathname} do not exist, they are created.
+@end deftypefn
+
+
+@node Index,  , Fileutils, Top
 @unnumbered Index
      
 @printindex cp
