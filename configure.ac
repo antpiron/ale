@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([libale], [1.0], [BUG-REPORT-ADDRESS])
+AC_INIT([ale], [1.0], [BUG-REPORT-ADDRESS])
 AM_INIT_AUTOMAKE
 AM_SILENT_RULES([yes])
 
