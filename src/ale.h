@@ -6,5 +6,6 @@
 #include <ale/error.h>
 #include <ale/daemon.h>
 #include <ale/bitset.h>
+#include <ale/filetutils.h>
 
 #endif
