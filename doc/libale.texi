@@ -54,8 +54,7 @@ The @code{<ale/error.h>} goal is to improve the uniformity of posix error handli
 
 The next macro is used to propagate -- bubble -- an error up in the call stack
 
-@deftypefn {C Macro} ERROR_RET(@var{test},@var{val})
-
+@deftypefn {C Macro}  ERROR_RET (@var{test},@var{val})
 Bubble the error and returns @var{val} if @var{test} is true. This is equivalent to
        @example
         if (@var{test})
@@ -63,69 +62,68 @@ Bubble the error and returns @var{val} if @var{test} is true. This is equivalent
        @end example
 @end deftypefn
 
-
 The following macro set @var{error_errno} to the type of errors @var{ERR_ERRNO}, @var{ERR_GAI},  @var{ERR_FERROR} or @var{ERR_UNDEF} and returns a value if an error condition is met
 
-@deftypefn {C Macro} ERROR_ERRNO_RET(test,val)
-
+@deftypefn {C Macro} @
+                     ERROR_ERRNO_RET (test,val)
 Set @var{error_errno} to @var{ERR_ERRNO} and returns @var{val} if @var{test} is true.
 @end deftypefn
 
-@deftypefn {C Macro} ERROR_GAI_RET(test,val)
+@deftypefn {C Macro} ERROR_GAI_RET (test,val)
 
 Set @var{error_errno} to @var{ERR_GAI} and returns @var{val} if @var{test} is true.
 @end deftypefn
 
-@deftypefn {C Macro} ERROR_FERROR_RET(test,val)
+@deftypefn {C Macro} ERROR_FERROR_RET (test,val)
 
 Set @var{error_errno} to @var{ERR_FERROR} and returns @var{val} if @var{test} is true.
 @end deftypefn
 
-@deftypefn {C Macro} ERROR_UNDEF_RET(test,val)
+@deftypefn {C Macro} ERROR_UNDEF_RET (test,val)
 
 Set @var{error_errno} to @var{ERR_UNDEF} and returns @var{val} if @var{test} is true. ``undef'' means unrelated to posix system error.
 @end deftypefn
 
 The following macro are used to show up an appropriate error message and exits the program with a failure exit code
 
-@deftypefn {C Macro} ERROR_FATAL_FMT(@var{test},@var{fmt},...)
+@deftypefn {C Macro} ERROR_FATAL_FMT (@var{test},@var{fmt},...)
 @end deftypefn
-@deftypefn {C Macro} ERROR_FATAL(@var{test},@var{str})
+@deftypefn {C Macro} ERROR_FATAL (@var{test},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
 @end deftypefn
 
 The following macro are similar but specific to certain kind of errors
 
-@deftypefn {C Macro} ERROR_ERRNO_FATAL_FMT(@var{test},@var{fmt},...)
+@deftypefn {C Macro} ERROR_ERRNO_FATAL_FMT (@var{test},@var{fmt},...)
 @end deftypefn
-@deftypefn {C Macro} ERROR_ERRNO_FATAL(@var{test},@var{str})
+@deftypefn {C Macro} ERROR_ERRNO_FATAL (@var{test},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
 @end deftypefn
 
-@deftypefn {C Macro} ERROR_GAI_FATAL_FMT(@var{test},@var{fmt},...) 
+@deftypefn {C Macro} ERROR_GAI_FATAL_FMT (@var{test},@var{fmt},...) 
 @end deftypefn
-@deftypefn {C Macro} ERROR_GAI_FATAL(@var{test},@var{str})
+@deftypefn {C Macro} ERROR_GAI_FATAL (@var{test},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
 @end deftypefn
 
-@deftypefn {C Macro} ERROR_FERROR_FATAL_FMT(@var{test},@var{fmt},...)
+@deftypefn {C Macro} ERROR_FERROR_FATAL_FMT (@var{test},@var{fmt},...)
 @end deftypefn
-@deftypefn {C Macro} ERROR_FERROR_FATAL(@var{test},@var{str}) 
+@deftypefn {C Macro} ERROR_FERROR_FATAL (@var{test},@var{str}) 
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
 @end deftypefn
 
-@deftypefn {C Macro} ERROR_UNDEF_FATAL_FMT(@var{test},@var{fmt},...)
+@deftypefn {C Macro} ERROR_UNDEF_FATAL_FMT (@var{test},@var{fmt},...)
 @end deftypefn
-@deftypefn {C Macro} ERROR_UNDEF_FATAL(@var{test},@var{str})
+@deftypefn {C Macro} ERROR_UNDEF_FATAL (@var{test},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
 @end deftypefn
 
 
 The following macro are used to send the error to the logging facility
 
-@deftypefn {C Macro} ERROR_LOG_FMT(@var{test},@var{level},@var{fmt},...)
+@deftypefn {C Macro} ERROR_LOG_FMT (@var{test},@var{level},@var{fmt},...)
 @end deftypefn
-@deftypefn {C Macro} ERROR_LOG(@var{test},@var{level},@var{str})
+@deftypefn {C Macro} ERROR_LOG (@var{test},@var{level},@var{str})
 Sends to the logging facility an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true. The log entry is sent @code{syslog(...)} with the level @var{level}.
 @end deftypefn
 
@@ -150,13 +148,13 @@ main(int argc, char *argv[ ])
 @end example
 
 @deftypefn {C Function} static inline int @
-           bitset_init(struct bitset *@var{bs}, size_t @var{n})
+           bitset_init (struct bitset *@var{bs}, size_t @var{n})
 
 Initialise the bitset @var{bs} to zero (unset) with a maximal size of @var{n} bits. Return -1 on error and set error_errno accordingly.
 @end deftypefn
 
 @deftypefn {C Function} static inline void @
-           bitset_free(struct bitset @var{bs})
+           bitset_free (struct bitset @var{bs})
 
 Desallocate @var{bs}.
 @end deftypefn
@@ -168,25 +166,25 @@ Reset the bitset @var{bs}.
 @end deftypefn
 
 @deftypefn {C Function} static inline void @
-           bitset_set(struct bitset @var{bs}, size_t @var{index})
+           bitset_set (struct bitset @var{bs}, size_t @var{index})
 
 Set the bit at position @var{index} of the bitset @var{bs}.
 @end deftypefn
 
 @deftypefn {C Function} static inline void @
-           bitset_unset(struct bitset @var{bs}, size_t @var{index})
+           bitset_unset (struct bitset @var{bs}, size_t @var{index})
 
 Unset the bit at position @var{index} from the bitset @var{bs}.
 @end deftypefn
 
 @deftypefn {C Function} static inline int @
-           bitset_isset(struct bitset @var{bs}, size_t @var{index})
+           bitset_isset (struct bitset @var{bs}, size_t @var{index})
 
 Test the bit at position @var{index} from the bitset @var{bs}. Return 1 if the bit is set, 0 otherwise.
 @end deftypefn
 
 @deftypefn {C Function} static inline void @
-           bitset_setrange(struct bitset @var{bs}, size_t @var{index}, size_t @var{len})
+           bitset_setrange (struct bitset @var{bs}, size_t @var{index}, size_t @var{len})
 
 Set @var{len} bits from position @var{index} of the bitset @var{bs}.
 @end deftypefn
