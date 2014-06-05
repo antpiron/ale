@@ -39,7 +39,9 @@ main(int argc, char *argv[argc])
   for (int i = 0 ; i <  (NBRBIT + 63) / 64 ; i++)
     ERROR_FATAL_FMT(bs.buf[i], "FAIL:  bitset_reset() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
     
-  
+  ERROR_FATAL(0 == bitset_isempty(bs), "FAIL: bitset_isempty() do not say empty\n");
+  bitset_set(bs, 1201);
+  ERROR_FATAL(bitset_isempty(bs), "FAIL: bitset_isempty() say empty\n");
 
   bitset_free(bs);
 

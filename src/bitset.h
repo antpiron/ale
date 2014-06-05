@@ -47,6 +47,17 @@ bitset_isset(struct bitset bs, size_t index)
   return ( bs.buf[index / 64] >> (index % 64) ) & 1ull;
 }
 
+static inline int
+bitset_isempty(struct bitset bs)
+{
+  int ret = 0;
+
+  for (size_t i = 0 ; !ret && i < (bs.n + 63) / 64 ; i++)
+    ret = ret || bs.buf[i];
+
+  return !ret;
+}
+
 static inline void
 bitset_setrange(struct bitset bs, size_t index, size_t len)
 {
