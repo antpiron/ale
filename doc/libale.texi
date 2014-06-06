@@ -183,6 +183,12 @@ Unset the bit at position @var{index} from the bitset @var{bs}.
 Test the bit at position @var{index} from the bitset @var{bs}. Return 1 if the bit is set, 0 otherwise.
 @end deftypefn
 
+@deftypefn {C Function} static inline int @
+           bitset_isempty (struct bitset @var{bs})
+
+Test if the bitset @var{bs} is empty. Return 1 on emptiness, 0 otherwise.
+@end deftypefn
+
 @deftypefn {C Function} static inline void @
            bitset_setrange (struct bitset @var{bs}, size_t @var{index}, size_t @var{len})
 
