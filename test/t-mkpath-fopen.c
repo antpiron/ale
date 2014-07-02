@@ -5,7 +5,7 @@
 #include "error.h"
 #include "fileutils.h"
 
-char *paths[] = {"/tmp/alefs-test/test1/test2/file.test", NULL};
+char *paths[] = {"/tmp/ale-test/test1/test2/file.test", NULL};
 
 int
 main(int argc, char *argv[argc])
@@ -17,6 +17,7 @@ main(int argc, char *argv[argc])
       ERROR_FATAL_FMT(NULL == (file = mkpath_fopen(*path, "w")), "FAIL: mkpath_fopen(\"%s\", \"w\")\n", *path);
       ERROR_ERRNO_FATAL(-1 == fclose(file), "FAIL: unable to close file\n");
       ERROR_ERRNO_FATAL(-1 == access(*path, F_OK|W_OK), "FAIL: access refused\n");
+      ERROR_FATAL_FMT(NULL != (file = mkpath_fopen(*path, "wx")), "FAIL: exclusive mkpath_fopen(\"%s\", \"wb\")\n", *path);
     }
             
   return EXIT_SUCCESS;

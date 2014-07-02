@@ -84,13 +84,21 @@ mkpath_fopen(const char *pathname, const char *mode)
   char *next_dir;
   mode_t mode_dir = S_IRWXU;
   FILE *file;
+  int fd;
+  int flags = O_RDWR;
 
   strcpy(path_copy, pathname);
   next_dir = dirname(path_copy);
   
   ERROR_RET(-1 == mkpath(next_dir, mode_dir), NULL);
 
-  ERROR_ERRNO_RET( NULL == (file = fopen(pathname, mode)), NULL);
+  if ('w' == mode[0] || 'a' == mode[0])
+    flags |= O_CREAT;
+  if (strchr(mode, 'x'))
+    flags |= O_EXCL;
+
+  ERROR_ERRNO_RET( -1 == (fd = open(pathname, flags, S_IRUSR|S_IWUSR)), NULL);
+  ERROR_ERRNO_RET( NULL == (file = fdopen(fd, mode)), (close(fd),NULL));
   
   return file; // TODO: if fopen fail, empty directories may be present
 }
