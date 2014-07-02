@@ -72,7 +72,7 @@ mkpath(const char *pathname, mode_t mode)
   strcpy(path_copy, pathname);
   next_dir = dirname(path_copy);
 
-  ERROR_RET(-1 == mkpath(next_dir, mode), -1);
+  ERROR_RET(-1 == mkpath(next_dir, mode) && EEXIST != errno, -1);
 
   return mkdir(pathname, mode);
 }
