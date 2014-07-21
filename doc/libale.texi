@@ -52,6 +52,16 @@ libale provides basic error handling, unlimited size bitset, portability layer f
 
 The @code{<ale/error.h>} goal is to improve the uniformity of posix error handling. This is done trough a set of macro and a mechanism similar to @code{<errno.h>}.
 
+The main stucture is
+
+@deftp {C Struct} error_st
+The fields @var{type} and @var{errnum} are both defined as int. @var{type} takes its values in @var{ERR_ERRNO}, @var{ERR_GAI},  @var{ERR_FERROR}, @var{ERR_UNDEF} and @var{ERR_CUSTOM}. @var{errnum} is user defined.
+@end deftp
+
+@defvar error
+The variable define a variable (may be a macro) of type error_st.
+@end defvar
+
 The next macro is used to propagate -- bubble -- an error up in the call stack
 
 @deftypefn {C Macro}  ERROR_RET (@var{test},@var{val})
@@ -62,26 +72,31 @@ Bubble the error and returns @var{val} if @var{test} is true. This is equivalent
        @end example
 @end deftypefn
 
-The following macro set @var{error_errno} to the type of errors @var{ERR_ERRNO}, @var{ERR_GAI},  @var{ERR_FERROR} or @var{ERR_UNDEF} and returns a value if an error condition is met
+The following macro set @var{error.type} to the type of errors and returns a value if an error condition is met
 
 @deftypefn {C Macro} @
                      ERROR_ERRNO_RET (test,val)
-Set @var{error_errno} to @var{ERR_ERRNO} and returns @var{val} if @var{test} is true.
+Set @var{error.type} to @var{ERR_ERRNO} and returns @var{val} if @var{test} is true.
 @end deftypefn
 
 @deftypefn {C Macro} ERROR_GAI_RET (test,val)
 
-Set @var{error_errno} to @var{ERR_GAI} and returns @var{val} if @var{test} is true.
+Set @var{error.type} to @var{ERR_GAI} and returns @var{val} if @var{test} is true.
 @end deftypefn
 
 @deftypefn {C Macro} ERROR_FERROR_RET (test,val)
 
-Set @var{error_errno} to @var{ERR_FERROR} and returns @var{val} if @var{test} is true.
+Set @var{error.type} to @var{ERR_FERROR} and returns @var{val} if @var{test} is true.
 @end deftypefn
 
 @deftypefn {C Macro} ERROR_UNDEF_RET (test,val)
 
-Set @var{error_errno} to @var{ERR_UNDEF} and returns @var{val} if @var{test} is true. ``undef'' means unrelated to posix system error.
+Set @var{error.type} to @var{ERR_UNDEF} and returns @var{val} if @var{test} is true. ``undef'' means unrelated to posix system error.
+@end deftypefn
+
+@deftypefn {C Macro} ERROR_CUSTOM_RET (test,err,val)
+
+Set @var{error.type} to @var{ERR_CUSTOM} and @var{error.errnum} to @var{err} and returns @var{val} if @var{test} is true. ``custom'' means user defined error codes.
 @end deftypefn
 
 The following macro are used to show up an appropriate error message and exits the program with a failure exit code
@@ -115,6 +130,12 @@ Exit with an appropriate error message prefixed with @var{str} or @code{printf}-
 @deftypefn {C Macro} ERROR_UNDEF_FATAL_FMT (@var{test},@var{fmt},...)
 @end deftypefn
 @deftypefn {C Macro} ERROR_UNDEF_FATAL (@var{test},@var{str})
+Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
+@end deftypefn
+
+@deftypefn {C Macro} ERROR_CUSTOM_FATAL_FMT (@var{test},@var{err},@var{fmt},...)
+@end deftypefn
+@deftypefn {C Macro} ERROR_CUSTOM_FATAL (@var{test},@var{err},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
 @end deftypefn
 
