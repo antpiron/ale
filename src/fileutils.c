@@ -53,7 +53,7 @@ unlink_path(const char *dname, const char *pathname)
   next_dir = dirname(path_copy);
 
   ret = rmpath(dname, next_dir);
-  SUCCESS_RET(-1 == ret && error_errno == ERR_ERRNO && ENOTEMPTY == errno);
+  SUCCESS_RET(-1 == ret && error.type == ERR_ERRNO && ENOTEMPTY == errno);
   ERROR_RET(-1 == ret, -1);
 
   return ERR_SUCCESS;
