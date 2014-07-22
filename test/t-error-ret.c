@@ -50,6 +50,14 @@ test_error_ferror_ret()
 }
 
 int
+test_error_custom_ret()
+{
+  ERROR_CUSTOM_RET(1, 123, -1);
+
+  return 0;
+}
+
+int
 test_error_ret()
 {
   ERROR_RET(-1 == test_error_errno_ret(), -1);
@@ -61,12 +69,16 @@ int
 main(int argc, char *argv[argc])
 {
 
-  TEST(-1 != test_error_undef_ret() || error_errno != ERR_UNDEF, "FAIL: ERROR_UNDEF_RET()");
-  TEST(-1 != test_error_errno_ret() || error_errno != ERR_ERRNO || errno != EACCES, "FAIL: ERROR_ERRNO_RET()");
-  TEST(-1 != test_error_gai_ret() || error_errno != ERR_GAI, "FAIL: ERROR_GAI_RET()");
-  TEST(-1 != test_error_ferror_ret() || error_errno != ERR_FERROR, "FAIL: ERROR_FERROR_RET()");
+  TEST(-1 != test_error_undef_ret() || error.type != ERR_UNDEF, "FAIL: ERROR_UNDEF_RET()");
+  TEST(-1 != test_error_errno_ret() || error.type != ERR_ERRNO || errno != EACCES || error.errnum != EACCES, 
+       "FAIL: ERROR_ERRNO_RET()");
+  TEST(-1 != test_error_gai_ret() || error.type != ERR_GAI, "FAIL: ERROR_GAI_RET()");
+  TEST(-1 != test_error_ferror_ret() || error.type != ERR_FERROR, "FAIL: ERROR_FERROR_RET()");
+  TEST(-1 != test_error_custom_ret() || error.type != ERR_CUSTOM || error.errnum != 123 , 
+       "FAIL: ERROR_CUSTOM_RET()");
 
-  TEST(-1 != test_error_ret() || error_errno != ERR_ERRNO || errno != EACCES, "FAIL: ERROR_RET()");
+  TEST(-1 != test_error_ret() || error.type != ERR_ERRNO || errno != EACCES || error.errnum != EACCES, 
+       "FAIL: ERROR_RET()");
 
   return EXIT_SUCCESS;
 }

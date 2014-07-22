@@ -20,20 +20,20 @@ error_init(void)
 }
 
 
-int* 
+struct error_st* 
 error_get_errno()
 {
-  int *error = NULL;
+  struct error_st *err = NULL;
 
   pthread_once(&errno_once, error_init);
 
-  error = pthread_getspecific(errno_key);
-  if (!error)
+  err = pthread_getspecific(errno_key);
+  if (!err)
   {
-    error = malloc(sizeof(*error));
-    pthread_setspecific(errno_key, error);
+    err = malloc(sizeof(struct error_st));
+    pthread_setspecific(errno_key, err);
   }
 
-  return error;
+  return err;
 }
 
