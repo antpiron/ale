@@ -3,6 +3,8 @@
 
 #include <limits.h>
 #include <netdb.h>
+#include <sys/types.h>
+#include <stdint.h>
 
 #ifndef PATH_MAX
 # define PATH_MAX 4096
@@ -30,5 +32,16 @@
 #ifndef LOG_PERROR
 # define LOG_PERROR 0
 #endif
+
+
+#ifndef HAVE_POSIX_FADVISE
+#  define posix_fadvise portability_posix_fadvise
+#  ifndef POSIX_FADV_SEQUENTIAL
+#    define POSIX_FADV_SEQUENTIAL 0
+#  endif
+#endif
+
+int portability_posix_fadvise(int fd, off_t offset, off_t len, int advice);
+
 
 #endif
