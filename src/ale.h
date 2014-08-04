@@ -8,5 +8,6 @@
 #include <ale/bitset.h>
 #include <ale/filetutils.h>
 #include <ale/string.h>
+#include <ale/exparser.h>
 
 #endif
