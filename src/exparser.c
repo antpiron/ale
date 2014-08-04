@@ -152,7 +152,7 @@ prod(struct ep_parser *ep)
     {
       struct ep_leaf *leaf = ep->leaf[ep->token.token];
 	    
-      t = leaf->func(leaf);
+      t = leaf->func(&ep->token);
       ERROR_RET(-1 == consume(ep), NULL); // TODO: Clean t
     }
   else

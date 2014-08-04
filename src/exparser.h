@@ -40,7 +40,7 @@ struct ep_binop {
 
 struct ep_leaf {
   int token;
-  void* (*func)(struct ep_leaf *op);
+  void* (*func)(struct ep_token *op);
 };
 
 struct ep_parser {
