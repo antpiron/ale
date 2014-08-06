@@ -148,7 +148,7 @@ expr(struct ep_parser *ep, int p)
 
       ERROR_RET(NULL == (t1 = expr(ep, q)), (ep->clean(t), NULL));
 
-      t = op->func(op, t, t1);
+      ERROR_RET(NULL == (t = op->func(op, t, t1)), (ep->clean(t), ep->clean(t1), NULL));
     }
 
   return t;
