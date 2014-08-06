@@ -29,9 +29,7 @@ static void* prod(struct ep_parser *ep);
 static void* 
 parse(struct ep_parser *ep)
 {
-  void *t = expr(ep, 0);
-   
-  return t;
+  return expr(ep, 0);
 }
 
 int 
@@ -74,7 +72,7 @@ expr_set_lexer(struct ep_parser *ep, struct ep_token (*get_token)(void *cls), vo
 }
 
 int
-expr_set_cleaner(struct ep_parser *ep, void (*clean)(void *cls))
+expr_set_cleaner(struct ep_parser *ep, void (*clean)(void *obj))
 {
   ep->clean = clean;
 

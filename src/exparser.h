@@ -52,7 +52,7 @@ struct ep_parser {
   struct ep_binop *binop[EXPR_MAX_OP];
   struct ep_leaf *leaf[EXPR_MAX_OP];
   struct ep_token (*get_token)(void *cls);
-  void (*clean)(void *cls);
+  void (*clean)(void *obj);
   int (*consume)(struct ep_parser *ep);
   void* (*parse)(struct ep_parser *ep);
 };
@@ -60,7 +60,7 @@ struct ep_parser {
 int expr_parser_init(struct ep_parser *ep);
 int expr_parser_destroy(struct ep_parser *ep);
 int expr_set_lexer(struct ep_parser *ep, struct ep_token (*get_token)(void *cls), void *cls);
-int expr_set_cleaner(struct ep_parser *ep, void (*clean)(void *cls));
+int expr_set_cleaner(struct ep_parser *ep, void (*clean)(void *obj));
 int expr_binop_add(struct ep_parser *ep, struct ep_binop *binop);
 int expr_unop_add(struct ep_parser *ep, struct ep_unop *unop);
 int expr_leaf_add(struct ep_parser *ep, struct ep_leaf *leaf);
