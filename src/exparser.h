@@ -20,6 +20,8 @@ enum {
 #define EXPR_ERR_UTOK 5
 #define EXPR_ERR_NLPAR 6
 
+struct ep_parser;
+
 struct ep_token {
   int token;
   void *value;
@@ -40,7 +42,7 @@ struct ep_binop {
 
 struct ep_leaf {
   int token;
-  void* (*func)(struct ep_token *op);
+  void* (*func)(struct ep_parser *op);
 };
 
 struct ep_parser {
@@ -49,12 +51,16 @@ struct ep_parser {
   struct ep_unop *unop[EXPR_MAX_OP];
   struct ep_binop *binop[EXPR_MAX_OP];
   struct ep_leaf *leaf[EXPR_MAX_OP];
-  struct ep_token (*get_token)(void *cls);  
+  struct ep_token (*get_token)(void *cls);
+  void (*clean)(void *cls);
+  int (*consume)(struct ep_parser *ep);
+  void* (*parse)(struct ep_parser *ep);
 };
 
 int expr_parser_init(struct ep_parser *ep);
 int expr_parser_destroy(struct ep_parser *ep);
 int expr_set_lexer(struct ep_parser *ep, struct ep_token (*get_token)(void *cls), void *cls);
+int expr_set_cleaner(struct ep_parser *ep, void (*clean)(void *cls));
 int expr_binop_add(struct ep_parser *ep, struct ep_binop *binop);
 int expr_unop_add(struct ep_parser *ep, struct ep_unop *unop);
 int expr_leaf_add(struct ep_parser *ep, struct ep_leaf *leaf);

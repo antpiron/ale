@@ -17,12 +17,32 @@ consume(struct ep_parser *ep)
   return ERR_SUCCESS;
 }
 
+static void 
+clean(void *cls)
+{
+}
+
+static void* expr(struct ep_parser *ep, int p);
+static void* prod(struct ep_parser *ep);
+
+
+static void* 
+parse(struct ep_parser *ep)
+{
+  void *t = expr(ep, 0);
+   
+  return t;
+}
+
 int 
 expr_parser_init(struct ep_parser *ep)
 {
   ep->get_token = get_token;
+  ep->clean = clean;
   ep->cls = NULL;
   ep->token = get_token(NULL);
+  ep->consume = consume;
+  ep->parse = parse;
 
   for (int i = 0 ; i < EXPR_MAX_OP ; i++)
     {
@@ -50,6 +70,14 @@ expr_set_lexer(struct ep_parser *ep, struct ep_token (*get_token)(void *cls), vo
 
   ERROR_RET(-1 == ep->token.token, -1);
  
+  return ERR_SUCCESS;
+}
+
+int
+expr_set_cleaner(struct ep_parser *ep, void (*clean)(void *cls))
+{
+  ep->clean = clean;
+
   return ERR_SUCCESS;
 }
 
@@ -85,16 +113,12 @@ expr_leaf_add(struct ep_parser *ep, struct ep_leaf *leaf)
   return ERR_SUCCESS;
 }
 
-static void* expr(struct ep_parser *ep, int p);
-static void* prod(struct ep_parser *ep);
-
-
 void* 
 expr_parse(struct ep_parser *ep)
 {
   void *t = expr(ep, 0);
 
-  ERROR_CUSTOM_RET(EXPR_TOK_EOF != ep->token.token, NULL, EXPR_ERR_NEOF); // TODO: Clean t
+  ERROR_CUSTOM_RET(EXPR_TOK_EOF != ep->token.token, (ep->clean(t), NULL), EXPR_ERR_NEOF);
    
   return t;
 }
@@ -116,13 +140,13 @@ expr(struct ep_parser *ep, int p)
       if (op->precedence < p)
 	break;
 
-      ERROR_RET(-1 == consume(ep), NULL); // TODO: Clean t
+      ERROR_RET(-1 == consume(ep), (ep->clean(t), NULL));
       
       q = op->precedence;
       if (EXPR_ASSOC_LEFT == op->associativity)
 	q++;
 
-      ERROR_RET(NULL == (t1 = expr(ep, q)), NULL); // TODO: Clean t
+      ERROR_RET(NULL == (t1 = expr(ep, q)), (ep->clean(t), NULL));
 
       t = op->func(op, t, t1);
     }
@@ -146,14 +170,11 @@ prod(struct ep_parser *ep)
     {
       ERROR_RET(-1 == consume(ep), NULL);
       ERROR_RET(NULL == (t = expr(ep, 0)), NULL);
-      ERROR_CUSTOM_RET(EXPR_TOK_RPAR != ep->token.token, NULL, EXPR_ERR_NLPAR); // TODO: Clean t
+      ERROR_CUSTOM_RET(EXPR_TOK_RPAR != ep->token.token, (ep->clean(t), NULL), EXPR_ERR_NLPAR);
     }
   else if (ep->token.token < EXPR_MAX_OP && NULL != ep->leaf[ep->token.token])
     {
-      struct ep_leaf *leaf = ep->leaf[ep->token.token];
-	    
-      t = leaf->func(&ep->token);
-      ERROR_RET(-1 == consume(ep), NULL); // TODO: Clean t
+      t = ep->leaf[ep->token.token]->func(ep);
     }
   else
     ERROR_CUSTOM_RET(1, NULL, EXPR_ERR_UTOK);
