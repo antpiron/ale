@@ -11,14 +11,18 @@ enum {
 #define EXPR_MAX_OP 128
 
 #define EXPR_ASSOC_LEFT 0
-#define EXPR_ASSOC_RIGHT 0
+#define EXPR_ASSOC_RIGHT 1
 
-#define EXPR_ERR_NEOF 1
-#define EXPR_ERR_UOP 2
-#define EXPR_ERR_LEX 3
-#define EXPR_ERR_RANGE 4
-#define EXPR_ERR_UTOK 5
-#define EXPR_ERR_NLPAR 6
+enum {
+  EXPR_ERR_NEOF = 1,
+  EXPR_ERR_UOP,
+  EXPR_ERR_LEX,
+  EXPR_ERR_RANGE,
+  EXPR_ERR_UTOK,
+  EXPR_ERR_NLPAR,
+  EXPR_ERR_LAST
+};
+
 
 struct ep_parser;
 
