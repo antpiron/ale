@@ -28,7 +28,10 @@ struct ep_parser;
 
 struct ep_token {
   int token;
-  void *value;
+  union {
+    void *ptr;
+    int cint;
+  };
 };
 
 struct ep_unop {
@@ -51,7 +54,7 @@ struct ep_leaf {
 
 struct ep_parser {
   struct ep_token token;
-  void *cls;
+  void *get_token_cls;
   struct ep_unop *unop[EXPR_MAX_OP];
   struct ep_binop *binop[EXPR_MAX_OP];
   struct ep_leaf *leaf[EXPR_MAX_OP];

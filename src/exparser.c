@@ -5,13 +5,13 @@
 static struct ep_token 
 get_token(void *cls)
 {
-  return (struct ep_token) { .token = EXPR_TOK_EOF, .value = NULL};
+  return (struct ep_token) { .token = EXPR_TOK_EOF, .ptr = NULL};
 }
 
 static int 
 consume(struct ep_parser *ep)
 {
-  ep->token = ep->get_token(ep->cls);
+  ep->token = ep->get_token(ep->get_token_cls);
   ERROR_CUSTOM_RET(-1 == ep->token.token, -1, EXPR_ERR_LEX);
 
   return ERR_SUCCESS;
@@ -37,7 +37,7 @@ expr_parser_init(struct ep_parser *ep)
 {
   ep->get_token = get_token;
   ep->clean = clean;
-  ep->cls = NULL;
+  ep->get_token_cls = NULL;
   ep->token = get_token(NULL);
   ep->consume = consume;
   ep->parse = parse;
@@ -63,7 +63,7 @@ int
 expr_set_lexer(struct ep_parser *ep, struct ep_token (*get_token)(void *cls), void *cls)
 {
   ep->get_token = get_token;
-  ep->cls = cls;
+  ep->get_token_cls = cls;
   ep->token = get_token(cls);
 
   ERROR_RET(-1 == ep->token.token, -1);
