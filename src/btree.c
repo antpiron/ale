@@ -18,14 +18,12 @@ bt_mknode(int btorder, int type)
   return node;
 }
 
-struct btnode* 
+void
 bt_freenode(struct btnode *node)
 {
   free(node->key);
   free(node->childs.data);
   free(node);
-
-  return node;
 }
 
 
@@ -34,7 +32,7 @@ bt_init(struct btree *bt, int order, struct btfuncs funcs)
 {
   ERROR_CUSTOM_RET(order < 4, -1, BT_ERRNO_INVALID_ORDER);
   bt->order = order;
-  ERROR_RET(NULL == (bt->root = bt_mknode(order, BT_NODE_LEAF)), -1);
+  bt->root = NULL;
   bt->f = funcs;
 
   return ERR_SUCCESS;
@@ -102,7 +100,7 @@ bt_split_child(struct btree *bt, struct btnode *node, int index)
   struct btnode *right_node;
   int m = (bt->order - 1) / 2;
   
-  ERROR_RET(NULL == (right_node = bt_split_right_leaf(bt, node, m+1)), -1);
+  ERROR_RET(NULL == (right_node = bt_split_right(bt, node, m+1)), -1);
 
   // shift parent node, always internal node
   for (int i = node->order-1 ; i > index ; i--)
@@ -118,7 +116,7 @@ bt_split_child(struct btree *bt, struct btnode *node, int index)
     node->key[index] = child->key[m];
 
   node->order++;
-  child->order = m + 1;
+  child->order = m;
 
   return ERR_SUCCESS;
 }
@@ -173,7 +171,12 @@ void*
 bt_search(struct btree *bt, void *key)
 {
   int index, found;
-  struct btnode *leaf = bt_search_leaf(bt, key, &index, &found, 0);
+  struct btnode *leaf;
+
+  if (NULL == bt->root)
+    return NULL;
+
+  leaf = bt_search_leaf(bt, key, &index, &found, 0);
 
   return found?leaf->childs.data[index]:NULL;
 }
@@ -185,7 +188,10 @@ bt_insert(struct btree *bt, void *key, void *data)
   int index, found;
   struct btnode *leaf;
 
-  leaf = bt_search_leaf(bt, key, &index, &found, BT_OPT_SPLIT);
+  if (NULL == bt->root)
+    ERROR_RET(NULL == (bt->root = bt_mknode(bt->order, BT_NODE_LEAF)), -1);
+
+  ERROR_RET(NULL == (leaf = bt_search_leaf(bt, key, &index, &found, BT_OPT_SPLIT)), -1);
  
   if ( ! found )
     for (int i = leaf->order-1 ; i > index ; i--)

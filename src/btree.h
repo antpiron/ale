@@ -56,7 +56,7 @@ void* bt_search(struct btree *bt, void *key);
 #define BT_OPT_MERGE (1 << 1)
 
 struct btnode* bt_mknode(int btorder, int type);
-struct btnode* bt_freenode(struct btnode *node);
+void bt_freenode(struct btnode *node);
 
 void bt_slice(struct btnode *dest, struct btnode *src,  int from, int count);
 struct btnode* bt_split_right_leaf(struct btree *bt, struct btnode *node, int from);
