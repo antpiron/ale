@@ -3,6 +3,24 @@
 #include "error.h"
 #include "btree.h"
 
+int 
+bt_intptr_t_cmp(void *a, void *b)
+{
+  return (intptr_t) b -  (intptr_t) a;
+}
+
+void bt_intptr_t_free(void *ptr) {}
+
+void* 
+bt_intptr_t_dup(void *a)
+{
+  return a;
+}
+
+struct btfuncs btfuncs_intptr_t = { .cmpkey = bt_intptr_t_cmp, 
+				    .dupkey = bt_intptr_t_dup, 
+				    .freekey = bt_intptr_t_free };
+
 struct btnode* 
 bt_mknode(int btorder, int type)
 {
@@ -30,7 +48,7 @@ bt_freenode(struct btnode *node)
 int 
 bt_init(struct btree *bt, int order, struct btfuncs funcs)
 {
-  ERROR_CUSTOM_RET(order < 4, -1, BT_ERRNO_INVALID_ORDER);
+  ERROR_CUSTOM_RET(order < 4, BT_ERRNO_INVALID_ORDER, -1);
   bt->order = order;
   bt->root = NULL;
   bt->f = funcs;
@@ -111,7 +129,11 @@ bt_split_child(struct btree *bt, struct btnode *node, int index)
   node->childs.nodes[index+1] = right_node;
 
   if ( BT_ISLEAF(*child) )
-    ERROR_UNDEF_RET(NULL == (node->key[index] = bt->f.dupkey(child->key[m])), (bt_freenode(right_node), -1));
+    {
+      error.type = ERR_SUCCESS;
+      node->key[index] = bt->f.dupkey(child->key[m]);
+      ERROR_RET(ERR_SUCCESS != error.type, (bt_freenode(right_node), -1));
+    }
   else
     node->key[index] = child->key[m];
 

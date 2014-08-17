@@ -27,6 +27,8 @@ struct btfuncs {
   bt_freekey_func_t freekey;
 };
 
+extern struct btfuncs btfuncs_intptr_t;
+
 struct btree 
 {
   int order;
