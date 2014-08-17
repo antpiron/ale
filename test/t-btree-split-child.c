@@ -39,7 +39,8 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(RIGHT_ORDER != dad->childs.nodes[1]->order, "FAIL: right order %d != %d\n", 
 			dad->childs.nodes[1]->order, RIGHT_ORDER);
    
-  bt_freenode(child);
+  bt_freenode(dad->childs.nodes[1]);
+  bt_freenode(dad->childs.nodes[0]);
   bt_freenode(dad);
   bt_destroy(&bt);
 
