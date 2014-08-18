@@ -18,7 +18,6 @@ main(int argc, char *argv[argc])
   struct btree bt;
   struct btnode *child = bt_mknode(ORDER, BT_NODE_LEAF);
   struct btnode *dad = bt_mknode(ORDER, BT_NODE_INTERNAL);
-  struct btnode *res;
 
   ERROR_FATAL(-1 == bt_init(&bt, ORDER, btfuncs_intptr_t), "FAIL: bt_init()");
   ERROR_FATAL(NULL == child || NULL == dad, "FAIL: bt_mknode()");
@@ -41,7 +40,7 @@ main(int argc, char *argv[argc])
       ERROR_FATAL(-1 == bt_split_child(&bt, dad, i), "FAIL: bt_split_child");
 
       ERROR_UNDEF_FATAL_FMT(child != dad->childs.nodes[i], "FAIL: left child pointer changed [%d] %p != %p", 
-			    i, child, dad->childs.nodes[i]);
+			    i, (void*) child, (void*) dad->childs.nodes[i]);
       ERROR_UNDEF_FATAL_FMT(ORDER != dad->order, "FAIL: dad order %d != %d", dad->order, ORDER);
       ERROR_UNDEF_FATAL_FMT(LEFT_ORDER != (intptr_t) dad->key[i], "FAIL: dad key %"PRIdPTR" != %d\n",
       			(intptr_t) dad->key[i], LEFT_ORDER);
