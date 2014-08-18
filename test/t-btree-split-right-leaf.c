@@ -7,9 +7,9 @@
 #include "error.h"
 #include "btree.h"
 
-#define ORDER 128
+#define ORDER 32
 #define SPLIT_POS (ORDER / 3)
-#define RIGHT_ORDER (ORDER - SPLIT_POS)
+#define RIGHT_ORDER (ORDER - SPLIT_POS - 1)
 
 int
 main(int argc, char *argv[argc])
@@ -26,7 +26,7 @@ main(int argc, char *argv[argc])
       node->key[i] =  (void*) (intptr_t) i;
       node->childs.data[i] = (void*) (intptr_t) (i+ORDER);
     }
-  
+  node->order = ORDER - 1;
     
   ERROR_FATAL(NULL == (res = bt_split_right_leaf(&bt, node, SPLIT_POS)), 
 	      "FAIL: bt_split_right_leaf() returned NULL");
@@ -36,11 +36,11 @@ main(int argc, char *argv[argc])
   for (int i = 0 ; i < res->order ; i++)
     {
       ERROR_FATAL_FMT(res->key[i] != node->key[SPLIT_POS+i], 
-		      "FAIL: keys %"PRIdPTR" != %"PRIdPTR, 
-		      (intptr_t) res->key[i], (intptr_t) node->key[SPLIT_POS+i]);
+		      "FAIL: keys [%d] %"PRIdPTR" != %"PRIdPTR, 
+		      i, (intptr_t) res->key[i], (intptr_t) node->key[SPLIT_POS+i]);
       ERROR_FATAL_FMT(res->childs.data[i] != node->childs.data[SPLIT_POS+i], 
-		      "FAIL: data %"PRIdPTR" != %"PRIdPTR, 
-		      (intptr_t) res->childs.data[i], (intptr_t) node->childs.data[SPLIT_POS+i]);
+		      "FAIL: data [%d] %"PRIdPTR" != %"PRIdPTR, 
+		      i, (intptr_t) res->childs.data[i], (intptr_t) node->childs.data[SPLIT_POS+i]);
     }
 
   bt_freenode(node);

@@ -63,9 +63,10 @@ bt_split_right_leaf(struct btree *bt, struct btnode *node, int from)
 
   ERROR_RET(NULL == right_node, NULL);
 
-  bt_slice(right_node, node, from, bt->order-from);
+  bt_slice(right_node, node, from, node->order - from);
 
-  right_node->order = bt->order - from;
+  right_node->order = node->order - from;
+  node->order = from;
 
   return right_node;
 }
@@ -74,14 +75,15 @@ struct btnode *
 bt_split_right_internal(struct btree *bt, struct btnode *node, int from)
 {
   struct btnode *right_node = bt_mknode(bt->order, node->type);
-  int nkeys = bt->order - from - 1;
+  int nkeys = node->order - from - 1;
 
   ERROR_RET(NULL == right_node, NULL);
 
   bt_slice(right_node, node, from, nkeys);
 
-  right_node->childs.nodes[nkeys] = node->childs.nodes[bt->order-1];
-  right_node->order = bt->order - from;
+  right_node->childs.nodes[nkeys] = node->childs.nodes[node->order-1];
+  right_node->order = node->order - from;
+  node->order = from;
 
   return right_node;
 }
@@ -99,15 +101,15 @@ bt_split_child(struct btree *bt, struct btnode *node, int index)
 {
   struct btnode *child = node->childs.nodes[index];
   struct btnode *right_node;
-  int m = (bt->order - 1) / 2;
+  int m = child->order / 2;
   
-  ERROR_RET(NULL == (right_node = bt_split_right(bt, node, m+1)), -1);
+  ERROR_RET(NULL == (right_node = bt_split_right(bt, child, m)), -1);
 
   // shift parent node, always internal node
   for (int i = node->order-1 ; i > index ; i--)
     {
       node->key[i] = node->key[i-1]; 
-      node->childs.nodes[i+1] = node->childs.nodes[i]; // Copy right pointer
+      node->childs.nodes[i+1] = node->childs.nodes[i]; // Copy rights pointers
     }
   node->childs.nodes[index+1] = right_node;
 
@@ -118,10 +120,12 @@ bt_split_child(struct btree *bt, struct btnode *node, int index)
       ERROR_RET(ERR_SUCCESS != error.type, (bt_freenode(right_node), -1));
     }
   else
-    node->key[index] = child->key[m];
+    {
+      node->key[index] = child->key[m];
+      child->order--;
+    }
 
   node->order++;
-  child->order = m;
 
   return ERR_SUCCESS;
 }

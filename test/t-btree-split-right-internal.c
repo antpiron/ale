@@ -27,6 +27,7 @@ main(int argc, char *argv[argc])
       node->childs.nodes[i] = (void*) (intptr_t) (i+ORDER);
     }
   node->childs.nodes[ORDER-1] = (void*) (intptr_t) (2 * ORDER - 1);
+  node->order = ORDER;
     
   ERROR_FATAL(NULL == (res = bt_split_right_internal(&bt, node, SPLIT_POS)), 
 	      "FAIL: bt_split_right_internal() returned NULL");
