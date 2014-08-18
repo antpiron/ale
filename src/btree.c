@@ -88,20 +88,13 @@ bt_split_right_internal(struct btree *bt, struct btnode *node, int from)
   return right_node;
 }
 
-inline struct btnode *
-bt_split_right(struct btree *bt, struct btnode *node, int from)
-{
-  return BT_ISLEAF(*node)?bt_split_right_leaf(bt, node, from):
-                          bt_split_right_internal(bt, node, from);
-}
-
 void
 bt_internal_node_insert(struct btnode *node, int index, void *key, struct btnode *right_node)
 {
   for (int i = node->order-1 ; i > index ; i--)
     {
       node->key[i] = node->key[i-1]; 
-      node->childs.nodes[i+1] = node->childs.nodes[i]; // Copy rights pointers
+      node->childs.nodes[i+1] = node->childs.nodes[i]; // Copy right pointers
     }
   node->childs.nodes[index+1] = right_node;
   node->key[index] = key;
@@ -119,7 +112,7 @@ bt_split_leaf_child(struct btree *bt, struct btnode *node, int index)
   ERROR_RET(NULL == (right_node = bt_split_right_leaf(bt, child, m)), -1);
   
   error.type = ERR_SUCCESS;
-  key = bt->f.dupkey(child->key[m]);
+  key = bt->f.dupkey(child->key[m-1]);
   ERROR_RET(ERR_SUCCESS != error.type, (bt_freenode(right_node), -1));
 
   bt_internal_node_insert(node, index, key, right_node);
@@ -136,7 +129,7 @@ bt_split_internal_child(struct btree *bt, struct btnode *node, int index)
 
   ERROR_RET(NULL == (right_node = bt_split_right_internal(bt, child, m)), -1);
 
-  bt_internal_node_insert(node, index, child->key[m], right_node);
+  bt_internal_node_insert(node, index, child->key[m-1], right_node);
 
   return ERR_SUCCESS;
 }

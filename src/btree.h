@@ -63,7 +63,6 @@ void bt_freenode(struct btnode *node);
 void bt_slice(struct btnode *dest, struct btnode *src,  int from, int count);
 struct btnode* bt_split_right_leaf(struct btree *bt, struct btnode *node, int from);
 struct btnode* bt_split_right_internal(struct btree *bt, struct btnode *node, int from);
-struct btnode* bt_split_right(struct btree *bt, struct btnode *node, int from);
 
 int bt_split_child(struct btree *bt, struct btnode *node, int index);
 int bt_split_root(struct btree *bt);

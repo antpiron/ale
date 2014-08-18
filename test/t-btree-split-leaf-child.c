@@ -9,7 +9,7 @@
 
 #define ORDER 17
 #define LEAF_ORDER (ORDER - 1)
-#define RIGHT_ORDER (LEAF_ORDER / 2)
+#define RIGHT_ORDER ((LEAF_ORDER+1) / 2)
 #define LEFT_ORDER (LEAF_ORDER / 2)
 
 int
@@ -42,8 +42,8 @@ main(int argc, char *argv[argc])
       ERROR_UNDEF_FATAL_FMT(child != dad->childs.nodes[i], "FAIL: left child pointer changed [%d] %p != %p", 
 			    i, (void*) child, (void*) dad->childs.nodes[i]);
       ERROR_UNDEF_FATAL_FMT(ORDER != dad->order, "FAIL: dad order %d != %d", dad->order, ORDER);
-      ERROR_UNDEF_FATAL_FMT(LEFT_ORDER != (intptr_t) dad->key[i], "FAIL: dad key %"PRIdPTR" != %d\n",
-      			(intptr_t) dad->key[i], LEFT_ORDER);
+      ERROR_UNDEF_FATAL_FMT(LEFT_ORDER - 1 != (intptr_t) dad->key[i], "FAIL: dad key %"PRIdPTR" != %d\n",
+			    (intptr_t) dad->key[i], LEFT_ORDER - 1);
       ERROR_UNDEF_FATAL_FMT(LEFT_ORDER != dad->childs.nodes[i]->order, "FAIL: left order %d != %d\n",
       			    dad->childs.nodes[i]->order, LEFT_ORDER);
       ERROR_UNDEF_FATAL_FMT(RIGHT_ORDER != dad->childs.nodes[i+1]->order, "FAIL: right order %d != %d\n",
