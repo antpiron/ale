@@ -7,7 +7,7 @@
 #include "error.h"
 #include "btree.h"
 
-#define ORDER 9
+#define ORDER 24
 #define LEAF_ORDER (ORDER - 1)
 #define RIGHT_ORDER ((LEAF_ORDER+1) / 2 + 1)
 #define LEFT_ORDER (LEAF_ORDER / 2)
