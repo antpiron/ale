@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "error.h"
 #include "btree.h"
@@ -18,6 +19,13 @@ bt_intptr_t_dup(void *a)
   return a;
 }
 
+int
+bt_intptr_t_keytostr(char *str, size_t size, void *key)
+{
+  return snprintf(str, size, "%"PRIdPTR, (intptr_t) key);
+}
+
 struct btfuncs btfuncs_intptr_t = { .cmpkey = bt_intptr_t_cmp, 
 				    .dupkey = bt_intptr_t_dup, 
-				    .freekey = bt_intptr_t_free };
+				    .freekey = bt_intptr_t_free,
+				    .keytostr = bt_intptr_t_keytostr };

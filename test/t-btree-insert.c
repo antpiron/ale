@@ -7,7 +7,7 @@
 #include "error.h"
 #include "btree.h"
 
-#define ORDER 17
+#define ORDER 9
 #define LEAF_ORDER (ORDER - 1)
 #define RIGHT_ORDER ((LEAF_ORDER+1) / 2 + 1)
 #define LEFT_ORDER (LEAF_ORDER / 2)
@@ -36,6 +36,20 @@ main(int argc, char *argv[argc])
 			bt.root->childs.nodes[0]->order, LEFT_ORDER);
   ERROR_UNDEF_FATAL_FMT(RIGHT_ORDER != bt.root->childs.nodes[1]->order, "FAIL: Right order %d != %d", 
 			bt.root->childs.nodes[1]->order, RIGHT_ORDER);
+
+  for (int i = 0 ; i < 2 ; i++)
+    {
+      intptr_t val = random() % 100;
+      
+      bt_print(&bt);
+
+      ERROR_FATAL_FMT(-1 ==  bt_insert(&bt, (void*) val, (void*) val), 
+		    "FAIL: unable to insert (%"PRIdPTR " => %"PRIdPTR ")", val, val);
+      printf("--------------\n");
+      printf("Inserting %"PRIdPTR "\n", val);
+    }
+
+  bt_print(&bt);
 
   bt_destroy(&bt);
 

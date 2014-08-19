@@ -6,6 +6,7 @@
 typedef int (*bt_cmp_func_t)(void*, void*);
 typedef void (*bt_freekey_func_t)(void*);
 typedef void* (*bt_dupkey_func_t)(void*);
+typedef int (*bt_keytostr_func_t)(char *, size_t, void*);
 
 enum {
   BT_ERRNO_INVALID_ORDER = 1
@@ -25,6 +26,7 @@ struct btfuncs {
   bt_cmp_func_t cmpkey;
   bt_dupkey_func_t dupkey;
   bt_freekey_func_t freekey;
+  bt_keytostr_func_t keytostr;
 };
 
 extern struct btfuncs btfuncs_intptr_t;
@@ -44,6 +46,7 @@ void bt_destroy(struct btree *bt);
 int bt_insert(struct btree *bt, void *key, void *data);
 void* bt_search(struct btree *bt, void *key);
 
+void bt_print(struct btree *bt); 
 
 // Internal use only
 

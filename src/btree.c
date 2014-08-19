@@ -40,9 +40,29 @@ bt_init(struct btree *bt, int order, struct btfuncs funcs)
 }
 
 void
+bt_destroy_rec(struct btree *bt, struct btnode *node)
+{
+  if (NULL == node)
+    return;
+
+  if (BT_ISLEAF(*node))
+    bt_freenode(node);
+  else
+    {
+      for (int i = 0 ; i < node->order ; i++)
+	bt_destroy_rec(bt, node->childs.nodes[i]);
+
+      for (int i = 0 ; i < node->order - 1 ; i++)
+	bt->f.freekey(node->key[i]);
+
+      bt_freenode(node);
+    }
+}
+
+void
 bt_destroy(struct btree *bt)
 {
-  
+  bt_destroy_rec(bt, bt->root);
 }
 
 void
@@ -237,4 +257,47 @@ bt_insert(struct btree *bt, void *key, void *data)
   leaf->childs.data[index] = data;
 
   return ERR_SUCCESS;
+}
+
+void 
+bt_print_rec(struct btree *bt, struct btnode *node, int depth)
+{
+#define MAX_PRINT_SIZE 32
+  char str[MAX_PRINT_SIZE];
+
+  if (NULL == node)
+    return;
+
+  if ( BT_ISLEAF(*node) )
+    {
+      for (int i = 0 ; i < node->order ; i++)
+	{
+	  for (int j = 0 ; j < depth ; j++)
+	    printf("%s", "   ");
+	  
+	  bt->f.keytostr(str, MAX_PRINT_SIZE, node->key[i]);
+	  puts(str);
+	}
+    }
+  else
+    {
+      for (int i = 0 ; i < node->order - 1 ; i++)
+	{
+	  bt_print_rec(bt, node->childs.nodes[i], depth+1);
+	  
+	  for (int j = 0 ; j < depth ; j++)
+	    printf("%s","   ");
+	  
+	  bt->f.keytostr(str, MAX_PRINT_SIZE, node->key[i]);
+	  puts(str);
+	}
+
+      bt_print_rec(bt, node->childs.nodes[node->order - 1], depth+1);
+    }
+}
+
+void 
+bt_print(struct btree *bt)
+{
+  bt_print_rec(bt, bt->root, 0);
 }

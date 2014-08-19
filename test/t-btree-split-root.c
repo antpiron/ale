@@ -29,7 +29,7 @@ main(int argc, char *argv[argc])
      
   bt_freenode(node);
   bt_freenode(bt.root);
-  bt_destroy(&bt);
+  // bt_destroy(&bt); // freed manually
 
   return EXIT_SUCCESS;
 }
