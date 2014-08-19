@@ -65,7 +65,7 @@ bt_destroy(struct btree *bt)
   bt_destroy_rec(bt, bt->root);
 }
 
-void
+inline void
 bt_slice(struct btnode *dest, struct btnode *src,  int from, int count)
 {
   // copy left childs and keys
@@ -76,7 +76,7 @@ bt_slice(struct btnode *dest, struct btnode *src,  int from, int count)
     }
 }
 
-struct btnode *
+inline struct btnode *
 bt_split_right_leaf(struct btree *bt, struct btnode *node, int from)
 {
   struct btnode *right_node = bt_mknode(bt->order, node->type);
@@ -91,7 +91,7 @@ bt_split_right_leaf(struct btree *bt, struct btnode *node, int from)
   return right_node;
 }
 
-struct btnode *
+inline struct btnode *
 bt_split_right_internal(struct btree *bt, struct btnode *node, int from)
 {
   struct btnode *right_node = bt_mknode(bt->order, node->type);
@@ -108,7 +108,7 @@ bt_split_right_internal(struct btree *bt, struct btnode *node, int from)
   return right_node;
 }
 
-void
+inline void
 bt_internal_node_insert(struct btnode *node, int index, void *key, struct btnode *right_node)
 {
   for (int i = node->order-1 ; i > index ; i--)
@@ -121,7 +121,7 @@ bt_internal_node_insert(struct btnode *node, int index, void *key, struct btnode
   node->order++;
 }
 
-int
+inline int
 bt_split_leaf_child(struct btree *bt, struct btnode *node, int index)
 {
   struct btnode *child = node->childs.nodes[index];
@@ -140,7 +140,7 @@ bt_split_leaf_child(struct btree *bt, struct btnode *node, int index)
   return ERR_SUCCESS;
 }
 
-int
+inline int
 bt_split_internal_child(struct btree *bt, struct btnode *node, int index)
 {
   struct btnode *child = node->childs.nodes[index];
@@ -154,7 +154,7 @@ bt_split_internal_child(struct btree *bt, struct btnode *node, int index)
   return ERR_SUCCESS;
 }
 
-int
+inline int
 bt_split_child(struct btree *bt, struct btnode *node, int index)
 {
   struct btnode *child = node->childs.nodes[index];
@@ -163,7 +163,7 @@ bt_split_child(struct btree *bt, struct btnode *node, int index)
                            bt_split_internal_child(bt, node, index); 
 }
 
-int
+inline int
 bt_split_root(struct btree *bt)
 {
   struct btnode *newroot = bt_mknode(bt->order, BT_NODE_INTERNAL);
