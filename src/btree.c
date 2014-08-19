@@ -151,6 +151,7 @@ bt_split_root(struct btree *bt)
 
   newroot->order = 1;
   newroot->childs.nodes[0] = bt->root;
+  bt->root = newroot;
 
   return ERR_SUCCESS;
 }
@@ -162,7 +163,10 @@ bt_search_leaf(struct btree *bt, void *key, int *index, int *found, int options)
   struct btnode *node = bt->root;
   
   if ( (options & BT_OPT_SPLIT) && BT_ISFULL(*bt,*bt->root))
-    ERROR_RET(-1 == bt_split_root(bt), NULL);
+    {
+      ERROR_RET(-1 == bt_split_root(bt), NULL);
+      node = bt->root;
+    }
 
   while (1)
     {
@@ -181,7 +185,11 @@ bt_search_leaf(struct btree *bt, void *key, int *index, int *found, int options)
 	}
 
       if ( (options & BT_OPT_SPLIT) && BT_ISFULL(*bt,*node->childs.nodes[i]))
-	ERROR_RET(-1 == bt_split_child(bt, node, i), NULL);
+	{
+	  ERROR_RET(-1 == bt_split_child(bt, node, i), NULL);
+	  if ( 0 < (cmp = bt->f.cmpkey(node->key[i], key)) )
+	    i++;
+	}
 	
       node = node->childs.nodes[i];
     } 
@@ -216,14 +224,17 @@ bt_insert(struct btree *bt, void *key, void *data)
   ERROR_RET(NULL == (leaf = bt_search_leaf(bt, key, &index, &found, BT_OPT_SPLIT)), -1);
  
   if ( ! found )
-    for (int i = leaf->order-1 ; i > index ; i--)
-      {
-	leaf->key[i] = leaf->key[i-1]; 
-	leaf->childs.data[i] = leaf->childs.data[i-1];
-      }
+    {
+      for (int i = leaf->order-1 ; i > index ; i--)
+	{
+	  leaf->key[i] = leaf->key[i-1]; 
+	  leaf->childs.data[i] = leaf->childs.data[i-1];
+	}
+      leaf->order++;
+    }
 
   leaf->key[index] = key;
   leaf->childs.data[index] = data;
- 
+
   return ERR_SUCCESS;
 }
