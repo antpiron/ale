@@ -23,8 +23,14 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(1 != bt.root->order, "FAIL: Order %d != 1", bt.root->order);
 
   for (int i = 1 ; i < LEAF_ORDER ; i++)
-    ERROR_FATAL_FMT(-1 ==  bt_insert(&bt, (void*) (intptr_t) i, (void*)(intptr_t) i), 
-		    "FAIL: unable to insert (%d => %d)", i, i);
+    {
+      // bt_print(&bt);
+      ERROR_FATAL_FMT(-1 ==  bt_insert(&bt, (void*) (intptr_t) i, (void*)(intptr_t) i), 
+		      "FAIL: unable to insert (%d => %d)", i, i);
+      // printf("--------------\n");
+    }
+  // bt_print(&bt);
+
 
   ERROR_UNDEF_FATAL_FMT(LEAF_ORDER != bt.root->order, "FAIL: Order %d != %d", bt.root->order, LEAF_ORDER);
 
@@ -37,7 +43,7 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(RIGHT_ORDER != bt.root->childs.nodes[1]->order, "FAIL: Right order %d != %d", 
 			bt.root->childs.nodes[1]->order, RIGHT_ORDER);
 
-  for (int i = 0 ; i < 2 ; i++)
+  for (int i = 0 ; i < 5 ; i++)
     {
       intptr_t val = random() % 100;
       

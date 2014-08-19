@@ -192,8 +192,9 @@ bt_search_leaf(struct btree *bt, void *key, int *index, int *found, int options)
     {
       int i = 0;
       int cmp = -1;
+      int order = BT_ISLEAF(*node)?node->order:node->order - 1;
 
-      while ( i < node->order - 1 && 
+      while ( i < order &&
 	      0 < (cmp = bt->f.cmpkey(node->key[i], key)) )
 	i++;
 
@@ -245,7 +246,7 @@ bt_insert(struct btree *bt, void *key, void *data)
  
   if ( ! found )
     {
-      for (int i = leaf->order-1 ; i > index ; i--)
+      for (int i = leaf->order ; i > index ; i--)
 	{
 	  leaf->key[i] = leaf->key[i-1]; 
 	  leaf->childs.data[i] = leaf->childs.data[i-1];
