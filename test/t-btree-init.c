@@ -14,7 +14,7 @@ main(int argc, char *argv[argc])
 {
   struct btree bt;
 
-  ERROR_UNDEF_FATAL(-1 != bt_init(&bt, 3, btfuncs_intptr_t), "FAIL: bt_init() order too small and suceed ?!?");
+  ERROR_UNDEF_FATAL(-1 != bt_init(&bt, 3, btfuncs_intptr_t), "FAIL: bt_init() order too small and succeed ?!?");
 
   ERROR_FATAL(-1 == bt_init(&bt, ORDER, btfuncs_intptr_t), "FAIL: bt_init()");
 
