@@ -43,19 +43,23 @@ int bt_init(struct btree *bt, int order, struct btfuncs funcs);
 void bt_destroy(struct btree *bt);
 
 
-int bt_insert(struct btree *bt, void *key, void *data);
 void* bt_search(struct btree *bt, void *key);
+int bt_insert(struct btree *bt, void *key, void *data);
+int bt_delete(struct btree *bt, void *key);
 
 void bt_print(struct btree *bt); 
 
+// ---------------------------------------------------------------------------------------------
 // Internal use only
+// ---------------------------------------------------------------------------------------------
 
 #define BT_NODE_LEAF (1)
 #define BT_NODE_INTERNAL (0)
 #define BT_ISLEAF(node) ((node).type & BT_NODE_LEAF)
 #define BT_ISINTERNAL(node) (! BT_ISLEAF(node))
 
-#define BT_ISFULL(bt,node) ( (BT_ISLEAF(node) && (node).order == (bt).order -1) || (node).order == (bt).order)
+#define BT_ISFULL(bt,node) ( BT_ISLEAF(node)?(node).order == (bt).order -1:(node).order == (bt).order )
+#define BT_ISMINIMAL(bt,node) ( ( BT_ISLEAF(node)?(node).order == ((bt).order -1) / 2:(node).order == (bt).order / 2) )
 
 #define BT_OPT_SPLIT 1
 #define BT_OPT_MERGE (1 << 1)

@@ -260,6 +260,13 @@ bt_insert(struct btree *bt, void *key, void *data)
   return ERR_SUCCESS;
 }
 
+int 
+bt_delete(struct btree *bt, void *key)
+{
+
+  return ERR_SUCCESS;
+}
+
 void 
 bt_print_rec(struct btree *bt, struct btnode *node, int depth)
 {
