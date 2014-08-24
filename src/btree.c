@@ -177,6 +177,75 @@ bt_split_root(struct btree *bt)
 }
 
 
+int
+bt_balance_left_leaf_child(struct btree *bt, struct btnode *node, int index)
+{
+  struct btnode *lnode = node->childs.nodes[index];
+  struct btnode *rnode = node->childs.nodes[index+1];
+  void *key;
+  int i = 0;
+  int lorder = lnode->order;
+  int rorder = rnode->order;
+ 
+  for ( ; lorder < rorder ; lorder++, rorder--, i++)
+    {
+      lnode->key[lorder] = rnode->key[i];
+      lnode->childs.data[lorder] = rnode->childs.data[i];
+    }
+
+  for (int j = i ; j < rnode->order ; j++)
+    {
+      rnode->key[j-i] = rnode->key[j];
+      rnode->childs.data[j-i] = rnode->childs.data[j];
+    }
+
+  error.type = ERR_SUCCESS;
+  key = bt->f.dupkey(lnode->key[lorder - 1]);
+  ERROR_RET(ERR_SUCCESS != error.type, -1);
+
+  // Destructive at the end
+  bt->f.freekey(node->key[index]);
+  node->key[index] = key;
+  rnode->order = rorder;
+  lnode->order = lorder;
+ 
+  return ERR_SUCCESS;
+}
+
+int
+bt_balance_right_leaf_child(struct btree *bt, struct btnode *node, int index)
+{
+  struct btnode *lnode = node->childs.nodes[index];
+  struct btnode *rnode = node->childs.nodes[index+1];
+  void *key;
+  int shiftby = (lnode->order - rnode->order + 1) / 2;
+  int lorder = lnode->order;
+  int rorder = rnode->order;
+
+  error.type = ERR_SUCCESS;
+  key = bt->f.dupkey(lnode->key[lorder - shiftby - 1]);
+  ERROR_RET(ERR_SUCCESS != error.type, -1);
+
+  for (int i = rorder - 1 ;  i >= 0 ; i--)
+    {
+      rnode->key[lorder + shiftby] = rnode->key[i];
+      rnode->childs.data[lorder + shiftby] = rnode->childs.data[i];
+    }
+
+  for (int i = lorder - shiftby, j = 0 ;  i <  lorder ; i++, j++)
+    {
+      rnode->key[j] = lnode->key[i];
+      rnode->childs.data[j] = lnode->childs.data[i];
+    }
+
+  bt->f.freekey(node->key[index]);
+  node->key[index] = key;
+  rnode->order += shiftby;
+  lnode->order -= shiftby;
+ 
+  return ERR_SUCCESS;
+}
+
 struct btnode*
 bt_search_leaf(struct btree *bt, void *key, int *index, int *found, int options)
 {
