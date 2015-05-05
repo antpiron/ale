@@ -116,7 +116,7 @@ expr_parse(struct ep_parser *ep)
 {
   void *t = expr(ep, 0);
 
-  ERROR_CUSTOM_RET(EXPR_TOK_EOF != ep->token.token, (ep->clean(t), NULL), EXPR_ERR_NEOF);
+  ERROR_CUSTOM_RET(EXPR_TOK_EOF != ep->token.token, (ep->clean(t), EXPR_ERR_NEOF), NULL);
    
   return t;
 }
@@ -168,14 +168,14 @@ prod(struct ep_parser *ep)
     {
       ERROR_RET(-1 == consume(ep), NULL);
       ERROR_RET(NULL == (t = expr(ep, 0)), NULL);
-      ERROR_CUSTOM_RET(EXPR_TOK_RPAR != ep->token.token, (ep->clean(t), NULL), EXPR_ERR_NLPAR);
+      ERROR_CUSTOM_RET(EXPR_TOK_RPAR != ep->token.token, (ep->clean(t), EXPR_ERR_NLPAR), NULL);
     }
   else if (ep->token.token < EXPR_MAX_OP && NULL != ep->leaf[ep->token.token])
     {
       t = ep->leaf[ep->token.token]->func(ep);
     }
   else
-    ERROR_CUSTOM_RET(1, NULL, EXPR_ERR_UTOK);
+    ERROR_CUSTOM_RET(1, EXPR_ERR_UTOK, NULL);
 
   return t;
 }
