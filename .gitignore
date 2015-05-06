@@ -16,7 +16,8 @@ config.*
 /depcomp
 /install-sh
 /missing
-/m4
+/m4/*
+!/m4/ale_*.m4
 *.in
 *.log
 *.l[ao]

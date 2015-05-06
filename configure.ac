@@ -12,9 +12,11 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_CC_STDC
+# AC_PROG_CC_C11
+ALE_AC_PROG_CC_C11
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
+AC_DEFINE([_POSIX_C_SOURCE], [200809L], [Define the posix version])
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h stdlib.h string.h])
