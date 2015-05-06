@@ -17,6 +17,7 @@ ALE_AC_PROG_CC_C11
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
 AC_DEFINE([_POSIX_C_SOURCE], [200809L], [Define the posix version])
+AC_DEFINE([_XOPEN_SOURCE], [500], [Define the XOPEN])
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h stdlib.h string.h])
