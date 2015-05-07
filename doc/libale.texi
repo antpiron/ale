@@ -99,6 +99,47 @@ Set @var{error.type} to @var{ERR_UNDEF} and returns @var{val} if @var{test} is t
 Set @var{error.type} to @var{ERR_CUSTOM} and @var{error.errnum} to @var{err} and returns @var{val} if @var{test} is true. ``custom'' means user defined error codes.
 @end deftypefn
 
+The following macro are used to show up an appropriate error message
+
+@deftypefn {C Macro} ERROR_MSG_FMT (@var{test},@var{fmt},...)
+@end deftypefn
+@deftypefn {C Macro} ERROR_MSG (@var{test},@var{str})
+Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
+@end deftypefn
+
+The following macro are similar but specific to certain kind of errors
+
+@deftypefn {C Macro} ERROR_ERRNO_MSG_FMT (@var{test},@var{fmt},...)
+@end deftypefn
+@deftypefn {C Macro} ERROR_ERRNO_MSG (@var{test},@var{str})
+Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
+@end deftypefn
+
+@deftypefn {C Macro} ERROR_GAI_MSG_FMT (@var{test},@var{fmt},...) 
+@end deftypefn
+@deftypefn {C Macro} ERROR_GAI_MSG (@var{test},@var{str})
+Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
+@end deftypefn
+
+@deftypefn {C Macro} ERROR_FERROR_MSG_FMT (@var{test},@var{fmt},...)
+@end deftypefn
+@deftypefn {C Macro} ERROR_FERROR_MSG (@var{test},@var{str}) 
+Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
+@end deftypefn
+
+@deftypefn {C Macro} ERROR_UNDEF_MSG_FMT (@var{test},@var{fmt},...)
+@end deftypefn
+@deftypefn {C Macro} ERROR_UNDEF_MSG (@var{test},@var{str})
+Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
+@end deftypefn
+
+@deftypefn {C Macro} ERROR_CUSTOM_MSG_FMT (@var{test},@var{err},@var{fmt},...)
+@end deftypefn
+@deftypefn {C Macro} ERROR_CUSTOM_MSG (@var{test},@var{err},@var{str})
+Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
+@end deftypefn
+
+
 The following macro are used to show up an appropriate error message and exits the program with a failure exit code
 
 @deftypefn {C Macro} ERROR_FATAL_FMT (@var{test},@var{fmt},...)

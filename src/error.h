@@ -80,6 +80,32 @@ struct error_st* error_get_errno();
     }									\
   while (0)
   
+#define ERROR_TYPE_MSG_FMT(test,typ,err,fmt,...)	\
+  do							\
+    {							\
+      if (test)						\
+	{						\
+	  error.type = (typ);				\
+	  error.errnum = (err);				\
+	  ERROR_PRINTF(fmt, __VA_ARGS__);		\
+	}						\
+    }							\
+  while (0)
+
+#define ERROR_TYPE_MSG(test,typ,err,str) ERROR_TYPE_MSG_FMT((test),(typ),(err),"%s",(str))
+
+#define ERROR_ERRNO_MSG_FMT(test,fmt,...)  ERROR_TYPE_MSG_FMT((test),ERR_ERRNO,errno,fmt, __VA_ARGS__)
+#define ERROR_GAI_MSG_FMT(test,fmt,...)    ERROR_TYPE_MSG_FMT((test),ERR_GAI,0,fmt, __VA_ARGS__)
+#define ERROR_FERROR_MSG_FMT(test,fmt,...) ERROR_TYPE_MSG_FMT((test),ERR_FERROR,0,fmt, __VA_ARGS__)
+#define ERROR_UNDEF_MSG_FMT(test,fmt,...)  ERROR_TYPE_MSG_FMT((test),ERR_UNDEF,0,fmt, __VA_ARGS__)
+#define ERROR_CUSTOM_MSG_FMT(test,err,fmt,...)  ERROR_TYPE_MSG_FMT((test),ERR_CUSTOM,(err),fmt, __VA_ARGS__)
+
+#define ERROR_ERRNO_MSG(test,str)  ERROR_TYPE_MSG((test),ERR_ERRNO,errno,str)
+#define ERROR_GAI_MSG(test,str)    ERROR_TYPE_MSG((test),ERR_GAI,0,str)
+#define ERROR_FERROR_MSG(test,str) ERROR_TYPE_MSG((test),ERR_FERROR,0,str)
+#define ERROR_UNDEF_MSG(test,str)  ERROR_TYPE_MSG((test),ERR_UNDEF,0,str)
+#define ERROR_CUSTOM_MSG(test,err,str)  ERROR_TYPE_MSG((test),(err),ERR_CUSTOM,str)
+
 
 #define ERROR_FATAL_FMT(test,fmt,...)		\
   do						\
@@ -91,6 +117,7 @@ struct error_st* error_get_errno();
 	}					\
     }						\
   while (0)
+
 
 #define ERROR_FATAL(test,str) ERROR_FATAL_FMT((test),"%s",(str))
 
