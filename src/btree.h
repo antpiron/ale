@@ -45,7 +45,7 @@ void bt_destroy(struct btree *bt);
 
 void* bt_search(struct btree *bt, void *key);
 int bt_insert(struct btree *bt, void *key, void *data);
-int bt_delete(struct btree *bt, void *key);
+void* bt_delete(struct btree *bt, void *key);
 
 void bt_print(struct btree *bt); 
 

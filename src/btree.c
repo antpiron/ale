@@ -274,13 +274,20 @@ bt_search_leaf(struct btree *bt, void *key, int *index, int *found, int options)
 	  break;
 	}
 
-      if ( (options & BT_OPT_SPLIT) && BT_ISFULL(*bt,*node->childs.nodes[i]))
+      if ( BT_ISFULL(*bt,*node->childs.nodes[i]) )
 	{
-	  ERROR_RET(-1 == bt_split_child(bt, node, i), NULL);
-	  if ( 0 < (cmp = bt->f.cmpkey(node->key[i], key)) )
-	    i++;
+	  if (options & BT_OPT_SPLIT)
+	    {
+	      ERROR_RET(-1 == bt_split_child(bt, node, i), NULL);
+	      if ( 0 < (cmp = bt->f.cmpkey(node->key[i], key)) )
+		i++;
+	    }
+	  else if (options & BT_OPT_SPLIT)
+	    {
+
+	    }
 	}
-	
+     
       node = node->childs.nodes[i];
     } 
 
@@ -329,11 +336,20 @@ bt_insert(struct btree *bt, void *key, void *data)
   return ERR_SUCCESS;
 }
 
-int 
+void* 
 bt_delete(struct btree *bt, void *key)
 {
+  int index, found;
+  struct btnode *leaf;
 
-  return ERR_SUCCESS;
+  if (NULL == bt->root)
+    return NULL;
+
+  leaf = bt_search_leaf(bt, key, &index, &found,  BT_OPT_MERGE);
+
+  return found?leaf->childs.data[index]:NULL;
+  
+  return NULL;
 }
 
 void 
