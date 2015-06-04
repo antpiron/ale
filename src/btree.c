@@ -176,6 +176,51 @@ bt_split_root(struct btree *bt)
   return ERR_SUCCESS;
 }
 
+#define BT_COPY_FROM_BOTTOM_BUILDER(name,what)				\
+  inline void								\
+  bt_copy_##name##_from_bottom(struct btnode *dest, struct btnode *src,  int from, int to, int count) \
+  {									\
+    for ( ; 0 < count ; to++, from++, count--)				\
+      dest->what[to] = src->what[from];					\
+  }
+
+BT_COPY_FROM_BOTTOM_BUILDER(keys, key)
+BT_COPY_FROM_BOTTOM_BUILDER(childs, childs.nodes)
+
+#define BT_COPY_FROM_TOP_BUILDER(name,what)				\
+  inline void								\
+  bt_copy_##name##_from_top(struct btnode *dest, struct btnode *src,  int from, int to, int count) \
+  {									\
+    from = from + count - 1;						\
+    to = to + count - 1;						\
+    for ( ; 0 < count ; to--, from--, count--)				\
+      dest->what[to] = src->what[from];					\
+  }
+
+BT_COPY_FROM_TOP_BUILDER(keys, key)
+BT_COPY_FROM_TOP_BUILDER(childs, childs.nodes)
+
+int
+bt_balance_left_internal_child(struct btree *bt, struct btnode *node, int index)
+{
+  struct btnode *lnode = node->childs.nodes[index];
+  struct btnode *rnode = node->childs.nodes[index+1];
+  int lorder = lnode->order;
+  int rorder = rnode->order;
+  int count = (rorder - lorder + 1) / 2;
+
+  lnode->key[lorder-1] = node->key[index];
+  bt_copy_keys_from_bottom(lnode, rnode, 0, lorder, count - 1);
+  bt_copy_childs_from_bottom(lnode, rnode, 0, lorder+1, count);
+  node->key[index] = rnode->key[count - 1];
+  lnode->order = lorder + count;
+  bt_copy_keys_from_top(rnode, rnode, count, 0, rorder - count - 1);
+  bt_copy_childs_from_top(rnode, rnode, count, 0, rorder - count);
+  rnode->order = rorder - count;
+
+  return 0;
+}
+
 
 int
 bt_balance_left_leaf_child(struct btree *bt, struct btnode *node, int index)
@@ -199,6 +244,7 @@ bt_balance_left_leaf_child(struct btree *bt, struct btnode *node, int index)
       rnode->childs.data[j-i] = rnode->childs.data[j];
     }
 
+  // NULL maybe a valid value (intptr_t key = 0, ...)
   error.type = ERR_SUCCESS;
   key = bt->f.dupkey(lnode->key[lorder - 1]);
   ERROR_RET(ERR_SUCCESS != error.type, -1);
