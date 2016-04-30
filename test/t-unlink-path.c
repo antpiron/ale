@@ -5,7 +5,7 @@
 #include "error.h"
 #include "fileutils.h"
 
-#define BASEPATH "/tmp/alefs-test/"
+#define BASEPATH "/tmp/ale-test/"
 
 int
 main(int argc, char *argv[argc])

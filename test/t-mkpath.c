@@ -5,7 +5,7 @@
 #include "error.h"
 #include "fileutils.h"
 
-char *paths[] = {"/tmp/alefs-test/test/test", NULL};
+char *paths[] = {"/tmp/ale-test/test/test", NULL};
 
 int
 main(int argc, char *argv[argc])

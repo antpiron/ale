@@ -6,8 +6,8 @@
 #include <ale/error.h>
 #include <ale/daemon.h>
 #include <ale/bitset.h>
-#include <ale/filetutils.h>
-#include <ale/string.h>
+#include <ale/fileutils.h>
+#include <ale/stringutils.h>
 #include <ale/exparser.h>
 
 #endif
