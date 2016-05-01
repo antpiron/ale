@@ -30,5 +30,8 @@ main(int argc, char *argv[argc])
       ERROR_FATAL_FMT(i != val, "FAIL: sl_pop() val %"PRIdPTR" != %"PRIdPTR"\n", val, i);
     }
 
+  sl_destroy(&lst);
+  ERROR_UNDEF_FATAL(NULL != lst.next, "FAIL: sl_destroy()\n");
+
   return EXIT_SUCCESS;
 }
