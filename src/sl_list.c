@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "error.h"
-#include "sl_list.h"
+#include "ale/sl_list.h"
 
 struct sl_node*
 sl_mknode(void *data, struct sl_node *next)
