@@ -16,9 +16,6 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL(0 != sl_init(&lst), "FAIL: sl_init()" );
   ERROR_UNDEF_FATAL(NULL != lst.next, "FAIL: lst.next != NULL");
 
-  int sl_insert(struct sl_node *node, size_t pos, void *data);
-  void* sl_remove(struct sl_node *node, size_t pos);
-
   for (intptr_t i = 0 ; i < 50 ; i+=2)
     ERROR_FATAL(-1 == sl_insert(&lst, i, (void*) i), "FAIL: sl_insert()");
 
