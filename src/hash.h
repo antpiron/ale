@@ -15,7 +15,7 @@ struct hash {
   struct sl_list *array;
 };
 
-int hash_init(struct hash *hash, int (*equal)(void*,void*));
+int hash_init(struct hash *hash, struct hash_funcs funcs);
 int hash_init_full(struct hash *hash, size_t size, struct hash_funcs funcs);
 int hash_destroy(struct hash *hash);
 
