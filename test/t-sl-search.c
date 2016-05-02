@@ -13,6 +13,12 @@ equal_intptr_t(void *a, void *b)
 }
 
 int
+equal_intptr_t_full(void *a, void *b, void *cls)
+{
+  return (intptr_t) a == (intptr_t) b && 25 == (intptr_t) cls; 
+}
+
+int
 main(int argc, char *argv[argc])
 {
   struct sl_node lst;
@@ -27,6 +33,11 @@ main(int argc, char *argv[argc])
 
   val = 25;
   node = sl_search(&lst, (void*) val, equal_intptr_t);
+  ERROR_UNDEF_FATAL(NULL == node, "FAIL: 25 not found!\n");
+  ERROR_UNDEF_FATAL_FMT((intptr_t) node->data != val, "FAIL: %"PRIdPTR" != 25\n", val);
+
+  val = 25;
+  node = sl_search_full(&lst, (void*) val, equal_intptr_t_full, (void*) val);
   ERROR_UNDEF_FATAL(NULL == node, "FAIL: 25 not found!\n");
   ERROR_UNDEF_FATAL_FMT((intptr_t) node->data != val, "FAIL: %"PRIdPTR" != 25\n", val);
 

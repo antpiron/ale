@@ -102,11 +102,23 @@ sl_nth(struct sl_node *node, size_t pos)
 }
 
 struct sl_node*
-sl_search(struct sl_node *node, void *data, int (*equal)(void*,void*))
-{  
+sl_search(struct sl_node *node, void *data, int (*equal)(void *a, void *b))
+{
   struct sl_node *cur = node->next;
   
   for ( ; NULL != cur && ! equal(data, cur->data) ; cur = cur->next) ;
+
+  return cur;  
+}
+
+struct sl_node*
+sl_search_full(struct sl_node *node, void *data,
+	       int (*equal)(void *a, void *b, void *cls),
+	       void *cls)
+{  
+  struct sl_node *cur = node->next;
+  
+  for ( ; NULL != cur && ! equal(data, cur->data, cls) ; cur = cur->next) ;
 
   return cur;
 }
