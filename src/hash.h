@@ -8,6 +8,7 @@ struct hash_funcs {
   size_t (*hash)(void *key, size_t keysize);
   int (*equal)(void *a, size_t asize, void *b, size_t bsize);
   void* (*dupkey)(void *key, size_t keysize);
+  void (*freekey)(void *key, size_t keysize);
 };
 
 extern struct hash_funcs hash_buffer_funcs;

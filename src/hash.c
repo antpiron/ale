@@ -41,8 +41,17 @@ dupkey_buffer(void *key, size_t keysize)
   return nkey;
 }
 
+void
+freekey_buffer(void *key, size_t keysize)
+{
+  free(key);
+}
 
-struct hash_funcs hash_buffer_funcs = { .hash = hash_buffer, .equal = equal_buffer, .dupkey = dupkey_buffer};
+
+struct hash_funcs hash_buffer_funcs = { .hash = hash_buffer,
+					.equal = equal_buffer,
+					.dupkey = dupkey_buffer,
+					.freekey = freekey_buffer};
 
 int
 hash_init(struct hash *hash)
