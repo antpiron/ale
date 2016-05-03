@@ -1,6 +1,6 @@
 #include <string.h>
-#include "hash.h"
-#include "error.h"
+#include "ale/hash.h"
+#include "ale/error.h"
 
 #define DEFAULT_SIZE 65537
 
@@ -139,4 +139,26 @@ hash_set(struct hash *hash, void *key, size_t keysize, void *value)
     }
 
   return data;
+}
+
+void*
+hash_del(struct hash *hash, void *key, size_t keysize)
+{
+  size_t hashed_key = hash->funcs->hash(key, keysize);
+  struct sl_node *prev = hash->array + hashed_key;
+
+  for ( ; NULL != prev->next ; prev = sl_next(prev))
+    {
+      struct sl_node *cur = prev->next;
+      struct hash_kv *kv = cur->data;
+      if ( hash->funcs->equal(kv->key, kv->keysize, key, keysize) )
+	{
+	  void *data = kv->value;
+	  sl_pop(prev);
+
+	  return data;
+	}
+    }
+
+  return NULL;
 }

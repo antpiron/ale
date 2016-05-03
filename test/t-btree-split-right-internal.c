@@ -4,8 +4,8 @@
 #include <ctype.h>
 #include <inttypes.h>
 
-#include "error.h"
-#include "btree.h"
+#include "ale/error.h"
+#include "ale/btree.h"
 
 #define ORDER 128
 #define SPLIT_POS (ORDER / 3)

@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "stringutils.h"
-#include "error.h"
+#include "ale/stringutils.h"
+#include "ale/error.h"
 
 char* 
 strjoin(const char *sep, const char **str)

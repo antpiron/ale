@@ -1,5 +1,5 @@
 
 lib_LTLIBRARIES = libale.la
-libale_la_SOURCES = error.h error.c daemon.h daemon.c portability.c portability.h bitset.h fileutils.h fileutils.c stringutils.h stringutils.c tsymbols.c tsymbols.h exparser.h exparser.c btree.c btree-funcs.c btree.h sl_list.c ale/sl_list.h hash.h hash.c
+libale_la_SOURCES = ale/error.h error.c ale/daemon.h daemon.c portability.c ale/portability.h ale/bitset.h ale/fileutils.h fileutils.c ale/stringutils.h stringutils.c tsymbols.c ale/tsymbols.h ale/exparser.h exparser.c btree.c btree-funcs.c ale/btree.h sl_list.c ale/sl_list.h ale/hash.h hash.c
 include_HEADERS = ale.h
-pkginclude_HEADERS = error.h daemon.h portability.h bitset.h fileutils.h stringutils.h tsymbols.h exparser.h btree.h ale/sl_list.h hash.h
+pkginclude_HEADERS = ale/error.h ale/daemon.h ale/portability.h ale/bitset.h ale/fileutils.h ale/stringutils.h ale/tsymbols.h ale/exparser.h ale/btree.h ale/sl_list.h ale/hash.h

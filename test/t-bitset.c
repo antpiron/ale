@@ -4,8 +4,8 @@
 #include <inttypes.h>
 #include <unistd.h>
 
-#include "error.h"
-#include "bitset.h"
+#include "ale/error.h"
+#include "ale/bitset.h"
 
 #define NBRBIT (2043)
 

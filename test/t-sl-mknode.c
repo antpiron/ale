@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#include "error.h"
+#include "ale/error.h"
 #include "ale/sl_list.h"
 
 #define ORDER 16

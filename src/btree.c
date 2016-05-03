@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
-#include "error.h"
-#include "btree.h"
+#include "ale/error.h"
+#include "ale/btree.h"
 
 
 struct btnode* 

@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "error.h"
-#include "fileutils.h"
+#include "ale/error.h"
+#include "ale/fileutils.h"
 
 #define BASEPATH "/tmp/ale-test/"
 

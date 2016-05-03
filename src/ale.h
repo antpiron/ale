@@ -9,5 +9,7 @@
 #include <ale/fileutils.h>
 #include <ale/stringutils.h>
 #include <ale/exparser.h>
+#include <ale/sl_list.h>
+#include <ale/hash.h>
 
 #endif

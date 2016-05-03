@@ -3,8 +3,8 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#include "error.h"
-#include "exparser.h"
+#include "ale/error.h"
+#include "ale/exparser.h"
 
 enum {
   T_INT = EXPR_TOK_LAST

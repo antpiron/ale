@@ -6,8 +6,8 @@
 #include <libgen.h>
 #include <string.h>
 
-#include "error.h"
-#include "fileutils.h"
+#include "ale/error.h"
+#include "ale/fileutils.h"
 
 
 int

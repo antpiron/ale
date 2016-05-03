@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "error.h"
+#include "ale/error.h"
 
 #define TEST(test,msg)						\
   do								\

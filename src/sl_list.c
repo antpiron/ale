@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "error.h"
+#include "ale/error.h"
 #include "ale/sl_list.h"
 
 struct sl_node*

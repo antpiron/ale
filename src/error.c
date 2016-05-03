@@ -1,6 +1,6 @@
 #include <pthread.h>
 
-#include "error.h"
+#include "ale/error.h"
 
 static pthread_key_t errno_key;
 static pthread_once_t errno_once = PTHREAD_ONCE_INIT;

@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include "error.h"
-#include "tsymbols.h"
+#include "ale/error.h"
+#include "ale/tsymbols.h"
 
 #define INITIAL_ALLOC 16
 

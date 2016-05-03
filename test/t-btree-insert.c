@@ -6,8 +6,8 @@
 #include <ctype.h>
 #include <inttypes.h>
 
-#include "error.h"
-#include "btree.h"
+#include "ale/error.h"
+#include "ale/btree.h"
 
 #define ORDER 24
 #define LEAF_ORDER (ORDER - 1)

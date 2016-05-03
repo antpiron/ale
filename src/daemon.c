@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "error.h"
+#include "ale/error.h"
 
 int
 drop_privileges(uid_t uid, gid_t gid)

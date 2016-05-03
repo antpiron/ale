@@ -3,8 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "error.h"
-#include "stringutils.h"
+#include "ale/error.h"
+#include "ale/stringutils.h"
 
 int
 main(int argc, char *argv[argc])
