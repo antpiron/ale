@@ -2,8 +2,37 @@
 #include "ale/hash.h"
 #include "ale/error.h"
 
-#define DEFAULT_SIZE 65537
+size_t
+hash_intptr_t(void *key, size_t keysize)
+{
+  intptr_t i = (intptr_t) key;
+  
+  return i % HASH_DEFAULT_SIZE;
+}
 
+int
+equal_intptr_t(void *a, size_t asize, void *b, size_t bsize)
+{
+  return (intptr_t) a == (intptr_t) b;  
+}
+
+void*
+dupkey_intptr_t(void *key, size_t keysize)
+{
+  return key;
+}
+
+void
+freekey_intptr_t(void *key, size_t keysize)
+{
+  return;
+}
+
+struct hash_funcs hash_intptr_t_funcs = { .hash = hash_intptr_t,
+					  .equal = equal_intptr_t,
+					  .dupkey = dupkey_intptr_t,
+					  .freekey = freekey_intptr_t };
+  
 size_t
 hash_buffer(void *key, size_t keysize)
 {
@@ -19,7 +48,7 @@ hash_buffer(void *key, size_t keysize)
   for (size_t i = 0 ; i < mod ; i++ )
     res ^= cbuf[i] << (i*8);
 
-  return res % DEFAULT_SIZE;
+  return res % HASH_DEFAULT_SIZE;
 }
 
 int
@@ -56,7 +85,7 @@ struct hash_funcs hash_buffer_funcs = { .hash = hash_buffer,
 int
 hash_init(struct hash *hash)
 {
-  return hash_init_full(hash, DEFAULT_SIZE, &hash_buffer_funcs);
+  return hash_init_full(hash, HASH_DEFAULT_SIZE, &hash_buffer_funcs);
 }
 
 int

@@ -2,7 +2,11 @@
 #define __HASH_H
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include <ale/sl_list.h>
+
+#define HASH_DEFAULT_SIZE 65537
 
 struct hash_funcs {
   size_t (*hash)(void *key, size_t keysize);
@@ -12,6 +16,7 @@ struct hash_funcs {
 };
 
 extern struct hash_funcs hash_buffer_funcs;
+extern struct hash_funcs hash_intptr_t_funcs;
 
 struct hash {
   size_t size;
