@@ -14,6 +14,6 @@
 // in: Input buffer
 // inlen: Size of input buffer
 // k: SIP_KEYLEN bytes for keyed hash
-extern int siphash(uint8_t *out, const uint8_t *in, uint64_t inlen, const uint8_t *k);
+int siphash(uint8_t *out, const uint8_t *in, uint64_t inlen, const uint8_t *k);
 
 #endif

@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <stdint.h>
 
+#include "config.h"
+
 #ifndef PATH_MAX
 # define PATH_MAX 4096
 #endif
@@ -42,6 +44,16 @@
 #endif
 
 int portability_posix_fadvise(int fd, off_t offset, off_t len, int advice);
+#if defined(HAVE_GETRANDOM)
+// Yo everything is alright 
+#elif defined(HAVE_GETRANDOM_SYSCALL)
+// Missing declaration
+int portability_getrandom_syscall(void *buf, size_t buflen, unsigned int flags);
+# define getrandom portability_getrandom_syscall
+#else
+# define getrandom portability_getrandom
+#endif
 
+int portability_getrandom(void *buf, size_t buflen, unsigned int flags);
 
 #endif

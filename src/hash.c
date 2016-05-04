@@ -1,3 +1,5 @@
+#include "config.h"
+#include "ale/portability.h"
 #include <string.h>
 #include <linux/random.h>
 #include "ale/hash.h"
