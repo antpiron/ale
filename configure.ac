@@ -43,7 +43,7 @@ int main(void)
 
 ]
 , AC_DEFINE([HAVE_GETRANDOM_SYSCALL], [], [Defined if you have the linux getrandom syscall])
-, [ echo "little endian" ]
+, 
 )
 
 
