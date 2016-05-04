@@ -48,7 +48,7 @@ daemon_init(char *pidfile)
     exit(EXIT_SUCCESS);
 
   setsid();
-  chdir("/");
+  ERROR_ERRNO_RET(-1 == chdir("/"), -1);
   umask(0);
 
   ERROR_RET( (ret = write_pid(pidfile)) < 0, ret);
