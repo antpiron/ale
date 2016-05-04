@@ -65,7 +65,7 @@ int
 portability_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
   uint8_t *ubuf = buf;
-  static long counter = 0;
+  static unsigned long counter = 0;
   uint8_t sip[SIP_HASHLEN];
   static uint8_t key[SIP_KEYLEN] = {0};
   
