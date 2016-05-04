@@ -93,6 +93,6 @@ portability_getrandom(void *buf, size_t buflen, unsigned int flags)
 int
 portability_getrandom_syscall(void *buf, size_t buflen, unsigned int flags)
 {
-  return syscall(SYS_getrandom, buflen, sizeof(buf), 0);
+  return syscall(SYS_getrandom, buf, buflen, 0);
 }
 #endif
