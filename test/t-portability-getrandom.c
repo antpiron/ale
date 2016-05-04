@@ -32,8 +32,6 @@ main(int argc, char *argv[argc])
       double diff = fabs(exp - dsum[i]);
       ERROR_UNDEF_FATAL_FMT(diff > DEVIATION, "%lu: |%f - %f| = %f\n", i, exp, dsum[i], diff);
     }
-  
-  printf("E[X]: %f\n", 1.0/256.0);
 
   return EXIT_SUCCESS;
 }
