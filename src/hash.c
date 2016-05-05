@@ -37,7 +37,7 @@ hash_buffer(const void *key, size_t keysize, const uint8_t *hash_func_key)
 int
 equal_string(const void *keya, size_t keyasize, const void *keyb, size_t keybsize)
 {
-  return 0 == strcmp((char*) keya, (char*) keyb);  
+  return keyasize == keybsize && 0 == strcmp((char*) keya, (char*) keyb);  
 }
 
 
@@ -81,12 +81,18 @@ hash_init_full(struct hash *hash, size_t size, struct hash_funcs *funcs)
   return 0;
 }
 
-int
+void
 hash_destroy(struct hash *hash)
+{
+  hash_destroy_full(hash, NULL);
+}
+
+void
+hash_destroy_full(struct hash *hash, void (*destroy_kv)(struct hash_kv*))
 {
   free(hash->hash_func_key);
   for (size_t i = 0 ; i < hash->size ; i++)
-    sl_destroy(hash->array+i);
+    sl_destroy_full(hash->array+i, (void (*)(void *)) destroy_kv);
   free(hash->array);
 }
 

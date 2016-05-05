@@ -24,10 +24,18 @@ sl_init(struct sl_node *node)
 int
 sl_destroy(struct sl_node *node)
 {
+  return sl_destroy_full(node, NULL);
+}
+
+int
+sl_destroy_full(struct sl_node *node, void (*destroy_data)(void *))
+{
   struct sl_node *cur = node->next;
   struct sl_node *next = NULL;
   while (NULL != cur)
     {
+      if (NULL != destroy_data)
+	destroy_data(cur->data);
       next = cur->next;
       free(cur);
       cur = next;
@@ -36,6 +44,7 @@ sl_destroy(struct sl_node *node)
   node->next = NULL;
   return 0;
 }
+
 
 int
 sl_insert(struct sl_node *node, size_t pos, void *data)

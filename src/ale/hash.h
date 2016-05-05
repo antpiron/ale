@@ -32,7 +32,8 @@ struct hash_kv {
 
 int hash_init(struct hash *hash);
 int hash_init_full(struct hash *hash, size_t size, struct hash_funcs *funcs);
-int hash_destroy(struct hash *hash);
+void hash_destroy(struct hash *hash);
+void hash_destroy_full(struct hash *hash, void (*destroy_kv)(struct hash_kv*));
 
 // Keysize just there for faster hash
 int hash_get(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv);

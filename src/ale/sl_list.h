@@ -11,6 +11,7 @@ struct sl_node* sl_mknode(void *data, struct sl_node *next);
 
 int sl_init(struct sl_node *node);
 int sl_destroy(struct sl_node *node);
+int sl_destroy_full(struct sl_node *node, void (*destroy_data)(void *));
 
 int sl_insert(struct sl_node *node, size_t pos, void *data);
 void* sl_remove(struct sl_node *node, size_t pos);
