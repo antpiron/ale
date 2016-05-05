@@ -18,10 +18,8 @@ int
 main(int argc, char *argv[argc])
 {
   struct hash hash;
-  struct sl_node *node;
   intptr_t key, value;
-  size_t count, keysize;
-  struct hash_kv *kv_p;
+  size_t keysize;
   struct hash_kv kv;
   int ret;
 
