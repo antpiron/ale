@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "ale/stringutils.h"
 #include "ale/error.h"
@@ -46,4 +47,11 @@ strjoin(const char *sep, const char **str)
   res[res_len] = '\0';
 
   return res;
+}
+
+void
+strtolower(char *dst, const char *src)
+{
+  for ( ; *src ; dst++, src++)
+    *dst = tolower(*src);
 }
