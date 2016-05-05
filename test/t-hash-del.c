@@ -23,7 +23,6 @@ main(int argc, char *argv[argc])
   struct hash_kv kv;
   int ret;
 
-  // ---------------------------- intptr_t
   ERROR_UNDEF_FATAL(0 != hash_init_full(&hash, HASH_DEFAULT_SIZE, &hash_intptr_t_funcs),
   		    "FAIL: hash_init_full()\n" );
   
