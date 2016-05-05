@@ -54,4 +54,5 @@ strtolower(char *dst, const char *src)
 {
   for ( ; *src ; dst++, src++)
     *dst = tolower(*src);
+  *dst = '\0';
 }
