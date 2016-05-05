@@ -127,7 +127,7 @@ main(int argc, char *argv[argc])
       ERROR_UNDEF_FATAL_FMT(strlen(str) != keysize, "FATAL: keysize %zu != %zu\n", keysize, strlen(str));
     }
 
-  hash_destroy(&hash);
+  hash_destroy_full(&hash, destroy_kv);
   
   return EXIT_SUCCESS;
 }

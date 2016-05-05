@@ -112,9 +112,9 @@ hash_get(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv)
   size_t hashed_key = hash->funcs->hash(key, keysize, hash->hash_func_key);
   struct hash_kv kv_tmp = { .key = key, .keysize = keysize };
   struct sl_node *node = sl_search_full(hash->array + hashed_key, &kv_tmp, kc_equal, hash->funcs->equal);
-
+ 
   if (NULL == node)
-    return -1;
+    ERROR_UNDEF_RET(1, -1);
 
   *kv = *(struct hash_kv *) node->data;
   
