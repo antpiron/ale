@@ -175,3 +175,13 @@ hash_del(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv)
 
   ERROR_UNDEF_RET(1, -1);
 }
+
+void
+hash_foreach(struct hash *hash, void (*callback)(struct hash_kv *kv, void *cls), void *cls)
+{
+  for (size_t i = 0 ; i < hash->size ; i++)
+    {
+      for (struct sl_node *node = sl_first(hash->array+i) ; NULL != node ; node = sl_next(node))
+	callback((struct hash_kv*) node->data, cls);
+    }
+}

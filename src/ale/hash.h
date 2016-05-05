@@ -40,6 +40,6 @@ int hash_get(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv);
 int hash_set(struct hash *hash, void *key, size_t keysize, void *value, struct hash_kv *kv);
 int hash_del(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv);
 
-void hash_foreach();
+void hash_foreach(struct hash *hash, void (*callback)(struct hash_kv *kv, void *cls), void *cls);
 
 #endif
