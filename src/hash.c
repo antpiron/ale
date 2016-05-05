@@ -48,28 +48,26 @@ struct hash_funcs hash_string_funcs = { .hash = hash_string,
 int
 hash_init(struct hash *hash)
 {
-  uint8_t *buf = malloc(SIP_KEYLEN);
-  // TODO: crypto generate hash_func_key
-  while ( -1 == getrandom(buf, SIP_KEYLEN, 0) )
-    {
-      if (EAGAIN == errno || EINTR == errno)
-	continue;
-
-      ERROR_ERRNO_FATAL(1, "getrandom() failed in hash_init()\n");
-    }
   return hash_init_full(hash, HASH_DEFAULT_SIZE, &hash_string_funcs);
 }
 
 int
 hash_init_full(struct hash *hash, size_t size, struct hash_funcs *funcs)
 {
+  int eintr_count = 0;
+  
   hash->size = size;
   hash->funcs = funcs;
   hash->hash_func_key = malloc(SIP_KEYLEN);
   while ( -1 == getrandom(hash->hash_func_key, SIP_KEYLEN, 0) )
     {
       if (EAGAIN == errno || EINTR == errno)
-	continue;
+	{
+	  eintr_count++;
+	  ERROR_ERRNO_FATAL_FMT(3 <= eintr_count,
+				"getrandom() in hash_init_full() returned %d times EINTR\n", eintr_count);
+	  continue;
+	}
 
       ERROR_ERRNO_FATAL(1, "getrandom() in hash_init_full() failed\n");
     }
@@ -86,7 +84,7 @@ hash_init_full(struct hash *hash, size_t size, struct hash_funcs *funcs)
 int
 hash_destroy(struct hash *hash)
 {
-  free( hash->hash_func_key);
+  free(hash->hash_func_key);
   for (size_t i = 0 ; i < hash->size ; i++)
     sl_destroy(hash->array+i);
   free(hash->array);
@@ -114,7 +112,7 @@ hash_get(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv)
 
   *kv = *(struct hash_kv *) node->data;
   
-  return -1;
+  return 0;
 }
 
 int
@@ -124,25 +122,29 @@ hash_set(struct hash *hash, void *key, size_t keysize, void *value, struct hash_
   struct hash_kv kv_tmp = { .key = key, .keysize = keysize };
   struct sl_node *node;
   struct hash_kv *newkv;
+  int ret = 0;
 
   node = sl_search_full(hash->array + hashed_key, &kv_tmp, kc_equal, hash->funcs->equal);
   if (NULL != node)
     {
       newkv = (struct hash_kv*) node->data;
-      *kv = *newkv;
+      ret = 1;
+      if (NULL != kv)
+	*kv = *newkv;
     }
   else
     {
+      ret = 0;
       newkv = malloc(sizeof(struct hash_kv));
       ERROR_UNDEF_FATAL(NULL == newkv, "Out of memory in malloc\n");
-      ERROR_FATAL(-1 == sl_push(hash->array + hashed_key, kv), "sl_push() failed in hash_set()");
+      ERROR_FATAL(-1 == sl_push(hash->array + hashed_key, newkv), "sl_push() failed in hash_set()");
     }
 
   newkv->key = key;
   newkv->keysize = keysize;
   newkv->value = value;
 
-  return 0;
+  return ret;
 }
 
 int
@@ -157,7 +159,8 @@ hash_del(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv)
       struct hash_kv *cur_kv = cur->data;
       if ( hash->funcs->equal(cur_kv->key, cur_kv->keysize, key, keysize) )
 	{
-	  *kv = *cur_kv;
+	  if (NULL != kv)
+	    *kv = *cur_kv;
 	  sl_pop(prev);
 
 	  return 0;

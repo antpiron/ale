@@ -7,7 +7,7 @@
 #include "ale/portability.h"
 
 #define NUM_ITER (1l << 22)
-#define DEVIATION (0.0001)
+#define DEVIATION (0.005)
 #define BITS (8)
 #define SIZE (1 << BITS)
 #define SHIFT (32 - BITS)

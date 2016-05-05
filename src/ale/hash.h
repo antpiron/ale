@@ -14,7 +14,7 @@ struct hash_funcs {
   int (*equal)(const void *keya, size_t keyasize, const void *keyb, size_t keybsize);
 };
 
-extern struct hash_funcs hash_buffer_funcs;
+extern struct hash_funcs hash_string_funcs;
 extern struct hash_funcs hash_intptr_t_funcs;
 
 struct hash {
