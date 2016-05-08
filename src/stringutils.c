@@ -56,3 +56,63 @@ strtolower(char *dst, const char *src)
     *dst = tolower(*src);
   *dst = '\0';
 }
+
+int
+string_init(struct string *string)
+{
+  string->str = malloc(STRING_DEFAULT_SIZE);
+  ERROR_UNDEF_FATAL(NULL == string->str, "string_init() unable to allocate memory!\n");
+
+  string->len = 0;
+  string->alloc_size = STRING_DEFAULT_SIZE;
+
+  return 0;
+}
+
+void
+string_destroy(struct string *string)
+{
+  free(string->str);
+}
+
+
+static void
+str_resize(struct string *dst, size_t len)
+{
+  if (len + 1 > dst->alloc_size)
+    {
+      size_t new_size = ((len + 1 + STRING_DEFAULT_SIZE) / STRING_DEFAULT_SIZE) * STRING_DEFAULT_SIZE;
+
+      dst->str = realloc(dst->str, new_size);
+      ERROR_UNDEF_FATAL(NULL == dst->str, "string_append() unable to allocate memory!\n");
+      dst->alloc_size = new_size;      
+    }
+}
+
+int
+string_set(struct string *dst, char *str)
+{
+  size_t len = strlen(str);
+
+  str_resize(dst, len);
+
+  memcpy(dst->str, str, len);
+  dst->str[len] = '\0';
+  dst->len = len;
+  
+  return 0;
+}
+
+int
+string_append(struct string *dst, struct string *src)
+{
+  size_t len = dst->len + src->len;
+
+  str_resize(dst, len);
+
+  memcpy(dst->str + dst->len, src->str, src->len);
+  dst->str[len] = '\0';
+  dst->len = len;
+    
+  return 0;
+}

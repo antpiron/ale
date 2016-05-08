@@ -105,3 +105,70 @@ mkpath_fopen(const char *pathname, const char *mode)
   return file; // TODO: if fopen fail, empty directories may be present
 }
 
+/*
+static char*
+read_unescaped(FILE *file)
+{
+}
+
+static char*
+read_escaped(FILE *file)
+{
+}
+
+static inline int
+match(FILE *file, unsigned char c)
+{
+  unsigned char rc = fgetc(file);
+
+  ERROR_FERROR_RET(EOF == rc, -1);
+  ERROR_UNDEF_RET(1, -1);
+
+  return 0;
+}
+
+intptr_t
+read_record(FILE *file, char **strings, size_t n)
+{
+  size_t count = 0;
+  strings[count++] = read_field(FILE *file);;
+  unsigned char c = fgetc(file);
+  ERROR_FERROR_RET(EOF == c, -1);
+  match()
+}
+
+
+intptr_t
+csv_readline(FILE *file, char **strings, size_t n)
+{
+  intptr_t count = read_record(file, strings, n);
+  ERROR_RET(-1 == count);
+  
+  if (feof(file))
+    return count;
+
+  unsigned char c = fgetc(file);
+  ERROR_FERROR_RET(EOF == c, -1);
+
+  if ('\r' == c)
+    {
+      unsigned char c = fgetc(file);
+      ERROR_FERROR_RET(EOF == c, -1);
+    }
+
+  ERROR_UNDEF('\n' != c);
+    
+
+  return count;
+}
+
+int
+csv_init(struct csv *csv, FILE *file)
+{
+  csv->file = file;
+  
+  return 0;
+}
+void csv_destroy(struct csv *csv);
+intptr_t csv_readline(struct csv *csv);
+*/
