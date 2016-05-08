@@ -26,10 +26,11 @@ classifier_sl_destroy(struct sl_node *list)
 void
 classifier_sl_destroy_full(struct sl_node *list, void (*destroy_data)(void *))
 {
-  for (struct classifier_sl_dc *dc = sl_pop(list) ;
-       NULL != dc ;
-       dc = sl_pop(list))
-    destroy_data(dc->data);
+  struct classifier_sl_dc *dc;
+
+  while ( 0 == sl_pop(list, (void**) &dc) )
+    if ( NULL != destroy_data )
+      destroy_data(dc->data);
 
   sl_destroy(list);
 }
@@ -46,12 +47,11 @@ insert_in_k(unsigned int k, struct kentry *sorted[k+1], double distance, unsigne
 {
   unsigned int i;
   
-  if (distance >= sorted[i]->distance)
+  if (distance >= sorted[1]->distance)
     return;
   
-  for (i = 1 ; i < k+1 ; i++)
-    if (distance < sorted[i]->distance)
-      sorted[i-1] = sorted[i];
+  for (i = 1 ; i < k+1 && distance < sorted[i]->distance ; i++)
+    sorted[i-1] = sorted[i];
 
   sorted[0]->distance = distance;
   sorted[0]->class = class;
@@ -88,14 +88,15 @@ knn_classifier(unsigned int k, void *data, struct sl_node *learned,
   for (unsigned int i = 1 ; i < k+1 ; i++)
     if (sorted[i]->class > count_size)
       count_size = sorted[i]->class;
-
+  count_size++;
+  
   unsigned int count[count_size];
   memset(count, 0, sizeof(count));
   for (unsigned int i = 1 ; i < k+1 ; i++)
     count[sorted[i]->class]++;
 
   unsigned int max = 0;
-  unsigned int class;
+  unsigned int class = 0;
   for (unsigned int i = 0 ; i < count_size ; i++)
     if (count[i] > max)
       {

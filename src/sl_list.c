@@ -143,29 +143,30 @@ sl_push(struct sl_node *node, void *data)
   return 0;
 }
 
-void*
-sl_pop(struct sl_node *node)
+int
+sl_pop(struct sl_node *node, void **data)
 {
-  void* data;
   struct sl_node *top = node->next;
     
   if (NULL == top)
-    return NULL;
+    return -1;
 
   node->next = top->next;
-  data = top->data;
+  *data = top->data;
   free(top);
   
-  return data;
+  return 0;
 }
 
-void*
-sl_top(struct sl_node *node)
+int
+sl_top(struct sl_node *node, void **data)
 {
   struct sl_node *top = node->next;
     
   if (NULL == top)
-    return NULL;
+    return -1;
 
-  return top->data;
+  *data = top->data;
+  
+  return 0;
 }

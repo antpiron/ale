@@ -165,9 +165,10 @@ hash_del(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv)
       struct hash_kv *cur_kv = cur->data;
       if ( hash->funcs->equal(cur_kv->key, cur_kv->keysize, key, keysize) )
 	{
+	  void *tmp;
 	  if (NULL != kv)
 	    *kv = *cur_kv;
-	  sl_pop(prev);
+	  ERROR_UNDEF_RET(-1 == sl_pop(prev, &tmp), -1);
 
 	  return 0;
 	}

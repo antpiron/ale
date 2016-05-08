@@ -26,8 +26,8 @@ struct sl_node* sl_search_full(struct sl_node *node, void *data,
 			       void *cls);
 
 int sl_push(struct sl_node *node, void *data);
-void* sl_pop(struct sl_node *node);
-void* sl_top(struct sl_node *node);
+int sl_pop(struct sl_node *node, void **data);
+int sl_top(struct sl_node *node, void **data);
 
 
 #endif
