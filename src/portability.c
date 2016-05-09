@@ -94,6 +94,8 @@ gen_key(uint8_t *key)
 }
 
 // Counter mode generator based on siphash
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int
 portability_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
@@ -119,6 +121,7 @@ portability_getrandom(void *buf, size_t buflen, unsigned int flags)
   
   return 0;  
 }
+#pragma GCC diagnostic pop
 
 #ifdef HAVE_GETRANDOM_SYSCALL
 #include <linux/random.h>
@@ -126,6 +129,6 @@ portability_getrandom(void *buf, size_t buflen, unsigned int flags)
 int
 portability_getrandom_syscall(void *buf, size_t buflen, unsigned int flags)
 {
-  return syscall(SYS_getrandom, buf, buflen, 0);
+  return syscall(SYS_getrandom, buf, buflen, flags);
 }
 #endif
