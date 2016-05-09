@@ -106,16 +106,27 @@ mkpath_fopen(const char *pathname, const char *mode)
   return file; // TODO: if fopen fail, empty directories may be present
 }
 
+// TODO: reentrant flex mode:
+// yyscan_t scanner;
+// yylex_init(&scanner);
+// yyset_in(fopen(argv[1], "rb"), scanner);
+// yylex(scanner);
+// yylex_destroy(scanner);
 int
-csv_init(FILE *file)
+csv_init(struct csv *csv, FILE *file)
 {
   csvin = file;
 
   return 0;
 }
 
+void
+csv_destroy(struct csv *csv)
+{
+}
+
 int
-csv_readline(struct sl_node *node)
+csv_readline(struct csv *csv, struct sl_node *node)
 {
   size_t fieldnum = 0;
   struct sl_node *last = node;
