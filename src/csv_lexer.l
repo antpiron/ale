@@ -8,21 +8,21 @@
 
 %option noyywrap
 %option prefix="csv"
-%option outfile="csv_lexer.c"
+%option outfile="csv_lexer.c" header-file="csv_lexer.h"
 
 %%
 [^",\n\r]*                                              { 
-                                                          csvlval = csvtext; 
+                                                          csvlval = yytext; 
                                                           return CSV_FIELD; 
                                                         } 
 \"([^"]|\"\")*\"                                        { 
-                                                          csvlval = clean_escaped(csvtext); 
+                                                          csvlval = clean_escaped(yytext); 
                                                           return CSV_FIELD; 
                                                         }
 ,                                                       { return CSV_COMMA; }
 \r?\n                                                   { return CSV_EOL; }
 .                                                       { 
-                                                          csvlval = csvtext; 
+                                                          csvlval = yytext; 
                                                           return CSV_OTHER; 
                                                         }
 

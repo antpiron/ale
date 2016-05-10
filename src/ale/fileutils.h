@@ -15,7 +15,7 @@ FILE* mkpath_fopen(const char *pathname, const char *mode);
 
 struct csv
 {
-  // yyscan_t scanner;
+  void *scanner;
 };
 
 int csv_init(struct csv *csv, FILE *file);

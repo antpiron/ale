@@ -48,7 +48,7 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT( 0 != (ret = csv_readline(&csv, &node)), "FATAL: returned %zu\n", ret);
   sl_destroy_full(&node, free);
 
-
+  csv_destroy(&csv);
   fclose(file);
   
   return EXIT_SUCCESS;

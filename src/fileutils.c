@@ -9,6 +9,7 @@
 #include "ale/error.h"
 #include "ale/fileutils.h"
 
+#include "csv_lexer.h"
 #include "csv_tokens.h"
 
 int
@@ -106,34 +107,39 @@ mkpath_fopen(const char *pathname, const char *mode)
   return file; // TODO: if fopen fail, empty directories may be present
 }
 
-// TODO: reentrant flex mode:
-// yyscan_t scanner;
-// yylex_init(&scanner);
-// yyset_in(fopen(argv[1], "rb"), scanner);
-// yylex(scanner);
-// yylex_destroy(scanner);
+
+
 int
 csv_init(struct csv *csv, FILE *file)
 {
-  csvin = file;
+  yyscan_t *scanner = malloc(sizeof(yyscan_t));
+  ERROR_UNDEF_FATAL(NULL == scanner, "Unable to allocate memory in csv_init()\n");
 
+  csvlex_init(scanner);
+  csvset_in(file, *scanner);
+  //csvin = file;
+
+  csv->scanner = scanner;
   return 0;
 }
 
 void
 csv_destroy(struct csv *csv)
 {
+  csvlex_destroy(*(yyscan_t*) csv->scanner);
+  free(csv->scanner);
 }
 
 int
 csv_readline(struct csv *csv, struct sl_node *node)
 {
+  yyscan_t *scanner = (yyscan_t*) csv->scanner;
   size_t fieldnum = 0;
   struct sl_node *last = node;
-  int token = csvlex();
+  int token = csvlex(*scanner);
 
   while (CSV_EOL == token)
-    token = csvlex();
+    token = csvlex(*scanner);
 
   if (CSV_EOF == token)
     return 0;
@@ -146,7 +152,7 @@ csv_readline(struct csv *csv, struct sl_node *node)
 	  last = last->next;
 	  fieldnum++;
 	  
-	  token = csvlex();
+	  token = csvlex(*scanner);
 
 	  if (CSV_EOF == token || CSV_EOL == token)
 	    return fieldnum;
@@ -160,7 +166,7 @@ csv_readline(struct csv *csv, struct sl_node *node)
 	  fieldnum++;
 	}
 
-      token = csvlex();
+      token = csvlex(*scanner);
     }
 
   return fieldnum;
