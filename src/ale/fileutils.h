@@ -6,12 +6,14 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <ale/sl_list.h>
+#include <ale/vector.h>
 
 int rmpath(const char *dname, const char *pathname);
 int unlink_path(const char *dname, const char *pathname);
 int mkpath(const char *pathname, mode_t mode);
 FILE* mkpath_fopen(const char *pathname, const char *mode);
+
+VECTOR_INIT(int,char*)
 
 struct csv
 {
@@ -20,7 +22,7 @@ struct csv
 
 int csv_init(struct csv *csv, FILE *file);
 void csv_destroy(struct csv *csv);
-int csv_readline(struct csv *csv, struct sl_node *node);
+int csv_readline(struct csv *csv, struct vector_int *vector);
 
 
 #endif

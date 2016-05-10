@@ -6,7 +6,6 @@
 
 #define VECTOR_DEFAULT_SIZE (256)
 
-
 #define VECTOR_INIT(name,type)						\
   struct vector_##name							\
   {									\
@@ -14,7 +13,7 @@
     type *data;								\
   };									\
   									\
-  static int								\
+  static inline int							\
   vector_##name##_init(struct vector_##name *vector)			\
   {									\
     vector->data = malloc(sizeof(type) * VECTOR_DEFAULT_SIZE);		\
@@ -25,7 +24,7 @@
     return 0;								\
   }								 	\
   									\
-  static void									\
+  static inline void									\
   vector_##name##_destroy(struct vector_##name *vector)			\
   {									\
     free(vector->data);							\

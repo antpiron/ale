@@ -131,11 +131,10 @@ csv_destroy(struct csv *csv)
 }
 
 int
-csv_readline(struct csv *csv, struct sl_node *node)
+csv_readline(struct csv *csv, struct vector_int *vector)
 {
   yyscan_t *scanner = (yyscan_t*) csv->scanner;
   size_t fieldnum = 0;
-  struct sl_node *last = node;
   int token = csvlex(*scanner);
 
   while (CSV_EOL == token)
@@ -148,9 +147,7 @@ csv_readline(struct csv *csv, struct sl_node *node)
     {
       if (CSV_FIELD == token)
         {
-	  sl_push(last, strdup(csvlval));
-	  last = last->next;
-	  fieldnum++;
+	  vector_int_set(vector, fieldnum++, strdup(csvlval));
 	  
 	  token = csvlex(*scanner);
 
@@ -161,9 +158,7 @@ csv_readline(struct csv *csv, struct sl_node *node)
 	}
       else if (CSV_COMMA == token)
 	{
-	  sl_push(last, strdup(csvlval));
-	  last = last->next;
-	  fieldnum++;
+	  vector_int_set(vector, fieldnum++, strdup(csvlval));
 	}
 
       token = csvlex(*scanner);

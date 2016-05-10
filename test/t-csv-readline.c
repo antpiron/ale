@@ -5,7 +5,6 @@
 
 #include "ale/error.h"
 #include "ale/fileutils.h"
-#include "ale/sl_list.h"
 
 #define CSV "csv-test.csv"
 
@@ -13,41 +12,42 @@ int
 main(int argc, char *argv[argc])
 {
   struct csv csv;
-  struct sl_node node;
+  struct vector_int vector;
   FILE *file;
   size_t ret;
   char *exp2 = "plop\"plop2,\nnewline";
 
-  sl_init(&node);
+  vector_int_init(&vector);
   
   file = fopen(CSV, "r");
   ERROR_ERRNO_FATAL(NULL == file, "FATAL: fopen() returned NULL\n");
 
   ERROR_UNDEF_FATAL( 0 != csv_init(&csv, file), "FATAL: csv_init() != 0\n");
 
-  ERROR_UNDEF_FATAL_FMT( 3 != (ret = csv_readline(&csv, &node)), "FATAL: returned %zu\n", ret);
-  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("plop", (char*) node.next->data),
-			 "FATAL: %s != plop\n", (char*) node.next->data);
-  ERROR_UNDEF_FATAL_FMT( 0 != strcmp(exp2, (char*) node.next->next->data),
-			 "FATAL: %s != %s\n", (char*) node.next->next->data, exp2);
-  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("kgfgf", (char*) node.next->next->next->data),
-			 "FATAL: %s != kgfgf\n", (char*) node.next->next->next->data);
+  ERROR_UNDEF_FATAL_FMT( 3 != (ret = csv_readline(&csv, &vector)), "FATAL: returned %zu\n", ret);
 
-  sl_destroy_full(&node, free);
+  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("plop", vector.data[0]), "FATAL: %s != plop\n", vector.data[0]);
+  ERROR_UNDEF_FATAL_FMT( 0 != strcmp(exp2, vector.data[1]), "FATAL: %s != %s\n", vector.data[1], exp2);
+  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("kgfgf",  vector.data[2]), "FATAL: %s != kgfgf\n",  vector.data[2]);
 
-  sl_init(&node);
+  for (size_t i = 0 ; i < 3 ; i++)
+    free(vector.data[i]);
+  vector_int_destroy(&vector);
 
-  ERROR_UNDEF_FATAL_FMT( 3 != (ret = csv_readline(&csv, &node)), "FATAL: returned %zu\n", ret);
-  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("one", (char*) node.next->data),
-			 "FATAL: %s != one\n", (char*) node.next->data);
-  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("two", (char*) node.next->next->data),
-			 "FATAL: %s != two\n", (char*) node.next->next->data);
-  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("three", (char*) node.next->next->next->data),
-			 "FATAL: %s != three\n", (char*) node.next->next->next->data);
+  
+  vector_int_init(&vector);
 
-  ERROR_UNDEF_FATAL_FMT( 0 != (ret = csv_readline(&csv, &node)), "FATAL: returned %zu\n", ret);
-  sl_destroy_full(&node, free);
+  ERROR_UNDEF_FATAL_FMT( 3 != (ret = csv_readline(&csv, &vector)), "FATAL: returned %zu\n", ret);
+  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("one", vector.data[0]), "FATAL: %s != one\n", vector.data[0]);
+  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("two", vector.data[1]), "FATAL: %s != two\n", vector.data[1]);
+  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("three",  vector.data[2]),"FATAL: %s != three\n", (char*) vector.data[2]);
 
+  ERROR_UNDEF_FATAL_FMT( 0 != (ret = csv_readline(&csv, &vector)), "FATAL: returned %zu\n", ret);
+
+  for (size_t i = 0 ; i < 3 ; i++)
+    free(vector.data[i]);
+  vector_int_destroy(&vector);
+ 
   csv_destroy(&csv);
   fclose(file);
   
