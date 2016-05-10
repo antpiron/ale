@@ -6,3 +6,7 @@ libale_la_SOURCES = ale/error.h error.c ale/daemon.h daemon.c portability.c ale/
 BUILT_SOURCES = csv_lexer.h csv_lexer.c
 include_HEADERS = ale.h
 pkginclude_HEADERS = ale/error.h ale/daemon.h ale/portability.h ale/bitset.h ale/fileutils.h ale/stringutils.h ale/exparser.h ale/btree.h ale/sl_list.h ale/hash.h ale/siphash24.h ale/knn.h ale/vector.h
+
+csv_lexer.c csv_lexer.h:	csv_lexer.l
+	$(LEX) -R csv_lexer.l
+csv_lexer.h:	csv_lexer.l csv_lexer.c
