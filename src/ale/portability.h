@@ -6,8 +6,6 @@
 #include <sys/types.h>
 #include <stdint.h>
 
-#include "config.h"
-
 #ifndef PATH_MAX
 # define PATH_MAX 4096
 #endif

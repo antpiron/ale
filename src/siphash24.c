@@ -14,6 +14,11 @@
    this software. If not, see
    <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>

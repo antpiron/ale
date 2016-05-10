@@ -1,3 +1,7 @@
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include <stdlib.h>
 #include "ale/error.h"
 #include "ale/sl_list.h"

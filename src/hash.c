@@ -1,4 +1,7 @@
-#include "config.h"
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "ale/portability.h"
 #include <string.h>
 #include <linux/random.h>
