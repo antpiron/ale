@@ -19,6 +19,7 @@ struct csv
 };
 
 int csv_init(struct csv *csv, FILE *file);
+void csv_destroy(struct csv *csv);
 int csv_readline(struct csv *csv, struct sl_node *node);
 
 

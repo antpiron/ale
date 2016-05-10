@@ -31,7 +31,7 @@ main(int argc, char *argv[argc])
     }
 
   hash_foreach(&hash, callback, &count);
-  ERROR_UNDEF_FATAL_FMT(count != NUMBER, "FATAL: %lu != %lu\n", count, NUMBER);
+  ERROR_UNDEF_FATAL_FMT(count != NUMBER, "FATAL: %lu != %lu\n", count, (unsigned long) NUMBER);
   
   hash_destroy(&hash);
 

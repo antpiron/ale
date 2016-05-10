@@ -5,6 +5,8 @@
 #include "ale/hash.h"
 #include "ale/error.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 size_t
 hash_intptr_t(const void *key, size_t keysize, const uint8_t *hash_func_key)
 {
@@ -19,6 +21,7 @@ equal_intptr_t(const void *keya, size_t keyasize, const void *keyb, size_t keybs
 {
   return (intptr_t) keya == (intptr_t) keyb;  
 }
+#pragma GCC diagnostic pop
 
 struct hash_funcs hash_intptr_t_funcs = { .hash = hash_intptr_t,
 					  .equal = equal_intptr_t };
