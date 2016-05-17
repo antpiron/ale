@@ -36,6 +36,7 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 * Introduction::                
 * Error::        
 * Bitset::   
+* Vector::   
 * Daemon::   
 * Fileutils::   
 * Index::                       Complete index.
@@ -207,6 +208,7 @@ main(int argc, char *argv[ ])
   return EXIT_SUCCESS;
 @}
 
+
 @end example
 
 @deftypefn {C Function} static inline int @
@@ -257,8 +259,65 @@ Test if the bitset @var{bs} is empty. Return 1 on emptiness, 0 otherwise.
 Set @var{len} bits from position @var{index} of the bitset @var{bs}.
 @end deftypefn
 
+@node Vector, Daemon, Bitset, Top
+@chapter Vector
 
-@node Daemon, Fileutils, Bitset, Top
+
+This module defines arrays called vectors which grows automatically as being set. There is as for C arrays no bound checking.
+
+@example
+
+#include "ale/vector.h"
+
+// Create a vector named int (first parameter) and composed of
+//    integers (second parameter).
+// The  type struct vector_int and functions vector_int_init,
+//    vector_int_destroy, vector_int_set, vector_int_get
+// are created
+VECTOR_INIT(int,int)
+
+int
+main(int argc, char *argv[argc])
+@{
+  struct vector_int vector;
+  int val;
+
+
+  vector_int_init(&vector);
+  vector_int_set(&vector, 1, 1);
+  val = vector_int_get(&vector, 1);
+  vector_int_destroy(&vector);
+@}
+
+@end example
+
+@deftypefn {C Macro}  void @
+                      VECTOR_INIT(@var{name},@var{type})
+Create a vector named @var{name} made of variable typed with @var{type} The type struct vector_##@var{name} and functions vector_##@var{name}##_init, vector_##@var{name}##_destroy, vector_##@var{name}##_set, vector_##@var{name}##_get are created by this macro.
+@end deftypefn
+
+@deftypefn {C Function} static inline int @
+                        vector_##name##_init(struct vector_##name *@var{vector})
+Initialize the structure. Return 0 on success. May kill the current process if unable to allocate memory.
+@end deftypefn
+
+@deftypefn {C Function} static inline void @
+                        vector_##name##_destroy(struct vector_##name *@var{vector})
+Destroy the structure.
+@end deftypefn
+
+@deftypefn {C Function} static inline void @
+                        vector_##name##_set(struct vector_##name *@var{vector}, size_t @var{pos}, type @var{value})
+Set the element at position @var{pos} with the value @var{value}.
+@end deftypefn
+
+@deftypefn {C Function} static inline type @
+                        vector_##name##_get(struct vector_##name *@var{vector}, size_t @var{pos})
+Return the element at position @var{pos}.
+@end deftypefn
+
+
+@node Daemon, Fileutils, Vector, Top
 @chapter Daemon
 
 @example
@@ -271,7 +330,7 @@ main(int argc, char *argv[ ])
 
   ERROR_FATAL(-1 == daemon_init("/tmp/myprog.pid"), "Unable to daemonize");
   ERROR_FATAL(-1 == drop_privileges(1000,1000), "Unable to set uid and gid");
-
+  
   return EXIT_SUCCESS;
 @}
 
@@ -329,6 +388,24 @@ Create recursively the directory @var{pathname} with the mode @var{mode} as for 
                         mkpath_fopen (const char *@var{pathname}, const char *@var{mode});
 
 Open the file @var{pathname} with mode @var{mode} as for posix fopen(). If the directory components of @var{pathname} do not exist, they are created.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        csv_init(struct csv *@var{csv}, FILE *@var{file});
+
+Initialize the @var{csv} structure with the csv input stream @var{file}. Return 0 on success. May abruptly kill the current process if unable to allocate memory.
+@end deftypefn
+
+@deftypefn {C Function} void @
+                        csv_destroy(struct csv *@var{csv});
+
+Destroy the @var{csv} structure.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        csv_readline(struct csv *@var{csv}, struct vector_int *@var{vector});
+
+Read one csv line from the @var{csv} structure and sets the @var{vector} to the fields. Return the number of fields on success. Return -1 on error, and sets accordingly the error in ale/error.h.
 @end deftypefn
 
 

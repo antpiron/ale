@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <unistd.h>
+
 #include "ale/portability.h"
 #include "ale/error.h"
 #include "ale/siphash24.h"
@@ -130,6 +131,8 @@ portability_getrandom(void *buf, size_t buflen, unsigned int flags)
 #ifdef HAVE_GETRANDOM_SYSCALL
 #include <linux/random.h>
 #include <sys/syscall.h>
+// Where is this fucking declaration in ubuntu???
+long syscall(long number, ...);
 int
 portability_getrandom_syscall(void *buf, size_t buflen, unsigned int flags)
 {
