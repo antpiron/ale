@@ -444,7 +444,7 @@ main(int argc, char *argv[argc])
 
 @end example
 
-The following structure defines the two helper function for the hash table. The first one is @code{hash} which is a keyed hashing function. The size @code{SIP_KEYLEN} of the key is taken from the siphash24 module (@pxref{Siphash24}). The second one is a test of equality between keys.
+The following structure defines the two helper function for the hash table. The first one is @code{hash} which is a keyed hashing function. The size of @code{hash_func_key} is @code{SIP_KEYLEN} from the siphash24 module (@pxref{Siphash24}). The second one is a test of equality between keys.
 
 @example
 struct hash_funcs
