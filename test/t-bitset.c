@@ -13,6 +13,7 @@ int
 main(int argc, char *argv[argc])
 {
   struct bitset bs;
+  struct bitset a, b;
   
   ERROR_FATAL(bitset_init(&bs,NBRBIT) < 0, "FAIL: Init failed\n");
   
@@ -43,6 +44,21 @@ main(int argc, char *argv[argc])
   bitset_set(bs, 1201);
   ERROR_FATAL(bitset_isempty(bs), "FAIL: bitset_isempty() say empty\n");
 
+  bitset_reset(bs);
+  ERROR_FATAL(bitset_init(&a,NBRBIT) < 0, "FAIL: Init failed\n");
+  ERROR_FATAL(bitset_init(&b,NBRBIT) < 0, "FAIL: Init failed\n");
+  bitset_setrange(a, 0,553);
+  bitset_setrange(b, 1,552);
+  bitset_xor(bs, a, b);
+  ERROR_FATAL_FMT(0x1ull != bs.buf[0], "FAIL: bitset_xor() %"PRIx64" != 0x1", bs.buf[0]);
+  bitset_unset(bs, 0);
+  for (int i = 0 ; i <  (NBRBIT + 63) / 64 ; i++)
+    ERROR_FATAL_FMT(bs.buf[i], "FAIL:  bitset_xor() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
+  ERROR_FATAL(0 == bitset_isempty(bs), "FAIL: bitset_isempty() do not say empty\n");
+  
+  bitset_free(a);
+  bitset_free(b);
+  
   bitset_free(bs);
 
   return EXIT_SUCCESS;
