@@ -526,7 +526,7 @@ The length of the key for the keyed hash.
 @end defvr
 
 @defvr {C Define} SIP_HASHLEN
-The lenght of the hash.
+The length of the hash.
 @end defvr
 
 
