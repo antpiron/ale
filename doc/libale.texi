@@ -33,12 +33,16 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 @end ifnottex
 
 @menu
-* Introduction::                
-* Error::        
-* Bitset::   
-* Vector::   
-* Daemon::   
-* Fileutils::   
+* Introduction::
+* Error::
+* Bitset::
+* Vector::
+* Single linked list::
+* Hash::
+* Siphash24::
+* Daemon::
+* Fileutils::
+* Stringutils::
 * Index::                       Complete index.
 @end menu
 
@@ -65,130 +69,129 @@ The variable define a variable (may be a macro) of type error_st.
 
 The next macro is used to propagate -- bubble -- an error up in the call stack
 
-@deftypefn {C Macro}  ERROR_RET (@var{test},@var{val})
+@deffn {C Macro} ERROR_RET (@var{test},@var{val})
 Bubble the error and returns @var{val} if @var{test} is true. This is equivalent to
        @example
         if (@var{test})
           return (@var{val});
        @end example
-@end deftypefn
+@end deffn
 
 The following macro set @var{error.type} to the type of errors and returns a value if an error condition is met
 
-@deftypefn {C Macro} @
-                     ERROR_ERRNO_RET (test,val)
+@deffn {C Macro} ERROR_ERRNO_RET (test,val)
 Set @var{error.type} to @var{ERR_ERRNO} and returns @var{val} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_GAI_RET (test,val)
+@deffn {C Macro} ERROR_GAI_RET (test,val)
 
 Set @var{error.type} to @var{ERR_GAI} and returns @var{val} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_FERROR_RET (test,val)
+@deffn {C Macro} ERROR_FERROR_RET (test,val)
 
 Set @var{error.type} to @var{ERR_FERROR} and returns @var{val} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_UNDEF_RET (test,val)
+@deffn {C Macro} ERROR_UNDEF_RET (test,val)
 
 Set @var{error.type} to @var{ERR_UNDEF} and returns @var{val} if @var{test} is true. ``undef'' means unrelated to posix system error.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_CUSTOM_RET (test,err,val)
+@deffn {C Macro} ERROR_CUSTOM_RET (test,err,val)
 
 Set @var{error.type} to @var{ERR_CUSTOM} and @var{error.errnum} to @var{err} and returns @var{val} if @var{test} is true. ``custom'' means user defined error codes.
-@end deftypefn
+@end deffn
 
 The following macro are used to show up an appropriate error message
 
-@deftypefn {C Macro} ERROR_MSG_FMT (@var{test},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_MSG (@var{test},@var{str})
+@deffn {C Macro} ERROR_MSG_FMT (@var{test},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_MSG (@var{test},@var{str})
 Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
 The following macro are similar but specific to certain kind of errors
 
-@deftypefn {C Macro} ERROR_ERRNO_MSG_FMT (@var{test},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_ERRNO_MSG (@var{test},@var{str})
+@deffn {C Macro} ERROR_ERRNO_MSG_FMT (@var{test},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_ERRNO_MSG (@var{test},@var{str})
 Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_GAI_MSG_FMT (@var{test},@var{fmt},...) 
-@end deftypefn
-@deftypefn {C Macro} ERROR_GAI_MSG (@var{test},@var{str})
+@deffn {C Macro} ERROR_GAI_MSG_FMT (@var{test},@var{fmt},...) 
+@end deffn
+@deffn {C Macro} ERROR_GAI_MSG (@var{test},@var{str})
 Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_FERROR_MSG_FMT (@var{test},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_FERROR_MSG (@var{test},@var{str}) 
+@deffn {C Macro} ERROR_FERROR_MSG_FMT (@var{test},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_FERROR_MSG (@var{test},@var{str}) 
 Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_UNDEF_MSG_FMT (@var{test},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_UNDEF_MSG (@var{test},@var{str})
+@deffn {C Macro} ERROR_UNDEF_MSG_FMT (@var{test},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_UNDEF_MSG (@var{test},@var{str})
 Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_CUSTOM_MSG_FMT (@var{test},@var{err},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_CUSTOM_MSG (@var{test},@var{err},@var{str})
+@deffn {C Macro} ERROR_CUSTOM_MSG_FMT (@var{test},@var{err},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_CUSTOM_MSG (@var{test},@var{err},@var{str})
 Show up on stdout an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
 
 The following macro are used to show up an appropriate error message and exits the program with a failure exit code
 
-@deftypefn {C Macro} ERROR_FATAL_FMT (@var{test},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_FATAL (@var{test},@var{str})
+@deffn {C Macro} ERROR_FATAL_FMT (@var{test},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_FATAL (@var{test},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
 The following macro are similar but specific to certain kind of errors
 
-@deftypefn {C Macro} ERROR_ERRNO_FATAL_FMT (@var{test},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_ERRNO_FATAL (@var{test},@var{str})
+@deffn {C Macro} ERROR_ERRNO_FATAL_FMT (@var{test},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_ERRNO_FATAL (@var{test},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_GAI_FATAL_FMT (@var{test},@var{fmt},...) 
-@end deftypefn
-@deftypefn {C Macro} ERROR_GAI_FATAL (@var{test},@var{str})
+@deffn {C Macro} ERROR_GAI_FATAL_FMT (@var{test},@var{fmt},...) 
+@end deffn
+@deffn {C Macro} ERROR_GAI_FATAL (@var{test},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_FERROR_FATAL_FMT (@var{test},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_FERROR_FATAL (@var{test},@var{str}) 
+@deffn {C Macro} ERROR_FERROR_FATAL_FMT (@var{test},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_FERROR_FATAL (@var{test},@var{str}) 
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_UNDEF_FATAL_FMT (@var{test},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_UNDEF_FATAL (@var{test},@var{str})
+@deffn {C Macro} ERROR_UNDEF_FATAL_FMT (@var{test},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_UNDEF_FATAL (@var{test},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
-@deftypefn {C Macro} ERROR_CUSTOM_FATAL_FMT (@var{test},@var{err},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_CUSTOM_FATAL (@var{test},@var{err},@var{str})
+@deffn {C Macro} ERROR_CUSTOM_FATAL_FMT (@var{test},@var{err},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_CUSTOM_FATAL (@var{test},@var{err},@var{str})
 Exit with an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true.
-@end deftypefn
+@end deffn
 
 
 The following macro are used to send the error to the logging facility
 
-@deftypefn {C Macro} ERROR_LOG_FMT (@var{test},@var{level},@var{fmt},...)
-@end deftypefn
-@deftypefn {C Macro} ERROR_LOG (@var{test},@var{level},@var{str})
+@deffn {C Macro} ERROR_LOG_FMT (@var{test},@var{level},@var{fmt},...)
+@end deffn
+@deffn {C Macro} ERROR_LOG (@var{test},@var{level},@var{str})
 Sends to the logging facility an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true. The log entry is sent @code{syslog(...)} with the level @var{level}.
-@end deftypefn
+@end deffn
 
 @node Bitset, Daemon, Error, Top
 @chapter Bitset
@@ -224,7 +227,7 @@ Desallocate @var{bs}.
 @end deftypefn
 
 @deftypefn {C Function} static inline void @
-           bitset_reset(struct bitset @var{bs})
+           bitset_reset (struct bitset @var{bs})
 
 Reset the bitset @var{bs}.
 @end deftypefn
@@ -259,7 +262,7 @@ Test if the bitset @var{bs} is empty. Return 1 on emptiness, 0 otherwise.
 Set @var{len} bits from position @var{index} of the bitset @var{bs}.
 @end deftypefn
 
-@node Vector, Daemon, Bitset, Top
+@node Vector, Siphash24, Bitset, Top
 @chapter Vector
 
 
@@ -291,29 +294,246 @@ main(int argc, char *argv[argc])
 
 @end example
 
-@deftypefn {C Macro}  void @
-                      VECTOR_INIT(@var{name},@var{type})
+@deffn {C Macro} VECTOR_INIT (@var{name},@var{type})
 Create a vector named @var{name} made of variable typed with @var{type} The type struct vector_##@var{name} and functions vector_##@var{name}##_init, vector_##@var{name}##_destroy, vector_##@var{name}##_set, vector_##@var{name}##_get are created by this macro.
-@end deftypefn
+@end deffn
 
 @deftypefn {C Function} static inline int @
-                        vector_##name##_init(struct vector_##name *@var{vector})
+                        vector_##name##_init (struct vector_##name *@var{vector})
 Initialize the structure. Return 0 on success. May kill the current process if unable to allocate memory.
 @end deftypefn
 
 @deftypefn {C Function} static inline void @
-                        vector_##name##_destroy(struct vector_##name *@var{vector})
+                        vector_##name##_destroy (struct vector_##name *@var{vector})
 Destroy the structure.
 @end deftypefn
 
 @deftypefn {C Function} static inline void @
-                        vector_##name##_set(struct vector_##name *@var{vector}, size_t @var{pos}, type @var{value})
+                        vector_##name##_set (struct vector_##name *@var{vector}, size_t @var{pos}, type @var{value})
 Set the element at position @var{pos} with the value @var{value}.
 @end deftypefn
 
 @deftypefn {C Function} static inline type @
-                        vector_##name##_get(struct vector_##name *@var{vector}, size_t @var{pos})
+                        vector_##name##_get (struct vector_##name *@var{vector}, size_t @var{pos})
 Return the element at position @var{pos}.
+@end deftypefn
+
+@node Single linked list, Hash, Vector, Top
+@chapter Single linked list
+
+This module provides a single linked list. A dummy element is in front of the list. The main structure is
+
+@example
+struct sl_node
+@{
+   void* data;
+   struct sl_node *next;
+@};
+@end example
+
+@deftypefn {C Function} int @
+                        sl_init (struct sl_node *@var{node});
+Initialize a single linked list.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        sl_destroy (struct sl_node *@var{node});
+Destroy the list without freeing the data.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        sl_destroy_full (struct sl_node *@var{node}, void (*@var{destroy_data})(void *));
+Destroy the list calling @var{destroy_data} to free each data.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        sl_insert (struct sl_node *@var{node}, size_t @var{pos}, void *@var{data});
+Insert @var{data} at position @var{pos}. Return -1 on error, otherwise 0.
+@end deftypefn
+
+@deftypefn {C Function} void* @
+                        sl_remove (struct sl_node *@var{node}, size_t @var{pos});
+Remove the element at position @var{pos}. Return the data or @code{NULL} if no data.
+@end deftypefn
+
+
+@deftypefn {C Function} struct sl_node* @
+                        sl_first (struct sl_node *@var{node});
+Return the first element of the list, skipping the dummy element.
+@end deftypefn
+
+@deftypefn {C Function} struct sl_node* @
+                        sl_next (struct sl_node *@var{node});
+Return the next element in the list.
+@end deftypefn
+
+@deftypefn {C Function} struct sl_node* @
+                        sl_nth (struct sl_node *@var{node}, size_t @var{pos});
+Return the node at position @var{pos}, skipping the dummy node.
+@end deftypefn
+
+
+@deftypefn {C Function} struct sl_node* @
+                        sl_search (struct sl_node *@var{node}, void *@var{data}, int (*@var{equal})(void *a, void *b));
+Search a @var{data} in the list comparing with the @var{equal} function.
+@end deftypefn
+
+@deftypefn {C Function} struct sl_node* @
+                        sl_search_full (struct sl_node *@var{node}, void *@var{data}, @
+                                        int (*@var{equal})(void *a, void *b, void *cls), @
+                                        void *@var{cls});
+Search a @var{data} in the list comparing with the @var{equal} function. @var{cls} is a closure data passed to the @var{equal} function.
+@end deftypefn
+
+
+@deftypefn {C Function} int @
+                        sl_push(struct sl_node *@var{node}, void *@var{data});
+Push @var{data} in front of the list. Return -1 on error otherwise 0.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        sl_pop (struct sl_node *@var{node}, void **@var{data});
+Pop the first element of the list in @var{data}. Return -1 if the list is empty, otherwise 0.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        sl_top (struct sl_node *@var{node}, void **@var{data});
+Puts the first element of the list in @var{data}. Return -1 if the list is empty, otherwise 0.
+@end deftypefn
+
+
+
+@node Hash, Siphash24, Single linked list, Top
+@chapter Hash
+
+This module provides an hash table. The default hash function is reasonably collision resistant.
+
+@example
+
+#include "ale/error.h"
+#include "ale/hash.h"
+
+int
+main(int argc, char *argv[argc])
+@{
+   struct hash hash;
+   struct hash_kv kv;
+   
+   ERROR_FATAL(0 != hash_init_full(&hash, HASH_DEFAULT_SIZE,
+                                   &hash_intptr_t_funcs),
+               "FAIL: hash_init_full()\n" );
+  
+   ERROR_FATAL_FMT(0 != (ret = hash_set(&hash,
+                         (void*)(intptr_t) 1, 0,
+                         (void*)(intptr_t) 1,
+                         &kv)),
+                   "FAIL: hash_set() returned %d\n", ret);
+
+   ERROR_UNDEF_FATAL(-1 == hash_get(&hash, (void*)(intptr_t) 1, 0, &kv),
+                    "FATAL: hash_get returned -1\n");
+
+   intptr_t key = (intptr_t) kv.key;
+   intptr_t value = (intptr_t) kv.value;
+   size_t keysize = kv.keysize;
+   ERROR_UNDEF_FATAL_FMT(1 != key, "FATAL: key %"PRIdPTR" != 1", key);
+   ERROR_UNDEF_FATAL_FMT(1 != value,
+                         "FATAL: value %"PRIdPTR" != 1", value);
+
+   return EXIT_SUCCESS;
+@}
+
+@end example
+
+The following structure defines the two helper function for the hash table. The first one is @code{hash} which is a keyed hashing function. The size @code{SIP_KEYLEN} of the key is taken from the siphash24 module (@pxref{Siphash24}). The second one is a test of equality between keys.
+
+@example
+struct hash_funcs
+@{
+   size_t (*hash)(const void *key, size_t keysize,
+                  const uint8_t *hash_func_key);
+   int (*equal)(const void *keya, size_t keyasize,
+                const void *keyb, size_t keybsize);
+@};
+@end example
+
+Two of these structures are predefined. One for string keys and another for integer keys.
+
+@deftypevr {C Variable} struct hash_funcs hash_string_funcs
+Functions definitions for keys of @code{char*} type 
+@end deftypevr
+@deftypevr {C Variable} struct hash_funcs hash_intptr_t_funcs
+Functions definitions for keys of @code{intptr_t} type
+@end deftypevr
+
+The following structure defines a pair of key and value for the use in the functions
+
+@example
+struct hash_kv
+@{
+   void *key;
+   size_t keysize;
+   void *value;
+@};
+@end example
+
+@deftypefn {C Function} int @
+                        hash_init (struct hash *@var{hash})
+Initialize the @var{hash} structure with strings as keys. Return 0 on success and -1 on error.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        hash_init_full (struct hash *@var{hash}, size_t @var{size}, struct hash_funcs *@var{funcs})
+Initialize the @var{hash} structure with @var{funcs} helper functions for the keys. The initial size of the hash is set to @var{size}. Return 0 on success and -1 on error.
+@end deftypefn
+
+@deftypefn {C Function} void @
+                        hash_destroy (struct hash *@var{hash});
+Destroy the hash without any cleaning.
+@end deftypefn
+
+@deftypefn {C Function} void @
+                        hash_destroy_full (struct hash *@var{hash}, void (*@var{destroy_kv})(struct hash_kv*))
+Destroy the hash using the cleaning function @var{destroy_kv}.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        hash_get (struct hash *@var{hash}, void *@var{key}, size_t @var{keysize}, struct hash_kv *@var{kv})
+Set @var{kv} with the value at @var{key}. No copy is made. If you change @var{kv}, the structure can broke horribly. Don't.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        hash_set (struct hash *@var{hash}, void *@var{key}, size_t @var{keysize}, void *@var{value}, struct hash_kv *@var{kv});
+Set the value at @var{key}  to @var{value}. If an element already exists and @var{kv} is not @code{NULL}, @var{kv} is set with the old value. Return 0 if no element was present, otherwise 1 (@var{kv} is set). Return -1 on error.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        hash_del (struct hash *@var{hash}, void *@var{key}, size_t @var{keysize}, struct hash_kv *@var{kv})
+Remove element at  @var{key} and set @var{kv} with element if not @code{NULL}. Return -1 if element does not exist and 0 on success.
+@end deftypefn
+
+@deftypefn {C Function} void @
+                        hash_foreach (struct hash *@var{hash}, void (*@var{callback})(struct hash_kv *kv, void *cls), void *@var{cls})
+Call @var{callback} on each element in the hash. @var{cls} is a closure data.
+@end deftypefn
+
+@node Siphash24, Daemon, Hash, Top
+@chapter Siphash24
+
+This module provide functions for keyed hash (taken from @indicateurl{https://131002.net/siphash/}).
+
+@defvr {C Define} SIP_KEYLEN
+The length of the key for the keyed hash.
+@end defvr
+
+@defvr {C Define} SIP_HASHLEN
+The lenght of the hash.
+@end defvr
+
+
+
+@deftypefn {C Function} int @
+                        siphash (uint8_t *@var{out}, const uint8_t *@var{in}, uint64_t @var{inlen}, const uint8_t *@var{k})
+Hash the buffer @var{in} of length @var{inlen} into @var{out} (size @code{SIP_HASHLEN}) using the key @var{k} (size @code{SIP_KEYLEN}). Always return 0.
 @end deftypefn
 
 
@@ -349,7 +569,7 @@ Initialize the daemon and stores the process id in the file with path @var{pidfi
 @end deftypefn
 
 
-@node Fileutils, Index, Daemon, Top
+@node Fileutils, Stringutils, Daemon, Top
 @chapter Fileutils
 
 @example
@@ -408,11 +628,59 @@ Destroy the @var{csv} structure.
 Read one csv line from the @var{csv} structure and sets the @var{vector} to the fields. Return the number of fields on success. Return -1 on error, and sets accordingly the error in ale/error.h.
 @end deftypefn
 
+@node Stringutils, Index, Fileutils, Top
+@chapter Stringsutils
 
-@node Index,  , Fileutils, Top
+This module defines a utilities for manipulating strings.
+
+@deftypefn {C Function} char* @
+                        strjoin (const char *@var{sep}, const char **@var{str})
+@end deftypefn
+
+@deftypefn {C Function} void @
+                        strtolower (char *@var{dst}, const char *@var{src});
+Set @var{dst} to a lowercase version of @var{src}.
+@end deftypefn
+
+Some primitives are provided to handle automatically growing strings.
+
+@example
+struct string
+@{
+  char *str;
+  size_t len;
+  size_t alloc_size;
+@};
+@end example
+
+@defvr {C Define} STRING_DEFAULT_SIZE
+The default size of the allocated string.
+@end defvr
+
+@deftypefn {C Function} int @
+                        string_init (struct string *@var{string});
+Initialize the string structure.
+@end deftypefn
+@deftypefn {C Function} void @
+                        string_destroy (struct string *@var{string});
+Destroy the string and free memory.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        string_set (struct string *@var{dst}, char *@var{str});
+Set @var{dst} with @var{str}. A copy is taken.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        string_append (struct string *@var{dst}, struct string *@var{src});
+Append @var{src} to @var{dst}.
+@end deftypefn
+
+
+@node Index,  , Stringutils, Top
 @unnumbered Index
      
-@printindex cp
+@printindex fn
  
 @bye
 
