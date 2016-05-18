@@ -70,6 +70,24 @@ bitset_xor(struct bitset dst, struct bitset a, struct bitset b)
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
     dst.buf[i] = a.buf[i] ^ b.buf[i];
 }
+
+static inline size_t
+bitset_ones(struct bitset bs)
+{
+  // https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
+  unsigned int v; // count the number of bits set in v
+  size_t c = 0; // c accumulates the total bits set in v
+
+  for (size_t i = 0 ; i < (bs.n + 63) / 64 ; i++)
+    {
+      uint64_t v = bs.buf[i];
+      
+      for (; v; c++)
+	v &= v - 1; // clear the least significant bit set
+    }
+  
+  return c;
+}
   
 static inline void
 bitset_setrange(struct bitset bs, size_t index, size_t len)

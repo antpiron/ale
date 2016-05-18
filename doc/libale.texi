@@ -257,6 +257,16 @@ Test if the bitset @var{bs} is empty. Return 1 on emptiness, 0 otherwise.
 @end deftypefn
 
 @deftypefn {C Function} static inline void @
+                        bitset_xor (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
+Performs @var{dst} = @var{a} xor @var{b} on n bits, n being the minimum number of bits between @var{dst}, @var{a} and @var{b}.
+@end deftypefn
+
+@deftypefn {C Function} static inline size_t @
+                        bitset_ones(struct bitset @var{bs})
+Return the number of ones.
+@end deftypefn
+
+@deftypefn {C Function} static inline void @
            bitset_setrange (struct bitset @var{bs}, size_t @var{index}, size_t @var{len})
 
 Set @var{len} bits from position @var{index} of the bitset @var{bs}.

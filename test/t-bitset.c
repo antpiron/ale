@@ -14,6 +14,7 @@ main(int argc, char *argv[argc])
 {
   struct bitset bs;
   struct bitset a, b;
+  size_t ones;
   
   ERROR_FATAL(bitset_init(&bs,NBRBIT) < 0, "FAIL: Init failed\n");
   
@@ -58,6 +59,11 @@ main(int argc, char *argv[argc])
   
   bitset_free(a);
   bitset_free(b);
+
+  bitset_reset(bs);
+  bitset_setrange(bs, 73,553);
+  ones = bitset_ones(bs);
+  ERROR_UNDEF_FATAL_FMT(553 != ones, "FAIL: %zu != 553\n", ones);
   
   bitset_free(bs);
 
