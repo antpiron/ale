@@ -5,6 +5,7 @@
 #include <netdb.h>
 #include <sys/types.h>
 #include <stdint.h>
+#include <linux/random.h>
 
 #ifndef PATH_MAX
 # define PATH_MAX 4096
