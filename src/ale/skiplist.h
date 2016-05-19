@@ -118,7 +118,7 @@
 	size_t newLevel = skl_randomlevel();				\
 	if (newLevel > skl->level)					\
 	  {								\
-	    for (ssize_t i = newLevel-1 ; i >=  skl->level ; i--) \
+	    for (ssize_t i = newLevel-1 ; i >=  skl->level ; i--)	\
 	      update[i] = &skl->header;					\
 	    skl->level = newLevel;					\
 	  }								\

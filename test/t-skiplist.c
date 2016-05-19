@@ -19,7 +19,7 @@ int
 main(int argc, char *argv[argc])
 {
   struct skl_int skl;
-  int val;
+  int val, ret;
 
   skl_int_init(&skl);
   skl_int_insert(&skl, 1, 1);
@@ -28,7 +28,8 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL(NULL != skl.header.forward[0]->forward[0],
 		    "FATAL: NULL != skl.header.forward[0]->forward[0]\n");
   
-  skl_int_search(&skl,1,&val);
+  ret = skl_int_search(&skl,1,&val);
+  ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: skl_int_search(1) %d != 1\n", ret);
   ERROR_UNDEF_FATAL_FMT(1 != val,
 			"FATAL: skl_int_search() 1 != %d\n", val);
 
@@ -38,7 +39,7 @@ main(int argc, char *argv[argc])
   for (int i = 0 ; i < 10 ; i++)
     {
       int ret = skl_int_search(&skl,i,&val);
-      ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: skl_int_search() %d != 1\n", ret);
+      ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: skl_int_search(i) %d != 1\n", ret);
       ERROR_UNDEF_FATAL_FMT(i != val,
 			    "FATAL: skl_int_search() %d != %d\n", i, val);
     }
