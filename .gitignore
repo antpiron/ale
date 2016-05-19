@@ -18,12 +18,11 @@ config.*
 /missing
 /m4/*
 !/m4/ale_*.m4
-*.in
+*[^h].in
 *.log
 *.l[ao]
 *.[oa]
 *.so
-src/ale-share
 Makefile
 *~
 [tp]-*
@@ -32,3 +31,12 @@ gen-*
 !gen-*.[hc]
 /gen/
 .deps
+doc/libale.info
+doc/mdate-sh
+doc/stamp-vti
+doc/texinfo.tex
+doc/version.texi
+src/csv_lexer.c
+src/csv_lexer.h
+test-driver
+ylwrap

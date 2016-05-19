@@ -1,0 +1,106 @@
+#ifndef __SKIPLIST_H
+#define __SKIPLIST_H
+
+#include <stdlib.h>
+#include <inttypes.h>
+
+#include <ale/portability.h>
+
+
+#define SKL_INIT(name,maxlevel,keytype,valuetype,cmp_func)		\
+  static inline size_t							\
+  skl_randomlevel()							\
+  {									\
+									\
+    return 0;								\
+  }									\
+									\
+  struct skl_##name##_node						\
+  {									\
+    keytype key;							\
+    valuetype value;							\
+    struct skl_##name##_node *forward[maxlevel];			\
+  };									\
+  									\
+  static inline struct skl_##name##_node*				\
+  skl_##name##_makeNode(size_t newLevel, keytype key, valuetype value)	\
+  {									\
+    struct skl_##name##_node *node = malloc(sizeof(struct skl_##name##_node)); \
+    ERROR_UNDEF_RET(NULL == node, NULL);				\
+									\
+    node->key = key;							\
+    node->value = value;						\
+    									\
+    return node;							\
+  }									\
+									\
+  struct skl_##name							\
+  {									\
+    size_t level;							\
+    struct skl_##name##_node header;					\
+  };									\
+									\
+  static inline void							\
+  skl_##name##_init(struct skl_##name *skl)				\
+  {									\
+    skl->level = 0;							\
+    skl->header.forward[0] = NULL;					\
+  }								 	\
+  									\
+  static inline int							\
+  skl_##name##_search(struct skl_##name *skl, keytype key,		\
+		      struct skl_##name##_node **node,			\
+		      struct skl_##name##_node *update[maxlevel])	\
+  {									\
+    struct skl_##name##_node *x = &skl->header;				\
+    int cmp = -1;							\
+									\
+    for (ssize_t i = skl->level ; i > -1 ; i--)				\
+      {									\
+	while (NULL != x->forward[i]					\
+	       && -1 == (cmp = cmp_func(key,x->forward[i]->key)) ) \
+	  x = x->forward[i];						\
+	update[i] = x;							\
+      }									\
+									\
+    if (0 == cmp)							\
+      {									\
+	*node = x->forward[0];						\
+	return 1;							\
+      }									\
+									\
+    *node = x;								\
+    return 0;								\
+  }									\
+									\
+  static inline int							\
+  skl_##name##_insert(struct skl_##name *skl, keytype key,		\
+		      valuetype value)					\
+  {									\
+    struct skl_##name##_node *x;					\
+    struct skl_##name##_node *update[maxlevel];				\
+									\
+    if ( skl_##name##_search(skl, key, &x, update) )			\
+      {									\
+	x->value = value;						\
+      }									\
+    else								\
+      {									\
+	size_t newLevel = skl_randomlevel();				\
+	if (newLevel > skl->level)					\
+	  {								\
+	    for (ssize_t i = newLevel-1 ; i >= skl->level ; i--)	\
+	      update[i] = &skl->header;					\
+	    skl->level = newLevel;					\
+	  }								\
+	x = skl_##name##_makeNode(newLevel, key, value);		\
+	for (size_t i = 0 ; i < newLevel ; i++)				\
+	  {								\
+	    x->forward[i] = update[i]->forward[i];			\
+	    update[i]->forward[i] = x;					\
+	  }								\
+      }									\
+      									\
+  }
+
+#endif

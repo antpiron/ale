@@ -39,6 +39,8 @@ case $host in
 	;;
 esac
 
+AC_CHECK_FUNCS([getrandom])
+
 AC_TRY_RUN([
 #include <stdlib.h>
 #include <unistd.h>
@@ -53,12 +55,26 @@ int main(void)
 	   return EXIT_FAILURE;
         return EXIT_SUCCESS;
 }
-
 ]
-, AC_DEFINE([HAVE_GETRANDOM_SYSCALL], [], [Defined if you have the linux getrandom syscall])
-, 
+, [ HAVE_GETRANDOM_SYSCALL="yes"
+    AC_DEFINE([HAVE_GETRANDOM_SYSCALL], [], [Defined if you have the linux getrandom syscall])
+  ]
+,
 )
 
+
+RANDOM_FUNC=""
+if test "x$ac_cv_func_getrandom" != xyes; then
+   if test "x$HAVE_GETRANDOM_SYSCALL" == xyes; then
+      RANDOM_FUNC="int portability_getrandom_syscall(void *buf, size_t buflen, unsigned int flags);
+#define getrandom portability_getrandom_syscall"
+   else
+      RANDOM_FUNC="#define getrandom portability_getrandom"
+   fi
+fi
+
+AC_SUBST(RANDOM_FUNC)
+AC_SUBST(FADVISE_FUNC)
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h stdlib.h string.h])
@@ -73,7 +89,6 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 
 # Checks for library functions.
-AC_CHECK_FUNCS([getrandom])
 AC_FUNC_STRERROR_R
 
 # Checks for pthread.
@@ -83,5 +98,5 @@ AC_SEARCH_LIBS([pthread_create], [pthread],,[AC_MSG_ERROR([
 -------------------------])])
 
 
-AC_CONFIG_FILES([Makefile src/Makefile test/Makefile doc/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile test/Makefile doc/Makefile src/ale/portability.h])
 AC_OUTPUT
