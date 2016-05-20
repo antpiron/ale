@@ -6,6 +6,7 @@
 #include "ale/error.h"
 #include "ale/skiplist.h"
 
+#define NUM_INSERT (1 << 15)
 
 int
 cmp_int(int a, int b)
@@ -19,29 +20,36 @@ int
 main(int argc, char *argv[argc])
 {
   struct skl_int skl;
+  struct skl_int_node *node;
   int val, ret;
 
   skl_int_init(&skl);
-  skl_int_insert(&skl, 1, 1);
+  
+  ret = skl_int_insert(&skl, 1, 1, NULL);
+  ERROR_UNDEF_FATAL_FMT(ret != 0, "FATAL: skl_int_insert(1) ret == %d != 0\n", ret);
   ERROR_UNDEF_FATAL_FMT(1 != skl.header.forward[0]->value,
 			"FATAL: 1 != %d\n", skl.header.forward[0]->value);
   ERROR_UNDEF_FATAL(NULL != skl.header.forward[0]->forward[0],
 		    "FATAL: NULL != skl.header.forward[0]->forward[0]\n");
   
-  ret = skl_int_search(&skl,1,&val);
+  ret = skl_int_search(&skl,1,&node);
   ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: skl_int_search(1) %d != 1\n", ret);
-  ERROR_UNDEF_FATAL_FMT(1 != val,
-			"FATAL: skl_int_search() 1 != %d\n", val);
+  ERROR_UNDEF_FATAL_FMT(1 != node->value,
+			"FATAL: skl_int_search() 1 != %d\n", node->value);
 
-  for (int i = 0 ; i < 10 ; i++)
-    skl_int_insert(&skl, i, i);
-
-  for (int i = 0 ; i < 10 ; i++)
+  for (int i = 0 ; i < NUM_INSERT ; i++)
     {
-      int ret = skl_int_search(&skl,i,&val);
+      int ret = skl_int_insert(&skl, i, i, NULL);
+      ERROR_UNDEF_FATAL_FMT(1 == i && ret != 1, "FATAL: skl_int_insert(i) ret == %d != 1\n", ret);
+      ERROR_UNDEF_FATAL_FMT(1 != i && ret != 0, "FATAL: skl_int_insert(i) ret == %d != 0\n", ret);
+    }
+
+  for (int i = 0 ; i < NUM_INSERT ; i++)
+    {
+      int ret = skl_int_search(&skl,i,&node);
       ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: skl_int_search(i) %d != 1\n", ret);
-      ERROR_UNDEF_FATAL_FMT(i != val,
-			    "FATAL: skl_int_search() %d != %d\n", i, val);
+      ERROR_UNDEF_FATAL_FMT(i != node->value,
+			    "FATAL: skl_int_search() %d != %d\n", i, node->value);
     }
 			
   
