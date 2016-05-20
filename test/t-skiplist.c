@@ -8,7 +8,7 @@
 
 #define NUM_INSERT (1 << 16)
 
-int
+inline int
 cmp_int(int a, int b)
 {
   return a - b;
