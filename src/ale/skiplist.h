@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <inttypes.h>
+#include <stddef.h>
 
 #define SKL_INIT(name,maxlevel,keytype,valuetype,cmp_func)		\
   static inline size_t							\
@@ -27,8 +28,10 @@
   static inline struct skl_##name##_node*				\
   skl_##name##_makeNode(size_t newLevel, keytype key, valuetype value)	\
   {									\
-    struct skl_##name##_node *node = malloc(sizeof(struct skl_##name##_node)); \
-    ERROR_UNDEF_FATAL(NULL == node, "skl_makeNode() Failed to allocate memory\n");	\
+    struct skl_##name##_node *node =					\
+      malloc(offsetof(struct skl_##name##_node,forward) +		\
+	     sizeof(struct skl_##name##_node*) * newLevel);		\
+    ERROR_UNDEF_FATAL(NULL == node, "skl_makeNode() Failed to allocate memory\n"); \
 									\
     node->key = key;							\
     node->value = value;						\

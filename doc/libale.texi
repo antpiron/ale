@@ -39,6 +39,7 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 * Vector::
 * Single linked list::
 * Hash::
+* Skip list::
 * Siphash24::
 * Daemon::
 * Fileutils::
@@ -526,7 +527,75 @@ Remove element at  @var{key} and set @var{kv} with element if not @code{NULL}. R
 Call @var{callback} on each element in the hash. @var{cls} is a closure data.
 @end deftypefn
 
-@node Siphash24, Daemon, Hash, Top
+@c ========================================================
+@node Skip list, Siphash24, Hash, Top
+@chapter Skip list
+
+This module provides a list structure augmented for fast search, insertion, and deletion (based on @indicateurl{ftp://ftp.cs.umd.edu/pub/skipLists/skiplists.pdf}).
+
+@example
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "ale/error.h"
+#include "ale/skiplist.h"
+
+static inline int
+cmp_int(int a, int b)
+@{
+  return a - b;
+@}
+
+SKL_INIT(int,16,int,int,cmp_int)
+
+int
+main(int argc, char *argv[argc])
+@{
+  struct skl_int skl;
+  struct skl_int_node *node;
+  int key, val, ret;
+
+  skl_int_init(&skl);
+  
+  ret = skl_int_insert(&skl, 1, 1, NULL);
+  ERROR_UNDEF_FATAL_FMT(ret != 0,
+                        "FATAL: skl_int_insert(1) ret == %d != 0\n",
+                        ret);
+  
+  ret = skl_int_search(&skl,1,&node);
+  ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: skl_int_search(1) %d != 1\n",
+                        ret);
+  printf("Key: %d  value: %d\n", node->key, node->value);
+
+  ret = skl_int_delete(&skl,1,&key,&val);
+  ERROR_UNDEF_FATAL_FMT(1 != ret,
+                        "FATAL: skl_int_delete(1) ret == %d != 1\n",
+                        ret);
+
+  skl_int_destroy(&skl);  
+
+  return EXIT_SUCCESS;
+@}  
+@end example
+
+
+@deffn {C Macro} SKL_INIT (@var{name},@var{maxlevel},@var{keytype},@var{valuetype},@var{cmp_func})
+Create a skip list named @var{name} with a maximum level @var{maxlevel} (< 64, values between 16 and 32 probably are reasonable for most application).  @var{keytype} and @var{valuetype} respectively are the types of the keys and the values. The types struct skl_##@var{name} and struct skl_##@var{name}##_node are created by this macro. The later is defined by
+
+@example
+struct skl_##name##_node
+@{
+    keytype key;
+    valuetype value;
+    struct skl_##name##_node *forward[maxlevel];
+@};
+@end example
+
+The functions skl_##@var{name}##_init, skl_##@var{name}##_destroy, skl_##@var{name}##_search, skl_##@var{name}##_insert and skl_##@var{name}##_delete are created by this macro.
+@end deffn
+
+@c ========================================================
+@node Siphash24, Daemon, Skip list, Top
 @chapter Siphash24
 
 This module provide functions for keyed hash (taken from @indicateurl{https://131002.net/siphash/}).

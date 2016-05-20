@@ -6,7 +6,7 @@
 #include "ale/error.h"
 #include "ale/skiplist.h"
 
-#define NUM_INSERT (1 << 16)
+#define NUM_INSERT (1 << 17)
 
 inline int
 cmp_int(int a, int b)
