@@ -36,6 +36,12 @@
     return node;							\
   }									\
 									\
+  static inline void							\
+  skl_##name##_destroyNode(struct skl_##name##_node *node)		\
+  {									\
+    free(node);								\
+  }									\
+									\
   struct skl_##name							\
   {									\
     ssize_t level;							\
@@ -50,6 +56,33 @@
       skl->header.forward[i] = NULL;					\
   }								 	\
   									\
+  static inline void							\
+  skl_##name##_destroy_full(struct skl_##name *skl,			\
+			    void (*destroy_key_func)(keytype key),	\
+			    void (*destroy_value_func)(valuetype value)) \
+  {									\
+    if ( skl->level > 0)						\
+      {									\
+	struct skl_##name##_node *node = skl->header.forward[0];	\
+	while (NULL != node)						\
+	  {								\
+	    struct skl_##name##_node *next = node->forward[0];		\
+	    if (NULL != destroy_key_func)				\
+	      destroy_key_func(node->key);				\
+	    if (NULL != destroy_value_func)				\
+	      destroy_value_func(node->value);				\
+	    skl_##name##_destroyNode(node);				\
+	    node = next;						\
+	  }								\
+      }									\
+  }								 	\
+  									\
+  static inline void							\
+  skl_##name##_destroy(struct skl_##name *skl)				\
+  {									\
+    skl_##name##_destroy_full(skl, NULL, NULL);				\
+  }									\
+									\
   static inline int							\
   skl_##name##_search(struct skl_##name *skl, keytype key,		\
 		      struct skl_##name##_node **node)			\
@@ -127,6 +160,36 @@
       {									\
 	x->forward[i] = update[i]->forward[i];				\
 	update[i]->forward[i] = x;					\
+      }									\
+									\
+    return 0;								\
+  }									\
+									\
+  static inline int							\
+  skl_##name##_delete(struct skl_##name *skl, keytype key,		\
+		      keytype *oldkey, valuetype *oldvalue)		\
+  {									\
+    struct skl_##name##_node *x;					\
+    struct skl_##name##_node *update[maxlevel];				\
+									\
+    if ( skl_##name##_search_update(skl, key, &x, update) )		\
+      {									\
+	if (NULL != oldvalue)						\
+	  *oldvalue = x->value;						\
+	if (NULL != oldkey)						\
+	  *oldkey = x->key;						\
+									\
+	for (ssize_t i = 0 ; i < skl->level ; i++)			\
+	  {								\
+	    if (update[i]->forward[i] != x)				\
+	      break;							\
+	    update[i]->forward[i] = x->forward[i] ;			\
+	  }								\
+	skl_##name##_destroyNode(x);					\
+	for ( ; skl->level > 0						\
+		&& NULL == skl->header.forward[skl->level-1] ;		\
+	      skl->level--) ;						\
+	return 1;							\
       }									\
 									\
     return 0;								\

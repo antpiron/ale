@@ -6,7 +6,7 @@
 #include "ale/error.h"
 #include "ale/skiplist.h"
 
-#define NUM_INSERT (1 << 15)
+#define NUM_INSERT (1 << 16)
 
 int
 cmp_int(int a, int b)
@@ -21,7 +21,7 @@ main(int argc, char *argv[argc])
 {
   struct skl_int skl;
   struct skl_int_node *node;
-  int val, ret;
+  int key, val, ret;
 
   skl_int_init(&skl);
   
@@ -51,7 +51,22 @@ main(int argc, char *argv[argc])
       ERROR_UNDEF_FATAL_FMT(i != node->value,
 			    "FATAL: skl_int_search() %d != %d\n", i, node->value);
     }
-			
+
+  ret = skl_int_delete(&skl,10,&key,&val);
+  ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: skl_int_delete(10) ret == %d != 10\n", ret);
+  ERROR_UNDEF_FATAL_FMT(10 != key, "FATAL: skl_int_delete(10) key == %d != 10\n", key);
+  ERROR_UNDEF_FATAL_FMT(10 != val, "FATAL: skl_int_delete(10) key == %d != 10\n", val);
+
+  for (int i = 0 ; i < NUM_INSERT ; i++)
+    {
+      int ret = skl_int_search(&skl,i,&node);
+      ERROR_UNDEF_FATAL_FMT(10 == i && 0 != ret, "FATAL: skl_int_search(%d) %d != 0\n", i, ret);
+      ERROR_UNDEF_FATAL_FMT(10 != i && 1 != ret, "FATAL: skl_int_search(%d) %d != 1\n", i, ret);
+      ERROR_UNDEF_FATAL_FMT(10 != i && i != node->value,
+			    "FATAL: skl_int_search(%d) %d != %d\n", i, i, node->value);
+    }
+
+  skl_int_destroy(&skl);
   
   return EXIT_SUCCESS;
 }
