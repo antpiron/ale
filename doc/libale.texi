@@ -215,59 +215,59 @@ main(int argc, char *argv[ ])
 
 @end example
 
-@deftypefn {C Function} static inline int @
+@deftypefn {C Function} {static inline int} @
            bitset_init (struct bitset *@var{bs}, size_t @var{n})
 
 Initialise the bitset @var{bs} to zero (unset) with a maximal size of @var{n} bits. Return -1 on error and set error_errno accordingly.
 @end deftypefn
 
-@deftypefn {C Function} static inline void @
+@deftypefn {C Function} {static inline void} @
            bitset_free (struct bitset @var{bs})
 
 Desallocate @var{bs}.
 @end deftypefn
 
-@deftypefn {C Function} static inline void @
+@deftypefn {C Function} {static inline void} @
            bitset_reset (struct bitset @var{bs})
 
 Reset the bitset @var{bs}.
 @end deftypefn
 
-@deftypefn {C Function} static inline void @
+@deftypefn {C Function} {static inline void} @
            bitset_set (struct bitset @var{bs}, size_t @var{index})
 
 Set the bit at position @var{index} of the bitset @var{bs}.
 @end deftypefn
 
-@deftypefn {C Function} static inline void @
+@deftypefn {C Function} {static inline void} @
            bitset_unset (struct bitset @var{bs}, size_t @var{index})
 
 Unset the bit at position @var{index} from the bitset @var{bs}.
 @end deftypefn
 
-@deftypefn {C Function} static inline int @
+@deftypefn {C Function} {static inline int} @
            bitset_isset (struct bitset @var{bs}, size_t @var{index})
 
 Test the bit at position @var{index} from the bitset @var{bs}. Return 1 if the bit is set, 0 otherwise.
 @end deftypefn
 
-@deftypefn {C Function} static inline int @
+@deftypefn {C Function} {static inline int} @
            bitset_isempty (struct bitset @var{bs})
 
 Test if the bitset @var{bs} is empty. Return 1 on emptiness, 0 otherwise.
 @end deftypefn
 
-@deftypefn {C Function} static inline void @
+@deftypefn {C Function} {static inline void} @
                         bitset_xor (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
 Performs @var{dst} = @var{a} xor @var{b} on n bits, n being the minimum number of bits between @var{dst}, @var{a} and @var{b}.
 @end deftypefn
 
-@deftypefn {C Function} static inline size_t @
+@deftypefn {C Function} {static inline size_t} @
                         bitset_ones(struct bitset @var{bs})
 Return the number of ones.
 @end deftypefn
 
-@deftypefn {C Function} static inline void @
+@deftypefn {C Function} {static inline void} @
            bitset_setrange (struct bitset @var{bs}, size_t @var{index}, size_t @var{len})
 
 Set @var{len} bits from position @var{index} of the bitset @var{bs}.
@@ -309,22 +309,22 @@ main(int argc, char *argv[argc])
 Create a vector named @var{name} made of variable typed with @var{type} The type struct vector_##@var{name} and functions vector_##@var{name}##_init, vector_##@var{name}##_destroy, vector_##@var{name}##_set, vector_##@var{name}##_get are created by this macro.
 @end deffn
 
-@deftypefn {C Function} static inline int @
+@deftypefn {C Function} {static inline int} @
                         vector_##name##_init (struct vector_##name *@var{vector})
 Initialize the structure. Return 0 on success. May kill the current process if unable to allocate memory.
 @end deftypefn
 
-@deftypefn {C Function} static inline void @
+@deftypefn {C Function} {static inline void} @
                         vector_##name##_destroy (struct vector_##name *@var{vector})
 Destroy the structure.
 @end deftypefn
 
-@deftypefn {C Function} static inline void @
+@deftypefn {C Function} {static inline void} @
                         vector_##name##_set (struct vector_##name *@var{vector}, size_t @var{pos}, type @var{value})
 Set the element at position @var{pos} with the value @var{value}.
 @end deftypefn
 
-@deftypefn {C Function} static inline type @
+@deftypefn {C Function} {static inline type} @
                         vector_##name##_get (struct vector_##name *@var{vector}, size_t @var{pos})
 Return the element at position @var{pos}.
 @end deftypefn
@@ -362,13 +362,13 @@ Destroy the list calling @var{destroy_data} to free each data.
 Insert @var{data} at position @var{pos}. Return -1 on error, otherwise 0.
 @end deftypefn
 
-@deftypefn {C Function} void* @
+@deftypefn {C Function} {void*} @
                         sl_remove (struct sl_node *@var{node}, size_t @var{pos});
 Remove the element at position @var{pos}. Return the data or @code{NULL} if no data.
 @end deftypefn
 
 
-@deftypefn {C Function} struct sl_node* @
+@deftypefn {C Function} {struct sl_node*} @
                         sl_first (struct sl_node *@var{node});
 Return the first element of the list, skipping the dummy element.
 @end deftypefn
@@ -378,18 +378,18 @@ Return the first element of the list, skipping the dummy element.
 Return the next element in the list.
 @end deftypefn
 
-@deftypefn {C Function} struct sl_node* @
+@deftypefn {C Function} {struct sl_node*} @
                         sl_nth (struct sl_node *@var{node}, size_t @var{pos});
 Return the node at position @var{pos}, skipping the dummy node.
 @end deftypefn
 
 
-@deftypefn {C Function} struct sl_node* @
+@deftypefn {C Function} {struct sl_node*} @
                         sl_search (struct sl_node *@var{node}, void *@var{data}, int (*@var{equal})(void *a, void *b));
 Search a @var{data} in the list comparing with the @var{equal} function.
 @end deftypefn
 
-@deftypefn {C Function} struct sl_node* @
+@deftypefn {C Function} {struct sl_node*} @
                         sl_search_full (struct sl_node *@var{node}, void *@var{data}, @
                                         int (*@var{equal})(void *a, void *b, void *cls), @
                                         void *@var{cls});
@@ -591,8 +591,43 @@ struct skl_##name##_node
 @};
 @end example
 
-The functions skl_##@var{name}##_init, skl_##@var{name}##_destroy, skl_##@var{name}##_search, skl_##@var{name}##_insert and skl_##@var{name}##_delete are created by this macro.
+The functions skl_##@var{name}##_init, skl_##@var{name}##_destroy, skl_##@var{name}##_destroy_full, skl_##@var{name}##_search, skl_##@var{name}##_insert and skl_##@var{name}##_delete are created by this macro.
 @end deffn
+
+@deftypefn {C Function} {static inline void} @
+                        skl_##name##_init (struct skl_##name *@var{skl})
+Initialise the skip list.
+@end deftypefn
+
+@deftypefn {C Function} {static inline void} @
+                        skl_##name##_destroy (struct skl_##name *@var{skl})
+Destroy the skip list without taking care of the keys and values.
+@end deftypefn
+
+@deftypefn {C Function} {static inline void} @
+                        skl_##name##_destroy_full (struct skl_##name *@var{skl}, @
+                        void (*@var{destroy_key_func})(keytype key), @
+                        void (*@var{destroy_value_func})(valuetype value))
+Destroy the skip list applying @var{destroy_key_func} on the keys and @var{destroy_value_func} on the values.
+@end deftypefn
+
+@deftypefn {C Function} {static inline int} @
+                        skl_##name##_search (struct skl_##name *@var{skl}, keytype @var{key}, struct skl_##name##_node **@var{node})
+Search for the element identified by @var{key} and set @var{node} (if not @code{NULL}) to this element if found, otherwise set to the previous element (be aware that this can be the dummy first element). Return 1 if found, 0 otherwise.
+@end deftypefn
+
+@deftypefn {C Function} {static inline int} @
+                        skl_##name##_insert (struct skl_##name *@var{skl}, keytype @var{key}, @
+		        valuetype @var{value}, valuetype *@var{oldvalue})
+Insert the @var{value} at position @var{key} and set @var{oldvalue} to the previous value if existent. Returns 1 if a previous value was present, other 0.
+@end deftypefn
+
+@deftypefn {C Function}  {static inline int} @
+                         skl_##name##_delete (struct skl_##name *@var{skl}, keytype @var{key}, @
+                         keytype *@var{oldkey}, valuetype *@var{oldvalue})
+Delete the element at position @var{key} and set @var{oldkey} and @var{oldvalue} to the values. Return 1 if key is found, otherwise 0.
+@end deftypefn
+
 
 @c ========================================================
 @node Siphash24, Daemon, Skip list, Top
