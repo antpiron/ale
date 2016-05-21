@@ -52,6 +52,16 @@ main(int argc, char *argv[argc])
 			    "FATAL: skl_int_search() %d != %d\n", i, node->value);
     }
 
+  int prev = -1;
+  node = skl.header.forward[0];
+  for (int i = 0 ; i < NUM_INSERT ; i++, node = node->forward[0], prev++)
+    {
+      ERROR_UNDEF_FATAL_FMT(prev+1 != node->key, "FATAL: key disorder %d != %d\n",
+			    prev+1, node->key);
+      ERROR_UNDEF_FATAL_FMT(prev+1 != node->value, "FATAL: value disorder  %d != %d\n",
+			    prev+1, node->value);
+    }
+
   ret = skl_int_delete(&skl,10,&key,&val);
   ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: skl_int_delete(10) ret == %d != 10\n", ret);
   ERROR_UNDEF_FATAL_FMT(10 != key, "FATAL: skl_int_delete(10) key == %d != 10\n", key);

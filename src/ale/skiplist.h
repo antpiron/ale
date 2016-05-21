@@ -4,15 +4,16 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stddef.h>
+#include <ale/error.h>
 
 #define SKL_INIT(name,maxlevel,keytype,valuetype,cmp_func)		\
-  static inline size_t							\
+  static inline ssize_t							\
   skl_randomlevel()							\
   {									\
     uint64_t rnd = rand();						\
     size_t lvl = 0;							\
     									\
-    while ( 1ull == (rnd & 1) && lvl < maxlevel-1 )			\
+    while ( 1ull == (rnd & 1) && lvl < (maxlevel)-1 )			\
       { lvl++; rnd >>= 1; }						\
     									\
     return lvl+1;							\
@@ -26,7 +27,7 @@
   };									\
   									\
   static inline struct skl_##name##_node*				\
-  skl_##name##_makeNode(size_t newLevel, keytype key, valuetype value)	\
+  skl_##name##_makeNode(size_t newLevel, keytype key, valuetype value) \
   {									\
     struct skl_##name##_node *node =					\
       malloc(offsetof(struct skl_##name##_node,forward) +		\
@@ -55,7 +56,7 @@
   skl_##name##_init(struct skl_##name *skl)				\
   {									\
     skl->level = 0;							\
-    for (ssize_t i = 0 ; i < maxlevel ; i++)				\
+    for (ssize_t i = 0 ; i < (maxlevel) ; i++)				\
       skl->header.forward[i] = NULL;					\
   }								 	\
   									\
@@ -96,17 +97,16 @@
     for (ssize_t i = skl->level-1 ; i > -1 ; i--)			\
       {									\
 	while (NULL != x->forward[i]					\
-	       && (cmp = cmp_func(key,x->forward[i]->key)) < 0 )	\
+	       && (cmp = cmp_func(x->forward[i]->key, key)) < 0 )	\
 	  x = x->forward[i];						\
       }									\
-									\
+    									\
     if (0 == cmp)							\
       {									\
 	*node = x->forward[0];						\
 	return 1;							\
       }									\
-									\
-    *node = x;							\
+    *node = x;								\
     return 0;								\
   }									\
 									\
@@ -121,18 +121,15 @@
     for (ssize_t i = skl->level-1 ; i > -1 ; i--)			\
       {									\
 	while (NULL != x->forward[i]					\
-	       && (cmp = cmp_func(key,x->forward[i]->key)) < 0 )	\
+	       && (cmp = cmp_func(x->forward[i]->key, key)) < 0 )		\
 	  x = x->forward[i];						\
 	update[i] = x;							\
       }									\
 									\
+    *node = x->forward[0];						\
     if (0 == cmp)							\
-      {									\
-	*node = x->forward[0];						\
-	return 1;							\
-      }									\
+      return 1;								\
 									\
-    *node = x;								\
     return 0;								\
   }									\
 									\
@@ -151,7 +148,7 @@
 	return 1;							\
       }									\
 									\
-    size_t newLevel = skl_randomlevel();				\
+    ssize_t newLevel = skl_randomlevel();				\
     if (newLevel > skl->level)						\
       {									\
 	for (ssize_t i = newLevel-1 ; i >=  skl->level ; i--)		\
