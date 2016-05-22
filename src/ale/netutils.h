@@ -29,9 +29,11 @@ struct netutils
 void netutils_init(struct netutils *nu);
 void netutils_destroy(struct netutils *nu);
 
+// http://thyme.apnic.net/current/data-raw-table format <ip>/<mask> <asn>
 int netutils_load_ipv4_to_asn(struct netutils *nu, const char *filename);
 uint32_t netutils_ipv4_to_asn(struct netutils *nu, const char *ip);
 
+// http://thyme.apnic.net/current/data-used-autnums <asn>' '<owner>
 int netutils_load_asn_to_owner(struct netutils *nu, const char *filename);
 char* netutils_asn_to_owner(struct netutils *nu, uint32_t asn);
 
