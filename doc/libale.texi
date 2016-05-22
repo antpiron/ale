@@ -305,8 +305,12 @@ main(int argc, char *argv[argc])
 
 @end example
 
+@deffn {C Macro} VECTOR_INIT_FULL (@var{name},@var{type},@var{initsize})
+Create a vector named @var{name} made of variable typed with @var{type} and with an initial allocated size @var{initsize}. The type struct vector_##@var{name} and functions vector_##@var{name}##_init, vector_##@var{name}##_destroy, vector_##@var{name}##_set, vector_##@var{name}##_get are created by this macro.
+@end deffn
+
 @deffn {C Macro} VECTOR_INIT (@var{name},@var{type})
-Create a vector named @var{name} made of variable typed with @var{type} The type struct vector_##@var{name} and functions vector_##@var{name}##_init, vector_##@var{name}##_destroy, vector_##@var{name}##_set, vector_##@var{name}##_get are created by this macro.
+Equivalent to @code{VECTOR_INIT_FULL(name,type,VECTOR_DEFAULT_SIZE)}.
 @end deffn
 
 @deftypefn {C Function} {static inline int} @

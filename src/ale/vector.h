@@ -6,7 +6,10 @@
 
 #define VECTOR_DEFAULT_SIZE (256)
 
-#define VECTOR_INIT(name,type)						\
+#define VECTOR_INIT(name,type)				\
+  VECTOR_INIT_FULL(name,type,VECTOR_DEFAULT_SIZE)
+
+#define VECTOR_INIT_FULL(name,type,initsize)				\
   struct vector_##name							\
   {									\
     size_t size;							\
@@ -16,11 +19,11 @@
   static inline int							\
   vector_##name##_init(struct vector_##name *vector)			\
   {									\
-    vector->data = malloc(sizeof(type) * VECTOR_DEFAULT_SIZE);		\
+    vector->data = malloc(sizeof(type) * (initsize));			\
     ERROR_UNDEF_FATAL(NULL == vector->data,				\
   		      "Unable to allocate memory in vector_init()\n");	\
     									\
-    vector->size = VECTOR_DEFAULT_SIZE;					\
+    vector->size = (initsize);						\
     return 0;								\
   }								 	\
   									\
