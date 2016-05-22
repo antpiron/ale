@@ -9,14 +9,21 @@ netutils_init(struct netutils *nu)
 {
   nu->asn_len = 0;
   vector_asn_to_owner_init(&nu->asn_to_owner);
-  skl_ipv4_to_asn_init(&nu->ipv4_to_asn);
+  skl_bgp4_init(&nu->bgp4);
 }
 
 void
 netutils_destroy(struct netutils *nu)
 {
+  for (size_t i = 0 ; i < nu->asn_len ; i++)
+    {
+      char *str = vector_asn_to_owner_get(&nu->asn_to_owner, i);
+      if (NULL != str)
+	free(str);
+    }
+  
   vector_asn_to_owner_destroy(&nu->asn_to_owner);
-  skl_ipv4_to_asn_destroy(&nu->ipv4_to_asn);
+  skl_bgp4_destroy(&nu->bgp4);
 }
 
 
@@ -43,7 +50,7 @@ parse_ip(const char *line, uint32_t *ip)
 }
 
 static int
-parse_line_ipv4_to_asn(const char *line, uint32_t *ip, uint32_t *netmask, uint32_t *asn)
+parse_line_bgp4(const char *line, uint32_t *ip, uint32_t *netmask, uint32_t *asn)
 {
   if ( -1 == parse_ip(line, ip) )
     return -1;
@@ -60,7 +67,7 @@ parse_line_ipv4_to_asn(const char *line, uint32_t *ip, uint32_t *netmask, uint32
 #define IP_NETMASK_TO64(ip,netmask) ( (((uint64_t) (ip)) << 32) | (uint64_t) (netmask) )
 
 int
-netutils_load_ipv4_to_asn(struct netutils *nu, const char *filename)
+netutils_load_bgp4(struct netutils *nu, const char *filename)
 {
 #define MAXLEN 256
   char line[MAXLEN];
@@ -78,10 +85,10 @@ netutils_load_ipv4_to_asn(struct netutils *nu, const char *filename)
 	  break;
 	}
 
-      if (-1 == parse_line_ipv4_to_asn(line, &ip, &netmask, &asn))
+      if (-1 == parse_line_bgp4(line, &ip, &netmask, &asn))
 	continue;
 
-      skl_ipv4_to_asn_insert(&nu->ipv4_to_asn, IP_NETMASK_TO64(ip, netmask), asn, NULL);
+      skl_bgp4_insert(&nu->bgp4, IP_NETMASK_TO64(ip, netmask), asn, NULL);
     }
   
   ERROR_ERRNO_RET(EOF == fclose(file), -1);
@@ -102,9 +109,9 @@ common_prefix_mask(uint32_t a, uint32_t b)
 }
 
 uint32_t
-netutils_ipv4_to_asn(struct netutils *nu, const char *ip_str)
+netutils_bgp4_ip_to_asn(struct netutils *nu, const char *ip_str)
 {
-  struct skl_ipv4_to_asn_node *node;
+  struct skl_bgp4_node *node;
   uint32_t ip;
   
   if ( -1 == parse_ip(ip_str, &ip) )
@@ -112,11 +119,11 @@ netutils_ipv4_to_asn(struct netutils *nu, const char *ip_str)
 
   for (uint32_t netmask = ~ UINT32_C(0) ; 0 != netmask ; netmask <<= 1, ip &= netmask)
     {
-      int ret = skl_ipv4_to_asn_search(&nu->ipv4_to_asn, IP_NETMASK_TO64(ip, netmask), &node);
+      int ret = skl_bgp4_search(&nu->bgp4, IP_NETMASK_TO64(ip, netmask), &node);
       
       if ( ret )
 	return node->value;
-      else if (node != &nu->ipv4_to_asn.header)
+      else if (node != &nu->bgp4.header)
       	{
       	  uint32_t found_ip = node->key >> 32;
       	  uint32_t found_netmask = node->key & 0xFFFFFFFF;
@@ -205,4 +212,86 @@ netutils_asn_to_owner(struct netutils *nu, uint32_t asn)
     return vector_asn_to_owner_get(&nu->asn_to_owner, asn);
 
   return NULL;
+}
+
+static int
+parse_line_rir(const char *line, uint32_t *ip, struct rir *rir)
+{
+  // ripecc
+  SKIP_AFTER('|');
+
+  if ( ! ( isupper(*line) && isupper(line[1]) ) )
+    return -1;
+  
+  rir->country[0] = line[0];
+  rir->country[1] = line[1];
+  
+  SKIP_AFTER('|');
+
+  if ( 0 != strncmp("ipv4", line, 4))
+    return -1;
+
+  SKIP_AFTER('|');
+  if ( '*' == *line)
+    return -1;
+  
+  if ( -1 == parse_ip(line, ip) )
+    return -1;
+
+  SKIP_AFTER('|');
+
+  rir->count = atol(line);
+
+  SKIP_AFTER('|');
+
+  // date
+
+  return 0;
+}
+
+int
+netutils_load_rir(struct netutils *nu, const char *filename)
+{
+  char line[MAXLEN];
+  FILE *file = fopen(filename, "r");
+  ERROR_ERRNO_RET(NULL == file, -1);
+
+  while (1)
+    {
+      char* ret = fgets(line, MAXLEN, file);
+      struct rir rir;
+      uint32_t ip;
+
+      if (NULL == ret)
+	{
+	  ERROR_FERROR_RET(ferror(file), -1);
+	  break;
+	}
+
+      if (-1 == parse_line_rir(line, &ip, &rir))
+	continue;
+
+      skl_rir_insert(&nu->rir, ip, rir, NULL);
+    }
+  
+  ERROR_ERRNO_RET(EOF == fclose(file), -1);
+  
+  return 0;
+
+}
+
+int
+netutils_rir_getinfo(struct netutils *nu, const char *ip_str, struct rir **rir)
+{
+  uint32_t ip;
+  struct skl_rir_node *node;
+  
+  if ( -1 == parse_ip(ip_str, &ip) )
+    return -1;
+
+  int ret = skl_rir_search(&nu->rir, ip, &node);
+  if (ret)
+    *rir = &node->value;
+  
+  return 0;
 }

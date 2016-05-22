@@ -6,19 +6,20 @@
 #include <stddef.h>
 #include <ale/error.h>
 
+static inline ssize_t	
+skl_randomlevel(size_t maxlevel)
+{					
+  uint64_t rnd = rand();	
+  size_t lvl = 0;
+    
+  while ( 1ull == (rnd & 1) && lvl < (maxlevel)-1 )
+    { lvl++; rnd >>= 1; }
+
+  return lvl+1;
+}
+
+
 #define SKL_INIT(name,maxlevel,keytype,valuetype,cmp_func)		\
-  static inline ssize_t							\
-  skl_randomlevel()							\
-  {									\
-    uint64_t rnd = rand();						\
-    size_t lvl = 0;							\
-    									\
-    while ( 1ull == (rnd & 1) && lvl < (maxlevel)-1 )			\
-      { lvl++; rnd >>= 1; }						\
-    									\
-    return lvl+1;							\
-  }									\
-									\
   struct skl_##name##_node						\
   {									\
     keytype key;							\
@@ -27,7 +28,7 @@
   };									\
   									\
   static inline struct skl_##name##_node*				\
-  skl_##name##_makeNode(size_t newLevel, keytype key, valuetype value) \
+  skl_##name##_makeNode(size_t newLevel, keytype key, valuetype value)	\
   {									\
     struct skl_##name##_node *node =					\
       malloc(offsetof(struct skl_##name##_node,forward) +		\
@@ -148,7 +149,7 @@
 	return 1;							\
       }									\
 									\
-    ssize_t newLevel = skl_randomlevel();				\
+    ssize_t newLevel = skl_randomlevel(maxlevel);			\
     if (newLevel > skl->level)						\
       {									\
 	for (ssize_t i = newLevel-1 ; i >=  skl->level ; i--)		\
