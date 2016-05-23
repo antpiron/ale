@@ -10,6 +10,7 @@ netutils_init(struct netutils *nu)
   nu->asn_len = 0;
   vector_asn_to_owner_init(&nu->asn_to_owner);
   skl_bgp4_init(&nu->bgp4);
+  skl_rir_init(&nu->rir);
 }
 
 void
@@ -24,6 +25,7 @@ netutils_destroy(struct netutils *nu)
   
   vector_asn_to_owner_destroy(&nu->asn_to_owner);
   skl_bgp4_destroy(&nu->bgp4);
+  skl_rir_destroy(&nu->rir);
 }
 
 
@@ -217,6 +219,7 @@ netutils_asn_to_owner(struct netutils *nu, uint32_t asn)
 static int
 parse_line_rir(const char *line, uint32_t *ip, struct rir *rir)
 {
+  struct tm tm;
   // ripecc
   SKIP_AFTER('|');
 
@@ -225,6 +228,7 @@ parse_line_rir(const char *line, uint32_t *ip, struct rir *rir)
   
   rir->country[0] = line[0];
   rir->country[1] = line[1];
+  rir->country[2] = '\0';
   
   SKIP_AFTER('|');
 
@@ -243,8 +247,9 @@ parse_line_rir(const char *line, uint32_t *ip, struct rir *rir)
   rir->count = atol(line);
 
   SKIP_AFTER('|');
-
-  // date
+  if ( NULL == strptime(line, "%Y%m%d", &tm) )
+    return -1;
+  rir->date = mktime(&tm);
 
   return 0;
 }
@@ -286,12 +291,17 @@ netutils_rir_getinfo(struct netutils *nu, const char *ip_str, struct rir **rir)
   uint32_t ip;
   struct skl_rir_node *node;
   
-  if ( -1 == parse_ip(ip_str, &ip) )
-    return -1;
+  if (-1 == parse_ip(ip_str, &ip) )
+    return 0;
 
-  int ret = skl_rir_search(&nu->rir, ip, &node);
-  if (ret)
-    *rir = &node->value;
+  skl_rir_search(&nu->rir, ip, &node);
+  if (node != &nu->rir.header
+      && node->key <= ip
+      && ip <= node->key + node->value.count - 1)
+    {
+      *rir = &node->value;
+      return 1;
+    }
   
   return 0;
 }

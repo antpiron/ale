@@ -1,5 +1,6 @@
 #ifndef __NETUTILS_H
 
+#define __USE_XOPEN
 #include <time.h>
 #include <stdint.h>
 
@@ -34,7 +35,6 @@ SKL_INIT(bgp4,18,uint64_t,uint32_t,cmp_uint64_t)
 struct rir
 {
   char country[3];
-  uint32_t ip;
   uint32_t count;
   time_t date;
 };
