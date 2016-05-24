@@ -2,7 +2,9 @@
 #define __SKIPLIST_H
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <inttypes.h>
+#include <sys/types.h>
 #include <stddef.h>
 #include <ale/error.h>
 
