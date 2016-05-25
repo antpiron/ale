@@ -718,30 +718,30 @@ Unlink the file @var{pathname} rooted at @var{dname} and remove recursively the 
 @end deftypefn
 
 @deftypefn {C Function} int @
-                        mkpath (const char *@var{pathname}, mode_t @var{mode});
+                        mkpath (const char *@var{pathname}, mode_t @var{mode})
 Create recursively the directory @var{pathname} with the mode @var{mode} as for posix function mkdir. Returns 0 on success and -1 on failure.
 @end deftypefn
 
 @deftypefn {C Function} FILE* @
-                        mkpath_fopen (const char *@var{pathname}, const char *@var{mode});
+                        mkpath_fopen (const char *@var{pathname}, const char *@var{mode})
 
 Open the file @var{pathname} with mode @var{mode} as for posix fopen(). If the directory components of @var{pathname} do not exist, they are created.
 @end deftypefn
 
 @deftypefn {C Function} int @
-                        csv_init(struct csv *@var{csv}, FILE *@var{file});
+                        csv_init(struct csv *@var{csv}, FILE *@var{file})
 
 Initialize the @var{csv} structure with the csv input stream @var{file}. Return 0 on success. May abruptly kill the current process if unable to allocate memory.
 @end deftypefn
 
 @deftypefn {C Function} void @
-                        csv_destroy(struct csv *@var{csv});
+                        csv_destroy(struct csv *@var{csv})
 
 Destroy the @var{csv} structure.
 @end deftypefn
 
 @deftypefn {C Function} int @
-                        csv_readline(struct csv *@var{csv}, struct vector_int *@var{vector});
+                        csv_readline(struct csv *@var{csv}, struct vector_int *@var{vector})
 
 Read one csv line from the @var{csv} structure and sets the @var{vector} to the fields. Return the number of fields on success. Return -1 on error, and sets accordingly the error in ale/error.h.
 @end deftypefn
@@ -756,7 +756,7 @@ This module defines a utilities for manipulating strings.
 @end deftypefn
 
 @deftypefn {C Function} void @
-                        strtolower (char *@var{dst}, const char *@var{src});
+                        strtolower (char *@var{dst}, const char *@var{src})
 Set @var{dst} to a lowercase version of @var{src}.
 @end deftypefn
 
@@ -776,21 +776,41 @@ The default size of the allocated string.
 @end defvr
 
 @deftypefn {C Function} int @
-                        string_init (struct string *@var{string});
+                        string_init (struct string *@var{string})
 Initialize the string structure.
 @end deftypefn
+@deftypefn {C Function} int @
+                        string_init_size (struct string *@var{string}, size_t @var{size})
+Initialize the string structure. Pre-allocate @var{size} bytes for string->str.
+@end deftypefn
+
 @deftypefn {C Function} void @
                         string_destroy (struct string *@var{string});
 Destroy the string and free memory.
 @end deftypefn
 
+@deftypefn {C Function} {struct string *} @
+                        string_new (char *@var{str})
+Allocate a new string structure and initialize the string to @var{str}
+@end deftypefn
+
+@deftypefn {C Function} void @
+                        string_free (struct string *string)
+Free the string structure.
+@end deftypefn
+
 @deftypefn {C Function} int @
-                        string_set (struct string *@var{dst}, char *@var{str});
+                        string_set (struct string *@var{dst}, char *@var{str})
 Set @var{dst} with @var{str}. A copy is taken.
 @end deftypefn
 
 @deftypefn {C Function} int @
-                        string_append (struct string *@var{dst}, struct string *@var{src});
+                        string_append (struct string *@var{dst}, struct string *@var{src})
+Append @var{src} to @var{dst}.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        string_append_c (struct string *@var{dst}, const char *@var{src})
 Append @var{src} to @var{dst}.
 @end deftypefn
 

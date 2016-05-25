@@ -64,11 +64,21 @@ strtolower(char *dst, const char *src)
 int
 string_init(struct string *string)
 {
-  string->str = malloc(STRING_DEFAULT_SIZE);
-  ERROR_UNDEF_FATAL(NULL == string->str, "string_init() unable to allocate memory!\n");
+  return string_init_size(string, STRING_DEFAULT_SIZE);
+}
 
+int
+string_init_size(struct string *string, size_t size)
+{
   string->len = 0;
-  string->alloc_size = STRING_DEFAULT_SIZE;
+
+  if ( size > 0)
+    {
+      string->str = malloc(size);
+      ERROR_UNDEF_FATAL(NULL == string->str, "string_init() unable to allocate memory!\n");
+    }
+
+  string->alloc_size = size;
 
   return 0;
 }
@@ -79,6 +89,25 @@ string_destroy(struct string *string)
   free(string->str);
 }
 
+struct string *
+string_new(char *str)
+{
+  struct string *string = malloc(sizeof(struct string));
+  ERROR_UNDEF_RET(NULL == string, NULL);
+
+  string_init_size(string, 0);
+  string_set(string, str);
+
+  return string;
+}
+
+void
+string_free(struct string *string)
+{
+  string_destroy(string);
+  free(string);
+}
+
 
 static void
 str_resize(struct string *dst, size_t len)
@@ -87,7 +116,10 @@ str_resize(struct string *dst, size_t len)
     {
       size_t new_size = ((len + 1 + STRING_DEFAULT_SIZE) / STRING_DEFAULT_SIZE) * STRING_DEFAULT_SIZE;
 
-      dst->str = realloc(dst->str, new_size);
+      if (dst->alloc_size > 0)
+	dst->str = realloc(dst->str, new_size);
+      else
+	dst->str = malloc(new_size);
       ERROR_UNDEF_FATAL(NULL == dst->str, "string_append() unable to allocate memory!\n");
       dst->alloc_size = new_size;      
     }
@@ -115,6 +147,21 @@ string_append(struct string *dst, struct string *src)
   str_resize(dst, len);
 
   memcpy(dst->str + dst->len, src->str, src->len);
+  dst->str[len] = '\0';
+  dst->len = len;
+    
+  return 0;
+}
+
+int
+string_append_c(struct string *dst, const char *src)
+{
+  size_t src_len = strlen(src);
+  size_t len = dst->len + src_len;
+
+  str_resize(dst, len);
+
+  memcpy(dst->str + dst->len, src, src_len);
   dst->str[len] = '\0';
   dst->len = len;
     

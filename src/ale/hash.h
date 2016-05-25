@@ -32,6 +32,7 @@ struct hash_kv {
 
 int hash_init(struct hash *hash);
 int hash_init_full(struct hash *hash, size_t size, struct hash_funcs *funcs);
+// TODO: Fix memory leak, kv is not freed
 void hash_destroy(struct hash *hash);
 void hash_destroy_full(struct hash *hash, void (*destroy_kv)(struct hash_kv*));
 

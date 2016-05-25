@@ -6,6 +6,7 @@
 #include "ale/error.h"
 #include "ale/stringutils.h"
 
+
 int
 main(int argc, char *argv[argc])
 {
@@ -27,6 +28,16 @@ main(int argc, char *argv[argc])
 
   string_destroy(&str1);
   string_destroy(&str2);
+
+  struct string *strp1 = string_new("Plop!");
+  ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp1->str, "Plop!"), "FATAL: %s != 'Plop!'\n", strp1->str);
+  struct string *strp2 = string_new("Hello");
+  ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp2->str, "Hello"), "FATAL: %s != 'Hello'\n", strp2->str);
+
+  string_append_c(strp2, " ");
+  ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp2->str, "Hello "), "FATAL: %s != 'Hello '\n", strp2->str);
+  string_append(strp2, strp1);
+  ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp2->str, "Hello Plop!"), "FATAL: %s != 'Hello Plop!'\n", strp2->str);
   
   return EXIT_SUCCESS;
 }
