@@ -7,39 +7,197 @@
 #include <ale/sl_list.h>
 #include <ale/siphash24.h>
 
-#define HASH_DEFAULT_SIZE 65537
+#define HASH_DEFAULT_SIZE ( (1 << 16) + 1 )
+#define HASH_MAX_COL ( 1 << 4 )
 
-struct hash_funcs {
-  size_t (*hash)(const void *key, size_t keysize, const uint8_t *hash_func_key);
-  int (*equal)(const void *keya, size_t keyasize, const void *keyb, size_t keybsize);
-};
+static inline size_t							\
+double_hash_first(struct hash_##name *hash, size_t last,		\
+		  size_t *incr)						\
+{									\
+  if ( 0 ==  *incr )							\
+      *incr = hash_func(buf, hash->key[1]) % (hash->size / HASH_MAX_COL); \
+    last
+  }									\
 
-extern struct hash_funcs hash_string_funcs;
-extern struct hash_funcs hash_intptr_t_funcs;
-
-struct hash {
-  size_t size;
-  struct hash_funcs *funcs;
-  uint8_t *hash_func_key;
-  struct sl_node *array;
-};
-
-struct hash_kv {
-  void *key;
-  size_t keysize;
-  void *value;
-};
-
-int hash_init(struct hash *hash);
-int hash_init_full(struct hash *hash, size_t size, struct hash_funcs *funcs);
-// TODO: Fix memory leak, kv is not freed
-void hash_destroy(struct hash *hash);
-void hash_destroy_full(struct hash *hash, void (*destroy_kv)(struct hash_kv*));
-
-// Keysize just there for faster hash
-int hash_get(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv);
-int hash_set(struct hash *hash, void *key, size_t keysize, void *value, struct hash_kv *kv);
-int hash_del(struct hash *hash, void *key, size_t keysize, struct hash_kv *kv);
+// Keyed hash function size_t hash_func(keytype buf, const uint8_t *key)
+// int (*equal)(keytype a, keytype b)
+#define HASH_INIT(name,keytype,valuetype,equal_func,hash_func)		\
+  struct hash_##name##_kv						\
+  {									\
+    ssize_t index;							\
+    keytype key;							\
+    valuetype value;							\
+  };									\
+									\
+  struct hash_##name							\
+  {									\
+    uint8_t keys[2][SIP_KEYLEN];					\
+    size_t size;							\
+    struct hash_##name##_kv *array;					\
+  };									\
+									\
+  static inline size_t							\
+  hash_##name##_hash(struct hash_##name *hash, const void *buf)		\
+  {									\
+    return hash_func(buf, hash->key[0]) % hash->size;			\
+  }									\
+									\
+  static inline size_t							\
+  double_##name##_hash_increment(struct hash_##name *hash, const void *buf) \
+  {									\
+    size_t ret = hash_##name##_func(buf, hash->keys[1]) %		\
+      (hash->size / HASH_MAX_COL);					\
+    return ret?ret:1;							\
+  }									\
+									\
+  static inline void							\
+  hash_##name##_init(struct hash_##name *hash)				\
+  {									\
+    hash_##name##_init_size(hash, HASH_DEFAULT_SIZE);			\
+  }									\
+									\
+  static inline void							\
+  hash_##name##_init_size(struct hash_##name *hash, size_t size)	\
+  {									\
+    hash->size = size;							\
+    hash->array = malloc(sizeof(struct hash_##name##_kv) * size);	\
+    ERROR_UNDEF_FATAL(NULL == hash->array, "hash_init() Failed to allocate memory\n"); \
+    for (size_t i = 0 ; i < size ; i++)					\
+      hash->array[i].index = -1;					\
+  }									\
+									\
+  static inline void							\
+  hash_##name##_destroy(struct hash_##name *hash)			\
+  {									\
+    free(hash->array);							\
+  }									\
+									\
+  static inline void							\
+  hash_##name##_destroy_full(struct hash_##name *hash,			\
+			     void (*destroy_key_func)(keytype),		\
+			     void (*destroy_value_func)(valuetype))	\
+  {									\
+    for (size_t i = 0 ; i < size ; i++)					\
+      {									\
+	if (-1 != hash->array[i].index)					\
+	  {								\
+	    if (NULL != destroy_key_func)				\
+	      destroy_key_func(hash->array[i].array.key);		\
+	    if (NULL != destroy_value_func)				\
+	      destroy_value_func(hash->array[i].array.value);		\
+	  }								\
+      }									\
+    free(hash->array);							\
+  }									\
+									\
+  static inline int							\
+  hash_##name##_get(struct hash_##name *hash, keytype key, valuetype *value) \
+  {									\
+    size_t index = hash_##name##_hash(hash, key);			\
+    size_t first_index = index;						\
+    size_t i = 0;							\
+    do									\
+      {									\
+	if (-1 == hash->array[index].index)				\
+	  return 0;							\
+									\
+	if ( first_index == hash->array[index].array.index &&		\
+	     equal_func(hash->array[index].array.key, key) )		\
+	  {								\
+	    *value = hash->array[index].array.value;			\
+	    return 1;							\
+	  }								\
+									\
+	i++;								\
+	if (i >= HASH_MAX_COL)						\
+	  return 0;							\
+	index = hash_##name##_double_hash(hash, key, i);		\
+      }									\
+    while (1);								\
+    /* Never reach here */						\
+    ERROR_UNDEF_RET(1, -1);						\
+  }									\
+									\
+  static inline int							\
+  hash_##name##_set(struct hash_##name *hash, keytype key,		\
+		    valuetype value, valuetype *oldvalue)		\
+  {									\
+    size_t index = hash_##name##_double_hash(hash, key, 0);		\
+    size_t first_index = index;						\
+    size_t i = 0;							\
+    do									\
+      {									\
+	if (-1 == hash->array[index].free)				\
+	  {								\
+	    hash->array[index].array.key = key;				\
+	    hash->array[index].array.value = value;			\
+	    hash->array[index].array.index = first_index;		\
+	    return 0;							\
+	  }								\
+									\
+	if ( first_index == hash->array[index].array.index &&		\
+	     equal_func(hash->array[index].array.key, key) )		\
+	  {								\
+	    if (NULL != oldvalue)					\
+	      *oldvalue = hash->array[index].array.value;		\
+	    hash->array[index].array.value = value;			\
+	    return 1;							\
+	  }								\
+									\
+	i++;								\
+	if (i >= HASH_MAX_COL)						\
+	  break;							\
+	index = hash_##name##_double_hash(hash, key, i);		\
+      }									\
+    while (1);								\
+									\
+    ERROR_UNDEF_RET(1, -1);						\
+  }									\
+									\
+  static inline int							\
+  hash_##name##_delete(struct hash_##name *hash, keytype key,		\
+		       keytype *oldkey, valuetype *oldvalue)		\
+  {									\
+    size_t index = hash_##name##_double_hash(hash, key, 0);		\
+    size_t first_index = index;						\
+    size_t i = 0;							\
+    do									\
+      {									\
+	size_t index = hash_##name##_double_hash(hash, key, i);		\
+									\
+	if (-1 == hash->array[index].free)				\
+	  return 0;							\
+									\
+	if ( first_index == hash->array[index].array.index &&		\
+	     equal_func(hash->array[index].array.key, key) )		\
+	  {								\
+	    if (NULL != oldkey)						\
+	      *oldkey = hash->array[index].array.key;			\
+	    if (NULL != oldvalue)					\
+	      *oldvalue = hash->array[index].array.value;		\
+									\
+	    /* TODO: shift keys */					\
+	    for (i ; i < HASH_MAX_COL ; i++)				\
+	      {								\
+		size_t next_index = hash_##name##_double_hash(hash, key, i+1); \
+		if ( next_index != first_index )			\
+		  continue;						\
+									\
+									\
+	      }								\
+	    hash->array[index].array.index = -1;			\
+	    return 1;							\
+	  }								\
+ 									\
+	i++;								\
+	if (i >= HASH_MAX_COL)						\
+	  break;							\
+	index = hash_##name##_double_hash(hash, key, i);		\
+     }									\
+    while (1);								\
+									\
+    ERROR_UNDEF_RET(1, -1);						\
+  }									\
 
 void hash_foreach(struct hash *hash, void (*callback)(struct hash_kv *kv, void *cls), void *cls);
 
