@@ -4,12 +4,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <ale/sl_list.h>
 #include <ale/siphash24.h>
 
 #define HASH_DEFAULT_SIZE ( (1 << 16) + 1 )
 #define HASH_MAX_COL ( 1 << 4 )
 
+static inline size_t
+hash_func_int(int buf, const uint8_t *key)
+{
+  uint64_t hashed;
+
+  siphash((uint8_t *) &hashed, (uint8_t*) &buf, (uint64_t) sizeof(buf), key);
+  
+  return (size_t) hashed;
+}
+
+static inline int
+equal_func_int(int a, int b)
+{
+  return a == b;
+}
+   
 // Keyed hash function size_t hash_func(keytype buf, const uint8_t *key)
 // int (*equal)(keytype a, keytype b)
 #define HASH_INIT(name,keytype,valuetype,equal_func,hash_func)		\
@@ -28,23 +43,17 @@
   };									\
 									\
   static inline size_t							\
-  hash_##name##_hash(struct hash_##name *hash, const void *buf)		\
+  hash_##name##_hash(struct hash_##name *hash, keytype buf)		\
   {									\
-    return hash_func(buf, hash->key[0]) % hash->size;			\
+    return hash_func(buf, hash->keys[0]) % hash->size;			\
   }									\
 									\
   static inline size_t							\
-  hash_##name##_hash_increment(struct hash_##name *hash, const void *buf) \
+  hash_##name##_hash_increment(struct hash_##name *hash, keytype buf)	\
   {									\
-    size_t ret = hash_##name##_func(buf, hash->keys[1]) %		\
+    size_t ret = hash_func(buf, hash->keys[1]) %			\
       (hash->size / HASH_MAX_COL);					\
     return ret?ret:1;							\
-  }									\
-									\
-  static inline void							\
-  hash_##name##_init(struct hash_##name *hash)				\
-  {									\
-    hash_##name##_init_size(hash, HASH_DEFAULT_SIZE);			\
   }									\
 									\
   static inline void							\
@@ -58,6 +67,12 @@
   }									\
 									\
   static inline void							\
+  hash_##name##_init(struct hash_##name *hash)				\
+  {									\
+    hash_##name##_init_size(hash, HASH_DEFAULT_SIZE);			\
+  }									\
+									\
+  static inline void							\
   hash_##name##_destroy(struct hash_##name *hash)			\
   {									\
     free(hash->array);							\
@@ -68,7 +83,7 @@
 			     void (*destroy_key_func)(keytype),		\
 			     void (*destroy_value_func)(valuetype))	\
   {									\
-    for (size_t i = 0 ; i < size ; i++)					\
+    for (size_t i = 0 ; i < hash->size ; i++)				\
       {									\
 	if (-1 != hash->array[i].index)					\
 	  {								\
@@ -196,7 +211,5 @@
     									\
     return 1;								\
   }									\
-
-void hash_foreach(struct hash *hash, void (*callback)(struct hash_kv *kv, void *cls), void *cls);
 
 #endif
