@@ -10,15 +10,6 @@
 #define HASH_DEFAULT_SIZE ( (1 << 16) + 1 )
 #define HASH_MAX_COL ( 1 << 4 )
 
-static inline size_t							\
-double_hash_first(struct hash_##name *hash, size_t last,		\
-		  size_t *incr)						\
-{									\
-  if ( 0 ==  *incr )							\
-      *incr = hash_func(buf, hash->key[1]) % (hash->size / HASH_MAX_COL); \
-    last
-  }									\
-
 // Keyed hash function size_t hash_func(keytype buf, const uint8_t *key)
 // int (*equal)(keytype a, keytype b)
 #define HASH_INIT(name,keytype,valuetype,equal_func,hash_func)		\
@@ -43,7 +34,7 @@ double_hash_first(struct hash_##name *hash, size_t last,		\
   }									\
 									\
   static inline size_t							\
-  double_##name##_hash_increment(struct hash_##name *hash, const void *buf) \
+  hash_##name##_hash_increment(struct hash_##name *hash, const void *buf) \
   {									\
     size_t ret = hash_##name##_func(buf, hash->keys[1]) %		\
       (hash->size / HASH_MAX_COL);					\
@@ -82,9 +73,9 @@ double_hash_first(struct hash_##name *hash, size_t last,		\
 	if (-1 != hash->array[i].index)					\
 	  {								\
 	    if (NULL != destroy_key_func)				\
-	      destroy_key_func(hash->array[i].array.key);		\
+	      destroy_key_func(hash->array[i].key);			\
 	    if (NULL != destroy_value_func)				\
-	      destroy_value_func(hash->array[i].array.value);		\
+	      destroy_value_func(hash->array[i].value);			\
 	  }								\
       }									\
     free(hash->array);							\
@@ -95,23 +86,26 @@ double_hash_first(struct hash_##name *hash, size_t last,		\
   {									\
     size_t index = hash_##name##_hash(hash, key);			\
     size_t first_index = index;						\
+    size_t increment;							\
     size_t i = 0;							\
     do									\
       {									\
 	if (-1 == hash->array[index].index)				\
 	  return 0;							\
 									\
-	if ( first_index == hash->array[index].array.index &&		\
-	     equal_func(hash->array[index].array.key, key) )		\
+	if ( first_index == hash->array[index].index &&			\
+	     equal_func(hash->array[index].key, key) )			\
 	  {								\
-	    *value = hash->array[index].array.value;			\
+	    *value = hash->array[index].value;				\
 	    return 1;							\
 	  }								\
 									\
 	i++;								\
 	if (i >= HASH_MAX_COL)						\
 	  return 0;							\
-	index = hash_##name##_double_hash(hash, key, i);		\
+	if ( 1 == i)							\
+	  increment = hash_##name##_hash_increment(hash, key);		\
+	index += increment;						\
       }									\
     while (1);								\
     /* Never reach here */						\
@@ -122,32 +116,35 @@ double_hash_first(struct hash_##name *hash, size_t last,		\
   hash_##name##_set(struct hash_##name *hash, keytype key,		\
 		    valuetype value, valuetype *oldvalue)		\
   {									\
-    size_t index = hash_##name##_double_hash(hash, key, 0);		\
+    size_t index = hash_##name##_hash(hash, key);			\
     size_t first_index = index;						\
+    size_t increment;							\
     size_t i = 0;							\
     do									\
       {									\
-	if (-1 == hash->array[index].free)				\
+	if (-1 == hash->array[index].index)				\
 	  {								\
-	    hash->array[index].array.key = key;				\
-	    hash->array[index].array.value = value;			\
-	    hash->array[index].array.index = first_index;		\
+	    hash->array[index].key = key;				\
+	    hash->array[index].value = value;				\
+	    hash->array[index].index = first_index;			\
 	    return 0;							\
 	  }								\
 									\
-	if ( first_index == hash->array[index].array.index &&		\
-	     equal_func(hash->array[index].array.key, key) )		\
+	if ( first_index == hash->array[index].index &&			\
+	     equal_func(hash->array[index].key, key) )			\
 	  {								\
 	    if (NULL != oldvalue)					\
-	      *oldvalue = hash->array[index].array.value;		\
-	    hash->array[index].array.value = value;			\
+	      *oldvalue = hash->array[index].value;			\
+	    hash->array[index].value = value;				\
 	    return 1;							\
 	  }								\
 									\
 	i++;								\
 	if (i >= HASH_MAX_COL)						\
 	  break;							\
-	index = hash_##name##_double_hash(hash, key, i);		\
+	if ( 1 == i)							\
+	  increment = hash_##name##_hash_increment(hash, key);		\
+	index += increment;						\
       }									\
     while (1);								\
 									\
@@ -158,45 +155,46 @@ double_hash_first(struct hash_##name *hash, size_t last,		\
   hash_##name##_delete(struct hash_##name *hash, keytype key,		\
 		       keytype *oldkey, valuetype *oldvalue)		\
   {									\
-    size_t index = hash_##name##_double_hash(hash, key, 0);		\
-    size_t first_index = index;						\
+    size_t index = hash_##name##_hash(hash, key);			\
+    size_t first_index = hash_##name##_hash_increment(hash, key);	\
+    size_t increment = 0;						\
     size_t i = 0;							\
-    do									\
+    									\
+    for ( i = 0 ; i < HASH_MAX_COL ; i++, index += increment )		\
       {									\
-	size_t index = hash_##name##_double_hash(hash, key, i);		\
-									\
-	if (-1 == hash->array[index].free)				\
+	if (-1 == hash->array[index].index)				\
 	  return 0;							\
 									\
-	if ( first_index == hash->array[index].array.index &&		\
-	     equal_func(hash->array[index].array.key, key) )		\
-	  {								\
-	    if (NULL != oldkey)						\
-	      *oldkey = hash->array[index].array.key;			\
-	    if (NULL != oldvalue)					\
-	      *oldvalue = hash->array[index].array.value;		\
-									\
-	    /* TODO: shift keys */					\
-	    for (i ; i < HASH_MAX_COL ; i++)				\
-	      {								\
-		size_t next_index = hash_##name##_double_hash(hash, key, i+1); \
-		if ( next_index != first_index )			\
-		  continue;						\
-									\
-									\
-	      }								\
-	    hash->array[index].array.index = -1;			\
-	    return 1;							\
-	  }								\
- 									\
-	i++;								\
-	if (i >= HASH_MAX_COL)						\
+	if ( first_index == hash->array[index].index &&			\
+	     equal_func(hash->array[index].key, key) )			\
 	  break;							\
-	index = hash_##name##_double_hash(hash, key, i);		\
-     }									\
-    while (1);								\
+      }									\
+    if (i == HASH_MAX_COL)						\
+      return 0;								\
 									\
-    ERROR_UNDEF_RET(1, -1);						\
+    if (NULL != oldkey)							\
+      *oldkey = hash->array[index].key;					\
+    if (NULL != oldvalue)						\
+      *oldvalue = hash->array[index].value;				\
+    									\
+    /* shift keys */							\
+    size_t shiftto = index;						\
+    for (i++ ; i < HASH_MAX_COL ; i++)					\
+      {									\
+	index += increment;						\
+	if (-1 == hash->array[index].index)				\
+	  break;							\
+	if ( first_index != hash->array[index].index )			\
+	  continue;							\
+									\
+	hash->array[shiftto].index = first_index;			\
+	hash->array[shiftto].key = hash->array[index].key;		\
+	hash->array[shiftto].value = hash->array[index].value;		\
+	shiftto = index;						\
+      }									\
+    hash->array[index].index = -1;					\
+    									\
+    return 1;								\
   }									\
 
 void hash_foreach(struct hash *hash, void (*callback)(struct hash_kv *kv, void *cls), void *cls);
