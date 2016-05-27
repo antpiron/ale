@@ -5,9 +5,10 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <ale/siphash24.h>
+#include <ale/portability.h>
 
 #define HASH_DEFAULT_SIZE ( (1 << 16) + 1 )
-#define HASH_MAX_COL ( 1 << 4 )
+#define HASH_MAX_COL ( 1 << 5 )
 
 static inline size_t
 hash_func_int(int buf, const uint8_t *key)
@@ -24,7 +25,9 @@ equal_func_int(int a, int b)
 {
   return a == b;
 }
-   
+
+#define HASH_INCREMENT(index,increment,modulo) do { index = (index + (increment)) % (modulo); } while (0)
+
 // Keyed hash function size_t hash_func(keytype buf, const uint8_t *key)
 // int (*equal)(keytype a, keytype b)
 #define HASH_INIT(name,keytype,valuetype,equal_func,hash_func)		\
@@ -59,6 +62,21 @@ equal_func_int(int a, int b)
   static inline void							\
   hash_##name##_init_size(struct hash_##name *hash, size_t size)	\
   {									\
+    int eintr_count = 0;						\
+    while ( -1 == getrandom(hash->keys, sizeof(hash->keys), 0) )	\
+      {									\
+	if (EAGAIN == errno || EINTR == errno)				\
+	  {								\
+	    eintr_count++;						\
+	    ERROR_ERRNO_FATAL_FMT(3 <= eintr_count,			\
+				  "getrandom() in hash_init_full() returned %d times EINTR\n", \
+				  eintr_count);				\
+	    continue;							\
+	  }								\
+									\
+	ERROR_ERRNO_FATAL(1, "getrandom() in hash_init_full() failed\n"); \
+      }									\
+									\
     hash->size = size;							\
     hash->array = malloc(sizeof(struct hash_##name##_kv) * size);	\
     ERROR_UNDEF_FATAL(NULL == hash->array, "hash_init() Failed to allocate memory\n"); \
@@ -101,7 +119,7 @@ equal_func_int(int a, int b)
   {									\
     size_t index = hash_##name##_hash(hash, key);			\
     size_t first_index = index;						\
-    size_t increment;							\
+    size_t increment = 0;						\
     size_t i = 0;							\
     do									\
       {									\
@@ -118,9 +136,9 @@ equal_func_int(int a, int b)
 	i++;								\
 	if (i >= HASH_MAX_COL)						\
 	  return 0;							\
-	if ( 1 == i)							\
+	if ( 0 == increment)						\
 	  increment = hash_##name##_hash_increment(hash, key);		\
-	index += increment;						\
+	HASH_INCREMENT(index,increment, hash->size);			\
       }									\
     while (1);								\
     /* Never reach here */						\
@@ -133,7 +151,7 @@ equal_func_int(int a, int b)
   {									\
     size_t index = hash_##name##_hash(hash, key);			\
     size_t first_index = index;						\
-    size_t increment;							\
+    size_t increment = 0;						\
     size_t i = 0;							\
     do									\
       {									\
@@ -157,9 +175,9 @@ equal_func_int(int a, int b)
 	i++;								\
 	if (i >= HASH_MAX_COL)						\
 	  break;							\
-	if ( 1 == i)							\
+	if ( 0 == increment)						\
 	  increment = hash_##name##_hash_increment(hash, key);		\
-	index += increment;						\
+	HASH_INCREMENT(index, increment, hash->size);			\
       }									\
     while (1);								\
 									\
@@ -171,11 +189,11 @@ equal_func_int(int a, int b)
 		       keytype *oldkey, valuetype *oldvalue)		\
   {									\
     size_t index = hash_##name##_hash(hash, key);			\
-    size_t first_index = hash_##name##_hash_increment(hash, key);	\
-    size_t increment = 0;						\
+    size_t first_index = index;						\
+    size_t increment = hash_##name##_hash_increment(hash, key);		\
     size_t i = 0;							\
     									\
-    for ( i = 0 ; i < HASH_MAX_COL ; i++, index += increment )		\
+    for ( i = 0 ; i < HASH_MAX_COL ; i++)				\
       {									\
 	if (-1 == hash->array[index].index)				\
 	  return 0;							\
@@ -183,6 +201,7 @@ equal_func_int(int a, int b)
 	if ( first_index == hash->array[index].index &&			\
 	     equal_func(hash->array[index].key, key) )			\
 	  break;							\
+	HASH_INCREMENT(index, increment, hash->size);			\
       }									\
     if (i == HASH_MAX_COL)						\
       return 0;								\
@@ -196,7 +215,8 @@ equal_func_int(int a, int b)
     size_t shiftto = index;						\
     for (i++ ; i < HASH_MAX_COL ; i++)					\
       {									\
-	index += increment;						\
+	printf("loop %zu\n", i);					\
+	HASH_INCREMENT(index, increment, hash->size);			\
 	if (-1 == hash->array[index].index)				\
 	  break;							\
 	if ( first_index != hash->array[index].index )			\
@@ -205,9 +225,11 @@ equal_func_int(int a, int b)
 	hash->array[shiftto].index = first_index;			\
 	hash->array[shiftto].key = hash->array[index].key;		\
 	hash->array[shiftto].value = hash->array[index].value;		\
+	printf("%zu <- %zu\n", shiftto, index);				\
 	shiftto = index;						\
       }									\
-    hash->array[index].index = -1;					\
+    printf("\n");							\
+    hash->array[shiftto].index = -1;					\
     									\
     return 1;								\
   }									\
