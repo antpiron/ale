@@ -428,108 +428,79 @@ This module provides an hash table. The default hash function is reasonably coll
 #include "ale/error.h"
 #include "ale/hash.h"
 
+// HASH_INIT(name, keytype, valuetype, equal_function, hash_function)
+HASH_INIT(int, int, int, equal_func_int, hash_func_int)
+
 int
 main(int argc, char *argv[argc])
 @{
-   struct hash hash;
-   struct hash_kv kv;
-   
-   ERROR_FATAL(0 != hash_init_full(&hash, HASH_DEFAULT_SIZE,
-                                   &hash_intptr_t_funcs),
-               "FAIL: hash_init_full()\n" );
+   struct hash_int hash;
+   int ret, val, key;
   
-   ERROR_FATAL_FMT(0 != (ret = hash_set(&hash,
-                         (void*)(intptr_t) 1, 0,
-                         (void*)(intptr_t) 1,
-                         &kv)),
-                   "FAIL: hash_set() returned %d\n", ret);
+   hash_int_init(&hash);
 
-   ERROR_UNDEF_FATAL(-1 == hash_get(&hash, (void*)(intptr_t) 1, 0, &kv),
-                    "FATAL: hash_get returned -1\n");
+   ret = hash_int_set(&hash, 1, 1, NULL);
+   ERROR_UNDEF_FATAL_FMT(0 != ret,
+                         "FATAL: hash_int_set(1) returned %d\n", ret);
 
-   intptr_t key = (intptr_t) kv.key;
-   intptr_t value = (intptr_t) kv.value;
-   size_t keysize = kv.keysize;
-   ERROR_UNDEF_FATAL_FMT(1 != key, "FATAL: key %"PRIdPTR" != 1", key);
-   ERROR_UNDEF_FATAL_FMT(1 != value,
-                         "FATAL: value %"PRIdPTR" != 1", value);
+   ret = hash_int_get(&hash, 1, &val);
+   ERROR_UNDEF_FATAL_FMT(1 != ret,
+                         "FATAL: hash_int_get(1) returned %d\n", ret);
+
+   ret = hash_int_delete(&hash, 1, &key, &val);
+   ERROR_UNDEF_FATAL_FMT(1 != ret,
+                         "FATAL: hash_int_delete(1) returned %d\n", ret);
 
    return EXIT_SUCCESS;
 @}
 
 @end example
 
-The following structure defines the two helper function for the hash table. The first one is @code{hash} which is a keyed hashing function. The size of @code{hash_func_key} is @code{SIP_KEYLEN} from the siphash24 module (@pxref{Siphash24}). The second one is a test of equality between keys.
+@deftypefn {C Function} {static inline int} @
+                        equal_func_int (int @var{a}, int @var{b})
+Return 1 if @var{a} and @var{b} are equal, return 0 otherwise.
+@end deftypefn            
 
-@example
-struct hash_funcs
-@{
-   size_t (*hash)(const void *key, size_t keysize,
-                  const uint8_t *hash_func_key);
-   int (*equal)(const void *keya, size_t keyasize,
-                const void *keyb, size_t keybsize);
-@};
-@end example
+@deffn {C Macro} HASH_INIT (@var{name},@var{keytype},@var{valuetype},@var{equal_func},@var{hash_func})
+Create a hash table named @var{name}. @var{keytype} and @var{valuetype} respectively are the types of the keys and the values. The structure @code{struct hash_##name} is created by this macro.
+@end deffn
 
-Two of these structures are predefined. One for string keys and another for integer keys.
-
-@deftypevr {C Variable} struct hash_funcs hash_string_funcs
-Functions definitions for keys of @code{char*} type 
-@end deftypevr
-@deftypevr {C Variable} struct hash_funcs hash_intptr_t_funcs
-Functions definitions for keys of @code{intptr_t} type
-@end deftypevr
-
-The following structure defines a pair of key and value for the use in the functions
-
-@example
-struct hash_kv
-@{
-   void *key;
-   size_t keysize;
-   void *value;
-@};
-@end example
-
-@deftypefn {C Function} int @
-                        hash_init (struct hash *@var{hash})
-Initialize the @var{hash} structure with strings as keys. Return 0 on success and -1 on error.
-@end deftypefn
-
-@deftypefn {C Function} int @
-                        hash_init_full (struct hash *@var{hash}, size_t @var{size}, struct hash_funcs *@var{funcs})
-Initialize the @var{hash} structure with @var{funcs} helper functions for the keys. The initial size of the hash is set to @var{size}. Return 0 on success and -1 on error.
+@deftypefn {C Function} void @
+                        hash_##name##_init (struct hash_##name *@var{hash})
+Initialize the @var{hash} structure.
 @end deftypefn
 
 @deftypefn {C Function} void @
-                        hash_destroy (struct hash *@var{hash});
-Destroy the hash without any cleaning.
+                        hash_##name##_init_size (struct hash_##name *@var{hash}, size_t @var{size})
+Initialize the @var{hash} structure with a size @var{size}.
 @end deftypefn
 
 @deftypefn {C Function} void @
-                        hash_destroy_full (struct hash *@var{hash}, void (*@var{destroy_kv})(struct hash_kv*))
-Destroy the hash using the cleaning function @var{destroy_kv}.
-@end deftypefn
-
-@deftypefn {C Function} int @
-                        hash_get (struct hash *@var{hash}, void *@var{key}, size_t @var{keysize}, struct hash_kv *@var{kv})
-Set @var{kv} with the value at @var{key}. No copy is made. If you change @var{kv}, the structure can broke horribly. Don't.
-@end deftypefn
-
-@deftypefn {C Function} int @
-                        hash_set (struct hash *@var{hash}, void *@var{key}, size_t @var{keysize}, void *@var{value}, struct hash_kv *@var{kv});
-Set the value at @var{key}  to @var{value}. If an element already exists and @var{kv} is not @code{NULL}, @var{kv} is set with the old value. Return 0 if no element was present, otherwise 1 (@var{kv} is set). Return -1 on error.
-@end deftypefn
-
-@deftypefn {C Function} int @
-                        hash_del (struct hash *@var{hash}, void *@var{key}, size_t @var{keysize}, struct hash_kv *@var{kv})
-Remove element at  @var{key} and set @var{kv} with element if not @code{NULL}. Return -1 if element does not exist and 0 on success.
+                        hash_##name##_destroy (struct hash_##name *@var{hash});
+Destroy the hash without taking care of any cleaning.
 @end deftypefn
 
 @deftypefn {C Function} void @
-                        hash_foreach (struct hash *@var{hash}, void (*@var{callback})(struct hash_kv *kv, void *cls), void *@var{cls})
-Call @var{callback} on each element in the hash. @var{cls} is a closure data.
+                        hash_##name##_destroy_full (struct hash_##name *@var{hash}, @
+                        void (*@var{destroy_key_func})(keytype), void (*@var{destroy_value_func})(valuetype))
+Destroy the hash using the cleaning function @var{destroy_key_func} and @var{destroy_value_func} for respectively destroying the keys and the values.
 @end deftypefn
+
+@deftypefn {C Function} int @
+                        hash_##name_get (struct hash_##name *@var{hash}, keytype @var{key}, valuetype *@var{value})
+Gets the value of the @var{key} and saves it in @var{key}. Return 1 if the key exists, return 0 otherwise.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        hash_set (struct hash *@var{hash}, keytype @var{key}, valuetype @var{value}, valuetype *@var{oldvalue})
+Set the value at @var{key} to @var{value}. If an element already exists and @var{oldvalue} is not @code{NULL}, @var{oldvalue} is set with the previous value. Return 0 if no element was present, otherwise 1 (@var{kv} is set). Return -1 on an - improbable - error.
+@end deftypefn
+
+@deftypefn {C Function} int @
+                        hash_delete (struct hash *@var{hash}, keytype @var{key}, valuetype @var{value}, valuetype *@var{oldvalue})
+Remove element at @var{key} and set @var{oldvalue} with element if not @code{NULL}. Return 0 if element does not exist and 0 on success.
+@end deftypefn
+
 
 @c ========================================================
 @node Skip list, Siphash24, Hash, Top
