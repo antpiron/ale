@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -221,7 +223,7 @@ netutils_asn_to_owner(struct netutils *nu, uint32_t asn)
 static int
 parse_line_rir(const char *line, uint32_t *ip, struct rir *rir)
 {
-  struct tm tm;
+  struct tm tm = {0};
   // ripecc
   SKIP_AFTER('|');
 

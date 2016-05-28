@@ -5,4 +5,7 @@ perf-check:
 	cd src/ && $(MAKE) $(AM_MAKEFLAGS)
 	cd perf && $(MAKE) $(AM_MAKEFLAGS) perf-check
 
-.PHONY:	perf-check
+check-valgrind:
+	cd test && $(MAKE) $(AM_MAKEFLAGS) check-valgrind
+
+.PHONY:	perf-check check-valgrind

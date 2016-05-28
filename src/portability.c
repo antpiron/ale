@@ -36,21 +36,21 @@ memxor (void *restrict dest, const void *restrict src, size_t n)
 }
 
 static inline int
-spread(uint8_t *dst, uint8_t *src)
+spread(uint8_t *dst, const uint8_t *src)
 {
   // Maybe customized
   static const uint8_t key[SIP_KEYLEN] = { 0x2f,0xb9,0xa4,0x3b,0x80,0xac,0x77,0x7c,
 					   0xff,0xde,0xf2,0x23,0xb6,0x7d,0xd8,0xd4 };
   uint64_t plusone = (*(uint64_t*) src);
   
-  siphash(dst, src, SIP_KEYLEN, key);
-  siphash(dst+SIP_KEYLEN, (uint8_t *) &plusone, sizeof(plusone), key);
+  siphash(dst, src, SIP_HASHLEN, key);
+  siphash(dst+SIP_HASHLEN, (uint8_t *) &plusone, sizeof(plusone), key);
 
   return 0;
 }
 
 static int
-add_entropy(uint8_t *key, uint8_t *src, size_t len)
+add_entropy(uint8_t *key, const uint8_t *src, size_t len)
 {
   uint8_t sip[SIP_HASHLEN];
   uint8_t key2[SIP_KEYLEN];
