@@ -98,5 +98,5 @@ AC_SEARCH_LIBS([pthread_create], [pthread],,[AC_MSG_ERROR([
 -------------------------])])
 
 
-AC_CONFIG_FILES([Makefile src/Makefile test/Makefile doc/Makefile src/ale/portability.h])
+AC_CONFIG_FILES([Makefile src/Makefile test/Makefile perf/Makefile doc/Makefile src/ale/portability.h])
 AC_OUTPUT

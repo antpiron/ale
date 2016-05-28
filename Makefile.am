@@ -1,11 +1,11 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = src test doc
+SUBDIRS = src test perf doc
 
-perf-check:
+check-perf:
 	cd src/ && $(MAKE) $(AM_MAKEFLAGS)
-	cd perf && $(MAKE) $(AM_MAKEFLAGS) perf-check
+	cd perf && $(MAKE) $(AM_MAKEFLAGS) check-perf
 
 check-valgrind:
 	cd test && $(MAKE) $(AM_MAKEFLAGS) check-valgrind
 
-.PHONY:	perf-check check-valgrind
+.PHONY:	check-perf check-valgrind
