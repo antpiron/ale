@@ -27,7 +27,7 @@ main(int argc, char *argv[argc])
     }
   ftime(&et);
   diff = (et.time - st.time) + (et.millitm - st.millitm) / 1000.0;
-  rate = MAX_INSERT / (diff * 1024 * 1024);
+  rate = MAX_INSERT / (diff * 1000 * 1000);
         
   printf("\nSet %12.2F MKeys/sec",rate);
 
@@ -40,7 +40,7 @@ main(int argc, char *argv[argc])
     }
   ftime(&et);
   diff = (et.time - st.time) + (et.millitm - st.millitm) / 1000.0;
-  rate = MAX_INSERT / (diff * 1024 * 1024);
+  rate = MAX_INSERT / (diff * 1000 * 1000);
         
   printf("\nGet %12.2F MKeys/sec",rate);
   
@@ -54,7 +54,7 @@ main(int argc, char *argv[argc])
     }
   ftime(&et);
   diff = (et.time - st.time) + (et.millitm - st.millitm) / 1000.0;
-  rate = MAX_INSERT / (diff * 1024 * 1024);
+  rate = MAX_INSERT / (diff * 1000 * 1000);
         
   printf("\nDel %12.2F MKeys/sec",rate);
 
