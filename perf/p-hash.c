@@ -4,7 +4,7 @@
 #include "ale/error.h"
 #include "ale/hash.h"
 
-#define MAX_INSERT (1 << 24)
+#define MAX_INSERT (1 << 22)
 
 HASH_INIT(int, int , int, equal_func_int, hash_func_int)
 
