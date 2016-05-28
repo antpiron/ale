@@ -30,6 +30,7 @@ equal_func_int(int a, int b)
 
 #define _HASH_FREE (-1)
 #define _HASH_DELETE (-2)
+#define _HASH_NOT_FOUND (-3)
 
 // Keyed hash function size_t hash_func(keytype buf, const uint8_t *key)
 // int (*equal)(keytype a, keytype b)
@@ -144,8 +145,8 @@ equal_func_int(int a, int b)
     return 0;								\
   }									\
 									\
-  static inline int							\
-  hash_##name##_get(struct hash_##name *hash, keytype key, valuetype *value) \
+  static inline ssize_t							\
+  hash_##name##_find_bucket(struct hash_##name *hash, keytype key)	\
   {									\
     size_t index = hash_##name##_hash(hash, key);			\
     size_t first_index = index;						\
@@ -154,18 +155,15 @@ equal_func_int(int a, int b)
     do									\
       {									\
 	if (_HASH_FREE == hash->array[index].index)			\
-	  return 0;							\
+	  return _HASH_FREE;						\
 									\
 	if ( first_index == hash->array[index].index &&			\
 	     equal_func(hash->array[index].key, key) )			\
-	  {								\
-	    *value = hash->array[index].value;				\
-	    return 1;							\
-	  }								\
+	  return index;							\
 									\
 	i++;								\
 	if (i >= HASH_MAX_COL)						\
-	  return 0;							\
+	  return _HASH_NOT_FOUND;					\
 	if ( 0 == increment)						\
 	  increment = hash_##name##_hash_increment(hash, key);		\
 	HASH_INCREMENT(index,increment, hash->size);			\
@@ -176,25 +174,46 @@ equal_func_int(int a, int b)
   }									\
 									\
   static inline int							\
+  hash_##name##_get(struct hash_##name *hash, keytype key, valuetype *value) \
+  {									\
+    ssize_t index = hash_##name##_find_bucket(hash, key);		\
+    if ( 0 <= index)							\
+      {									\
+	*value = hash->array[index].value;				\
+	return 1;							\
+      }									\
+									\
+    return 0;								\
+  }									\
+									\
+  static inline int							\
   hash_##name##_set(struct hash_##name *hash, keytype key,		\
 		    valuetype value, valuetype *oldvalue)		\
   {									\
     size_t index = hash_##name##_hash(hash, key);			\
     size_t first_index = index;						\
+    ssize_t delete_index = -1;						\
     size_t increment = 0;						\
     size_t i = 0;							\
     do									\
       {									\
-	if (hash->array[index].index < 0)				\
+	if (_HASH_FREE == hash->array[index].index)			\
 	  {								\
+	    if (0 <= delete_index)					\
+	      index = delete_index;					\
 	    hash->array[index].key = key;				\
 	    hash->array[index].value = value;				\
 	    hash->array[index].index = first_index;			\
 	    return 0;							\
 	  }								\
 									\
-	if ( first_index == hash->array[index].index &&			\
-	     equal_func(hash->array[index].key, key) )			\
+	if ( _HASH_DELETE == index )					\
+	  {								\
+	    if ( delete_index < 0)					\
+	      delete_index = index;					\
+	  }								\
+	else if ( first_index == hash->array[index].index &&		\
+		  equal_func(hash->array[index].key, key) )		\
 	  {								\
 	    if (NULL != oldvalue)					\
 	      *oldvalue = hash->array[index].value;			\
@@ -224,22 +243,8 @@ equal_func_int(int a, int b)
   hash_##name##_delete(struct hash_##name *hash, keytype key,		\
 		       keytype *oldkey, valuetype *oldvalue)		\
   {									\
-    size_t index = hash_##name##_hash(hash, key);			\
-    size_t first_index = index;						\
-    size_t increment = hash_##name##_hash_increment(hash, key);		\
-    size_t i = 0;							\
-    									\
-    for ( i = 0 ; i < HASH_MAX_COL ; i++)				\
-      {									\
-	if (_HASH_FREE == hash->array[index].index)			\
-	  return 0;							\
-									\
-	if ( first_index == hash->array[index].index &&			\
-	     equal_func(hash->array[index].key, key) )			\
-	  break;							\
-	HASH_INCREMENT(index, increment, hash->size);			\
-      }									\
-    if (i == HASH_MAX_COL)						\
+    ssize_t index = hash_##name##_find_bucket(hash, key);		\
+    if (index < 0)							\
       return 0;								\
 									\
     if (NULL != oldkey)							\
