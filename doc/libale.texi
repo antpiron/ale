@@ -501,17 +501,17 @@ Destroy the hash using the cleaning function @var{destroy_key_func} and @var{des
 The accessing function are
 
 @deftypefn {C Function} int @
-                        hash_##name_get (struct hash_##name *@var{hash}, keytype @var{key}, valuetype *@var{value})
+                        hash_##name##_get (struct hash_##name *@var{hash}, keytype @var{key}, valuetype *@var{value})
 Gets the value of the @var{key} and saves it in @var{key}. Return 1 if the key exists, return 0 otherwise.
 @end deftypefn
 
 @deftypefn {C Function} int @
-                        hash_set (struct hash *@var{hash}, keytype @var{key}, valuetype @var{value}, valuetype *@var{oldvalue})
+                        hash_##name##_set (struct hash *@var{hash}, keytype @var{key}, valuetype @var{value}, valuetype *@var{oldvalue})
 Set the value at @var{key} to @var{value}. If an element already exists and @var{oldvalue} is not @code{NULL}, @var{oldvalue} is set with the previous value. Return 0 if no element was present, otherwise 1 (@var{kv} is set). Return -1 on an - improbable - error.
 @end deftypefn
 
 @deftypefn {C Function} int @
-                        hash_delete (struct hash *@var{hash}, keytype @var{key}, valuetype @var{value}, valuetype *@var{oldvalue})
+                        hash_##name##_delete (struct hash *@var{hash}, keytype @var{key}, valuetype @var{value}, valuetype *@var{oldvalue})
 Remove element at @var{key} and set @var{oldvalue} with element if not @code{NULL}. Return 0 if element does not exist and 0 on success.
 @end deftypefn
 
