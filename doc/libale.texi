@@ -456,14 +456,24 @@ main(int argc, char *argv[argc])
 
 @end example
 
-@deftypefn {C Function} {static inline int} @
-                        equal_func_int (int @var{a}, int @var{b})
-Return 1 if @var{a} and @var{b} are equal, return 0 otherwise.
-@end deftypefn            
 
 @deffn {C Macro} HASH_INIT (@var{name},@var{keytype},@var{valuetype},@var{equal_func},@var{hash_func})
 Create a hash table named @var{name}. @var{keytype} and @var{valuetype} respectively are the types of the keys and the values. The structure @code{struct hash_##name} is created by this macro.
 @end deffn
+
+Some predefined equality functions and keyed hashing functions are predefined to use with @code{HASH_INIT}
+
+@deftypefn {C Function} {static inline int} @
+                        equal_func_int (int @var{a}, int @var{b})
+Integer equality testing function. Return 1 if @var{a} and @var{b} are equal, return 0 otherwise.
+@end deftypefn            
+
+@deftypefn {C Function} {static inline size_t} @
+                        hash_func_int (int @var{buf}, const uint8_t *@var{key})
+Keyed hashing function. Return the hashed value of @var{buf} using the key @var{key}.
+@end deftypefn
+
+The initialization function are
 
 @deftypefn {C Function} void @
                         hash_##name##_init (struct hash_##name *@var{hash})
@@ -475,6 +485,8 @@ Initialize the @var{hash} structure.
 Initialize the @var{hash} structure with a size @var{size}.
 @end deftypefn
 
+The destruction functions are
+
 @deftypefn {C Function} void @
                         hash_##name##_destroy (struct hash_##name *@var{hash});
 Destroy the hash without taking care of any cleaning.
@@ -485,6 +497,8 @@ Destroy the hash without taking care of any cleaning.
                         void (*@var{destroy_key_func})(keytype), void (*@var{destroy_value_func})(valuetype))
 Destroy the hash using the cleaning function @var{destroy_key_func} and @var{destroy_value_func} for respectively destroying the keys and the values.
 @end deftypefn
+
+The accessing function are
 
 @deftypefn {C Function} int @
                         hash_##name_get (struct hash_##name *@var{hash}, keytype @var{key}, valuetype *@var{value})
