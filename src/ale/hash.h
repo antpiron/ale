@@ -207,7 +207,7 @@ equal_func_int(int a, int b)
 	    return 0;							\
 	  }								\
 									\
-	if ( _HASH_DELETE == index )					\
+	if ( _HASH_DELETE == hash->array[index].index )			\
 	  {								\
 	    if ( delete_index < 0)					\
 	      delete_index = index;					\
