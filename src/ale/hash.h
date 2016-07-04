@@ -236,7 +236,7 @@ equal_func_int(int a, int b)
 	  return hash_##name##_set(hash, key, value, oldvalue);		\
       }									\
     /* if here, really bad luck */					\
-    ERROR_FATAL(1, -1);							\
+    ERROR_UNDEF_RET(1, -1);							\
   }									\
 									\
   static inline int							\
