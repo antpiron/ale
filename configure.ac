@@ -15,6 +15,8 @@ AC_PROG_CC
 # AC_PROG_CC_C11
 ALE_AC_PROG_CC_C11
 
+AC_CHECK_LIB([m],[cos])
+
 # Sometimes Flex is installed as Lex, e.g., NetBSD.
 AC_CHECK_PROG([FLEX], [flex lex], [flex])
 # Force the use of `missing' to wrap Flex invocations.
