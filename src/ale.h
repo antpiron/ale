@@ -11,5 +11,6 @@
 #include <ale/exparser.h>
 #include <ale/sl_list.h>
 #include <ale/hash.h>
+#include <ale/stats.h>
 
 #endif

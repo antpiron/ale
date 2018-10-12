@@ -1,5 +1,7 @@
 #include <math.h>
 #include "ale/stats.h"
+#include "ale/error.h"
+#include "ale/portability.h"
 
 double
 stats_mean(size_t n, const double x[n])
@@ -91,4 +93,55 @@ stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n])
 	  s += (x[i][k] - means[i] ) * (x[j][k] - means[j]);
 	cov[j][i] = cov[i][j] = s;
       }
+}
+
+double
+stats_unif_rand()
+{
+  uint64_t a;
+  ssize_t ret;
+  
+  ret = getrandom(&a, sizeof(a), 0);
+  ERROR_ERRNO_MSG(-1 == ret, "stats_unif_rand(): failed");
+
+  return  (double) a / (double) UINT64_MAX;
+}
+  
+double
+stats_unif_rand_std(double min, double max)
+{  
+  return min + (max - min) * stats_unif_rand();
+}
+
+double
+stats_norm_rand(double mu, double sig)
+{
+  // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+  static int flag = 0;
+  static double val;
+  double ret;
+  
+  if (! flag)
+    {
+      double s,u,v;
+      do
+	{
+	  u=stats_unif_rand(-1,1);
+	  v=stats_unif_rand(-1,1);
+	  s=u*u+v*v;
+	}
+      while (s >= 1.0 || s == 0.0);
+      
+      double root = sqrt(-2.0*log(s)/s); 
+      val = u*root;
+      ret = mu + sig*v*root;
+      flag=1;
+    }
+  else
+    {
+      flag = 0;
+      ret = mu + sig*val;
+    }
+
+  return ret;
 }

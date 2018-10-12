@@ -10,5 +10,7 @@ double stats_cov(size_t n, const double x[n], const double y[n]);
 double stats_pearson_corr(size_t n, const double x[n], const double y[n]);
 void stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n]);
 
+double stats_unif_rand();
+double stats_unif_rand_mm(double min, double max);
 
 #endif
