@@ -96,7 +96,7 @@ stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n])
 }
 
 double
-stats_unif_rand()
+stats_unif_rand_std()
 {
   uint64_t a;
   ssize_t ret;
@@ -108,40 +108,46 @@ stats_unif_rand()
 }
   
 double
-stats_unif_rand_std(double min, double max)
+stats_unif_rand(double min, double max)
 {  
-  return min + (max - min) * stats_unif_rand();
+  return min + (max - min) * stats_unif_rand_std();
 }
 
 double
-stats_norm_rand(double mu, double sig)
+stats_norm_rand_std()
 {
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-  static int flag = 0;
+  static int flag = 1;
   static double val;
   double ret;
   
-  if (! flag)
+  if (flag)
     {
       double s,u,v;
       do
 	{
-	  u=stats_unif_rand(-1,1);
-	  v=stats_unif_rand(-1,1);
-	  s=u*u+v*v;
+	  u = stats_unif_rand(-1,1);
+	  v = stats_unif_rand(-1,1);
+	  s = u*u+v*v;
 	}
       while (s >= 1.0 || s == 0.0);
       
       double root = sqrt(-2.0*log(s)/s); 
       val = u*root;
-      ret = mu + sig*v*root;
-      flag=1;
+      ret = v*root;
+      flag = 0;
     }
   else
     {
-      flag = 0;
-      ret = mu + sig*val;
+      flag = 1;
+      ret = val;
     }
 
   return ret;
+}
+
+double
+stats_norm_rand(double mu, double sig)
+{
+  return mu + sig * stats_norm_rand_std();
 }
