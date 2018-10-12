@@ -101,15 +101,17 @@ stats_unif_rand_std()
   // generate (0,1) and not [0,1]
   uint64_t a;
   ssize_t ret;
+  double r;
 
   do
     {
       ret = getrandom(&a, sizeof(a), 0);
       ERROR_ERRNO_MSG(-1 == ret, "stats_unif_rand_std(): failed");
+      r = (double) a / (double) UINT64_MAX;
     }
-  while (0 == a || UINT64_MAX == a);
+  while ( r <= 0.0 || r >= 1.0 );
   
-  return  (double) a / (double) UINT64_MAX;
+  return r;
 }
   
 double
