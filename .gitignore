@@ -23,6 +23,7 @@ config.*
 *.l[ao]
 *.[oa]
 *.so
+*.pdf
 Makefile
 *~
 [tp]-*
