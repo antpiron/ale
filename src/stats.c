@@ -173,3 +173,35 @@ stats_student_rand(uint64_t n, double mu, double sig)
 {
   return mu + sig * stats_student_rand_std(n);
 }
+
+double
+stats_gamma_rand(double alpha, double beta)
+{
+  // A Simple Method for Generating Gamma -- GEORGE MARSAGLIA, WAI WAN TSANG
+  double u, x, v;
+  double d = alpha - 1.0 / 3.0;
+  double c = (1.0 / 3.0) / sqrt (d);
+
+  if (alpha < 1)
+    {
+      u = stats_unif_rand_std();
+      return stats_gamma_rand(1.0 + alpha, beta) * pow(u, 1.0 / alpha);
+    }
+  
+  do
+    {
+      do
+	{
+	  x = stats_norm_rand_std();
+	  v = 1.0 + c * x;
+	}
+      while (v <= 0);
+      
+      v = v * v * v;
+      u = stats_unif_rand_std();
+    }
+  while (u >= 1 - 0.0331 * x * x * x * x &&
+	 log(u) >= 0.5 * x * x + d * (1 - v + log (v)));
+  
+  return beta * d * v;  
+}
