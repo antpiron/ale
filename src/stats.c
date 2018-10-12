@@ -98,12 +98,17 @@ stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n])
 double
 stats_unif_rand_std()
 {
+  // generate (0,1) and not [0,1]
   uint64_t a;
   ssize_t ret;
-  
-  ret = getrandom(&a, sizeof(a), 0);
-  ERROR_ERRNO_MSG(-1 == ret, "stats_unif_rand(): failed");
 
+  do
+    {
+      ret = getrandom(&a, sizeof(a), 0);
+      ERROR_ERRNO_MSG(-1 == ret, "stats_unif_rand_std(): failed");
+    }
+  while (0 == a || UINT64_MAX == a);
+  
   return  (double) a / (double) UINT64_MAX;
 }
   
@@ -150,4 +155,20 @@ double
 stats_norm_rand(double mu, double sig)
 {
   return mu + sig * stats_norm_rand_std();
+}
+
+double
+stats_student_rand_std(uint64_t n)
+{
+  // Num. recipes
+  double u = stats_unif_rand(0,1);
+  double v = stats_unif_rand(0,1);
+
+  return sqrt(n * ( pow(u, -2/(double)n) - 1 ) ) * cos(2*M_PI*v);
+}
+
+double
+stats_student_rand(uint64_t n, double mu, double sig)
+{
+  return mu + sig * stats_student_rand_std(n);
 }

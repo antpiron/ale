@@ -2,6 +2,7 @@
 #define __STATS_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 double stats_mean(size_t n, const double x[n]);
 double stats_var(size_t n, const double x[n]);
@@ -15,5 +16,9 @@ double stats_unif_rand(double min, double max);
 
 double stats_norm_rand_std();
 double stats_norm_rand(double mu, double sig);
+
+
+double stats_student_rand_std(uint64_t n);
+double stats_student_rand(uint64_t n, double mu, double sig);
 
 #endif
