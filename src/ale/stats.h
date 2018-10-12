@@ -20,4 +20,6 @@ double stats_norm_rand(double mu, double sig);
 double stats_student_rand_std(uint64_t n);
 double stats_student_rand(uint64_t n, double mu, double sig);
 
+double stats_gamma_rand(double alpha, double beta);
+
 #endif

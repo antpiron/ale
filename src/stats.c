@@ -35,7 +35,6 @@ stats_sd(size_t n, const double x[n])
   return sqrt(stats_var(n, x));
 }
 
-
 double
 stats_cov(size_t n, const double x[n], const double y[n])
 {
