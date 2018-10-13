@@ -88,9 +88,9 @@ stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n])
     for (size_t j = i ; j < m ; j++)
       {
 	double s = 0;
-	for (size_t k = i ; k < n ; k++)
+	for (size_t k = 0 ; k < n ; k++)
 	  s += (x[i][k] - means[i] ) * (x[j][k] - means[j]);
-	cov[j][i] = cov[i][j] = s;
+	cov[j][i] = cov[i][j] = s / (n - 1);
       }
 }
 
