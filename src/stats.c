@@ -69,7 +69,7 @@ stats_pearson_corr(size_t n, const double x[n], const double y[n])
 
 // Shieh, G. Behavior Research Methods (2010) 42: 906. https://doi.org/10.3758/BRM.42.4.906
   double prod = sx * sy;
-  double r = prod?0:cov / prod;
+  double r = prod?cov / prod:0;
   double rs = 1-r*r;
   double rho = r * (1 + rs / (2 * (n - 2)) + 9 * rs * rs / (8 * n * (n - 2)));
 
