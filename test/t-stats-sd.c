@@ -14,17 +14,17 @@ main(int argc, char *argv[argc])
   double res, exp, delta;
   double eps = 0.01;
 
-  res = stats_var(LEN, x);
+  res = stats_sd(LEN, x);
   delta = fabs(res);
-  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_var() == %f != 0.0\n", res);
+  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_sd() == %f != 0.0\n", res);
 
   for (int i = 0 ; i < LEN ; i++)
     x[i] = (i < LEN / 2)?-1:1;
 
-  res = stats_var(LEN, x);
+  res = stats_sd(LEN, x);
   exp = 1.0;
   delta = fabs(exp - res);
-  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_var() == %f != %f. delta = %f\n", res, exp, delta);
+  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_sd() == %f != %f. delta = %f\n", res, exp, delta);
   
   
   return EXIT_SUCCESS;
