@@ -4,7 +4,6 @@
 #include "ale/error.h"
 #include "ale/stats.h"
 
-#define ORDER 16
 
 int
 main(int argc, char *argv[argc])
@@ -20,7 +19,7 @@ main(int argc, char *argv[argc])
     for (int j = 0 ; j < VAR ; j++)
       {
 	delta = fabs(res[i][j]);
-	ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_cov() == %f != 0.0\n", res[i][j]);
+	ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_mat_cov() == %f != 0.0\n", res[i][j]);
       }
 
   for (int i = 0 ; i < VAR ; i++)
@@ -31,7 +30,7 @@ main(int argc, char *argv[argc])
     for (int j = 0 ; j < VAR ; j++)
       {
 	delta = fabs(1.0 - res[i][j]);
-	ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_cov() == %f != 0.0\n", res[i][j]);
+	ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_mat_cov() == %f != 0.0\n", res[i][j]);
       }
 
   
