@@ -12,7 +12,11 @@ main(int argc, char *argv[argc])
   double eps = 0.01, res, delta;
 
   for (int i = 0 ; i < LEN ; i++)
-    x[i] = stats_unif_rand_std();
+    {
+      res = x[i] = stats_unif_rand_std();
+      ERROR_UNDEF_FATAL_FMT(0 > res, "FAIL: mean(stats_unif_rand()) == %f < 0\n", res);
+      ERROR_UNDEF_FATAL_FMT(1 < res, "FAIL: mean(stats_unif_rand()) == %f > 1\n", res);
+    }
   res = stats_mean(LEN, x);
   delta = fabs(0.5 - res);
   ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: mean(stats_unif_rand_std()) == %f != 0.0\n", res);
