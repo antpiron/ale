@@ -9,13 +9,14 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (100)
+#define LEN (1000)
   double x[LEN] = {0.0};
   double res, exp, delta;
-  double eps = 0.1;
+  double eps = 0.01;
 
   res = stats_var(LEN, x);
-  ERROR_UNDEF_FATAL_FMT(0.0 != res, "FAIL: stats_mean() == %f != 0.0\n", res);
+  delta = fabs(res);
+  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_mean() == %f != 0.0\n", res);
 
   for (int i = 0 ; i < LEN ; i++)
     x[i] = (i < LEN / 2)?-1:1;
