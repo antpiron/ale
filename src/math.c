@@ -39,17 +39,23 @@ ale_rilgamma_serie(double x, double a)
     
   return s * exp(-x + a*log(x) - lgamma);
 }
-  
+
+static double
+ale_rilgamma_cont_frac(double x, double a)
+{
+  return 0.0;
+}
+
 double
 ale_rilgamma(double x, double a)
 {
-  if (x == 0.0)
+  if (0.0 == x)
     return 1.0;
 
   if (x <= a + 1)
     return ale_rilgamma_serie(x, a);
-  
-  return 0.0;
+
+  return ale_rilgamma_cont_frac(x, a);
 }
 
 double
