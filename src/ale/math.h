@@ -11,5 +11,4 @@ double ale_rilgamma(double x, double a);
 double ale_riugamma(double x, double a);
 double ale_ibeta(double x, double a, double b);
 
-
 #endif
