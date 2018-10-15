@@ -19,6 +19,12 @@ ale_lgamma(double x)
 double
 ale_beta(double a, double b)
 {
+  return exp(ale_lbeta(a, b));
+}
+
+double
+ale_lbeta(double a, double b)
+{
   return exp(ale_lgamma(a) + ale_lgamma(b) - ale_lgamma(a + b));
 }
 
@@ -96,5 +102,43 @@ ale_riugamma(double x, double a)
 double
 ale_ibeta(double x, double a, double b)
 {
-  return 0;
+  if (x == 0.0 || x == 1.0)
+    return x;
+
+  if ( x > (a+1.0) / (a+b+2.0) ) 
+    return 1.0 - ale_ibeta(1.0-x, b, a);
+
+  
+  double factor = exp( log(x)*a + log(1.0-x)*b - ale_lbeta(a,b) ) / a;
+  double f = 1.0, c = 1.0, d = 0.0;
+
+  double frac_cont = 1.0;
+  size_t m = 0, i = 0;
+
+  while(1)
+    {
+      d = 1.0 + frac_cont * d;
+      if (fabs(d) < TINY_DOUBLE)
+	d = TINY_DOUBLE;
+      d = 1.0 / d;
+      
+      c = 1.0 + frac_cont / c;
+      if (fabs(c) < TINY_DOUBLE)
+	c = TINY_DOUBLE;
+      
+      double delta = c*d;
+      f *= delta;
+      
+      if (fabs(1.0 - delta) < EPS)
+	break;
+      
+      if (++i >= 5000)
+	break;
+      
+      m = i/2;
+      frac_cont = (i % 2 == 0)?-((a+m)*(a+b+m)*x)/((a+2.0*m)*(a+2.0*m+1)):
+	(m*(b-m)*x)/((a+2.0*m-1.0)*(a+2.0*m));
+    }
+  
+  return factor * (f - 1.0);
 }
