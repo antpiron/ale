@@ -25,7 +25,7 @@ ale_beta(double a, double b)
 double
 ale_lbeta(double a, double b)
 {
-  return exp(ale_lgamma(a) + ale_lgamma(b) - ale_lgamma(a + b));
+  return ale_lgamma(a) + ale_lgamma(b) - ale_lgamma(a + b);
 }
 
 
