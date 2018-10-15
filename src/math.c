@@ -78,7 +78,7 @@ ale_rilgamma_cont_frac(double x, double a)
     }
   while (fabs(delta - 1.0) > EPS);
   
-  return exp(-x + a*log(x) - lgamma) * f;
+  return 1 - exp(-x + a*log(x) - lgamma) * f;
 }
 
 double
