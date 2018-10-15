@@ -77,6 +77,19 @@ stats_pearson_corr(size_t n, const double x[n], const double y[n])
   return rho;
 }
 
+double
+stats_pearson_corr_full(size_t n, const double x[n], const double y[n], double *pvalue)
+{
+  // https://support.minitab.com/en-us/minitab-express/1/help-and-how-to/modeling-statistics/regression/how-to/correlation/methods-and-formulas/
+  double r = stats_pearson_corr(n, x, y);
+  double t = fabs(r) * sqrt(n-2) / sqrt(1 - r*r);
+
+  *pvalue = 2 * (1 - stats_student_std_F(t, n-2));
+
+  return r;
+}
+
+
 void
 stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n])
 {

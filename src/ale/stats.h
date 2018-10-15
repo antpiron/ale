@@ -19,6 +19,7 @@ double stats_norm_rand(double mu, double sig);
 
 double stats_student_rand_std(uint64_t n);
 double stats_student_rand(uint64_t n, double mu, double sig);
+double stats_student_std_F(double x, uint64_t n);
 
 double stats_gamma_rand(double alpha, double beta);
 
