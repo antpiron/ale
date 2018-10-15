@@ -60,9 +60,11 @@ ale_rilgamma_cont_frac(double x, double a)
       d = ai * d + b;
       if (fabs(d) < TINY_DOUBLE)
 	d = TINY_DOUBLE;
+      
       c = b + ai/c;
       if (fabs(c) < TINY_DOUBLE)
 	c = TINY_DOUBLE;
+      
       d = 1.0/d;
       delta = d*c;
       f *= delta;
