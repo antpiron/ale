@@ -1,7 +1,8 @@
+#include <stddef.h>
 #include "ale/math.h"
 
-#define EPS (1e-30)
-#define FPMIN (1e-15)
+#define EPS (1e-15)
+#define TINY_DOUBLE (1e-30)
 
 double
 ale_gamma(double x)
@@ -27,48 +28,49 @@ ale_rilgamma_serie(double x, double a)
 {
   double lgamma = ale_lgamma(a);
   double ai = a;
-  double s = 1.0 / a;
-  double delta = s;
+  double sum = 1.0 / a;
+  double delta = sum;
   
   do
     {
       ai++;
       delta *=  x / ai;
-      s += delta;
+      sum += delta;
     }
-  while (fabs(delta) >= fabs(s) * EPS);
+  while (fabs(delta) >= fabs(sum) * EPS);
     
-  return s * exp(-x + a*log(x) - lgamma);
+  return sum * exp(-x + a*log(x) - lgamma);
 }
 
 static double
 ale_rilgamma_cont_frac(double x, double a)
 {
-  int i;
   double b = x + 1.0 - a;
-  double c = 1.0 / FPMIN;
+  double c = 1.0 / TINY_DOUBLE;
   double d = 1.0 / b;
-  double h = d;
-  double an,delta;
+  double f = d;
+  double delta;
   double lgamma = ale_lgamma(a);
 
-  for (i=1 ; ; i++) {
-    an = -i * (i - a);
-    b += 2.0;
-    d = an * d + b;
-    if (fabs(d) < FPMIN)
-      d = FPMIN;
-    c = b + an/c;
-    if (fabs(c) < FPMIN)
-      c = FPMIN;
-    d = 1.0/d;
-    delta = d*c;
-    h *= delta;
-    if (fabs(delta - 1.0) <= EPS)
-      break;
-  }
+  size_t i = 1;
+  do
+    {
+      double ai = -i * (i - a);
+      b += 2.0;
+      d = ai * d + b;
+      if (fabs(d) < TINY_DOUBLE)
+	d = TINY_DOUBLE;
+      c = b + ai/c;
+      if (fabs(c) < TINY_DOUBLE)
+	c = TINY_DOUBLE;
+      d = 1.0/d;
+      delta = d*c;
+      f *= delta;
+      i++;
+    }
+  while (fabs(delta - 1.0) > EPS);
   
-  return exp(-x + a*log(x) - lgamma) * h;
+  return exp(-x + a*log(x) - lgamma) * f;
 }
 
 double
