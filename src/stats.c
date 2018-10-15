@@ -2,6 +2,7 @@
 #include "ale/stats.h"
 #include "ale/error.h"
 #include "ale/portability.h"
+#include "ale/math.h"
 
 double
 stats_mean(size_t n, const double x[n])
@@ -152,6 +153,16 @@ stats_norm_rand_std()
 }
 
 double
+stats_norm_std_F(double x)
+{
+  // http://www.stat.tamu.edu/~jnewton/604/chap3.pdf
+  if (x < 0)
+    return 1 - stats_norm_std_F(-x);
+  
+  return 0.5 + 0.5 * ale_rilgamma(x*x*0.5, 0.5);
+}
+
+double
 stats_norm_rand(double mu, double sig)
 {
   return mu + sig * stats_norm_rand_std();
@@ -167,6 +178,15 @@ stats_student_rand_std(uint64_t n)
   return sqrt(n * ( pow(u, -2/(double)n) - 1 ) ) * cos(2*M_PI*v);
 }
 
+double
+stats_student_std_F(double x, uint64_t n)
+{
+  if (x < 0)
+    return 2 - stats_student_std_F(-x, n);
+
+  return 1 - ale_ibeta(n / (n + x*x), 0.5*n, 0.5);
+}
+  
 double
 stats_student_rand(uint64_t n, double mu, double sig)
 {

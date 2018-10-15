@@ -1,6 +1,7 @@
 #include "ale/math.h"
 
-#define EPS (0.000001)
+#define EPS (1e-30)
+#define FPMIN (1e-15)
 
 double
 ale_gamma(double x)
@@ -17,7 +18,7 @@ ale_lgamma(double x)
 double
 ale_beta(double a, double b)
 {
-  return ale_gamma(a) * ale_gamma(b) / ale_gamma(a + b);
+  return exp(ale_lgamma(a) + ale_lgamma(b) - ale_lgamma(a + b));
 }
 
 
@@ -43,7 +44,31 @@ ale_rilgamma_serie(double x, double a)
 static double
 ale_rilgamma_cont_frac(double x, double a)
 {
-  return 0.0;
+  int i;
+  double b = x + 1.0 - a;
+  double c = 1.0 / FPMIN;
+  double d = 1.0 / b;
+  double h = d;
+  double an,delta;
+  double lgamma = ale_lgamma(a);
+
+  for (i=1 ; ; i++) {
+    an = -i * (i - a);
+    b += 2.0;
+    d = an * d + b;
+    if (fabs(d) < FPMIN)
+      d = FPMIN;
+    c = b + an/c;
+    if (fabs(c) < FPMIN)
+      c = FPMIN;
+    d = 1.0/d;
+    delta = d*c;
+    h *= delta;
+    if (fabs(delta - 1.0) <= EPS)
+      break;
+  }
+  
+  return exp(-x + a*log(x) - lgamma) * h;
 }
 
 double
@@ -52,7 +77,7 @@ ale_rilgamma(double x, double a)
   if (0.0 == x)
     return 1.0;
 
-  if (x <= a + 1)
+  if (x <= a + 1)          
     return ale_rilgamma_serie(x, a);
 
   return ale_rilgamma_cont_frac(x, a);
