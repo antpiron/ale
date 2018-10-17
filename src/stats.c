@@ -84,7 +84,7 @@ stats_pearson_corr_full(size_t n, const double x[n], const double y[n], double *
   double r = stats_pearson_corr(n, x, y);
   double t = fabs(r) * sqrt(n-2) / sqrt(1 - r*r);
 
-  *pvalue = 2 * (1 - stats_student_std_F(t, n-2));
+  *pvalue = 2 * (1 - stats_student_F(t, n-2));
 
   return r;
 }
@@ -209,7 +209,7 @@ stats_norm_F(double x, double mu, double sig)
 }
 
 double
-stats_student_rand_std(uint64_t n)
+stats_student_rand(uint64_t n)
 {
   // Num. recipes
   double u = stats_unif_rand(0,1);
@@ -219,20 +219,14 @@ stats_student_rand_std(uint64_t n)
 }
 
 double
-stats_student_std_F(double x, uint64_t n)
+stats_student_F(double x, uint64_t n)
 {
   if (x < 0)
-    return 1 - stats_student_std_F(-x, n);
+    return 1 - stats_student_F(-x, n);
 
   return 1 - 0.5 * ale_ibeta(n / (n + x*x), 0.5*n, 0.5);
 }
   
-double
-stats_student_rand(uint64_t n, double mu, double sig)
-{
-  return mu + sig * stats_student_rand_std(n);
-}
-
 double
 stats_gamma_rand(double alpha, double beta)
 {
