@@ -25,7 +25,7 @@ main(int argc, char *argv[argc])
   delta = fabs(0.03921812 - res);
   ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: count(stats_student_std_F(-1.96, 10)) == %f != 0.03921812\n", res);
 
-  for (double i = -10 ; i < 10 ; i += 1)
+  for (double i = -10 ; i < 10 ; i += 0.01)
     {
       double exp = stats_norm_std_F(i);
       res = stats_student_std_F(i, LEN);
