@@ -3,6 +3,8 @@
 #include "ale/error.h"
 #include "ale/btree.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 struct btnode* 
 bt_mknode(int btorder, int type)
@@ -440,3 +442,4 @@ bt_print(struct btree *bt)
 {
   bt_print_rec(bt, bt->root, 0);
 }
+#pragma GCC diagnostic pop

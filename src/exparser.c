@@ -6,6 +6,9 @@
 
 #include "ale/exparser.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 static struct ep_token 
 get_token(void *cls)
 {
@@ -183,3 +186,4 @@ prod(struct ep_parser *ep)
 
   return t;
 }
+#pragma GCC diagnostic pop

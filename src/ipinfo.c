@@ -18,6 +18,10 @@
 #define RIR_RIPENCC DBPATH"ripencc.txt"
 
 #define MAXLINE 256
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 int
 main(int argc, char *argv[argc])
 {
@@ -69,3 +73,5 @@ main(int argc, char *argv[argc])
 
   return EXIT_SUCCESS;
 }
+
+#pragma GCC diagnostic pop

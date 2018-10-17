@@ -48,38 +48,38 @@ ale_rilgamma_serie(double x, double a)
   return sum * exp(-x + a*log(x) - lgamma);
 }
 
-static double
-ale_rilgamma_cont_frac(double x, double a)
-{
-  double b = x + 1.0 - a;
-  double c = 1.0 / TINY_DOUBLE;
-  double d = 1.0 / b;
-  double f = d;
-  double delta;
-  double lgamma = ale_lgamma(a);
+/* static double */
+/* ale_rilgamma_cont_frac(double x, double a) */
+/* { */
+/*   double b = x + 1.0 - a; */
+/*   double c = 1.0 / TINY_DOUBLE; */
+/*   double d = 1.0 / b; */
+/*   double f = d; */
+/*   double delta; */
+/*   double lgamma = ale_lgamma(a); */
 
-  size_t i = 1;
-  do
-    {
-      double ai = -i * (i - a);
-      b += 2.0;
-      d = ai * d + b;
-      if (fabs(d) < TINY_DOUBLE)
-	d = TINY_DOUBLE;
+/*   size_t i = 1; */
+/*   do */
+/*     { */
+/*       double ai = -i * (i - a); */
+/*       b += 2.0; */
+/*       d = ai * d + b; */
+/*       if (fabs(d) < TINY_DOUBLE) */
+/* 	d = TINY_DOUBLE; */
       
-      c = b + ai/c;
-      if (fabs(c) < TINY_DOUBLE)
-	c = TINY_DOUBLE;
+/*       c = b + ai/c; */
+/*       if (fabs(c) < TINY_DOUBLE) */
+/* 	c = TINY_DOUBLE; */
       
-      d = 1.0/d;
-      delta = d*c;
-      f *= delta;
-      i++;
-    }
-  while (fabs(delta - 1.0) > EPS);
+/*       d = 1.0/d; */
+/*       delta = d*c; */
+/*       f *= delta; */
+/*       i++; */
+/*     } */
+/*   while (fabs(delta - 1.0) > EPS); */
   
-  return 1 - exp(-x + a*log(x) - lgamma) * f;
-}
+/*   return 1 - exp(-x + a*log(x) - lgamma) * f; */
+/* } */
 
 double
 ale_rilgamma(double x, double a)
