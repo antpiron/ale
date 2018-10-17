@@ -166,6 +166,12 @@ stats_norm_rand_std()
 }
 
 double
+stats_norm_rand(double mu, double sig)
+{
+  return mu + sig * stats_norm_rand_std();
+}
+
+double
 stats_norm_std_F(double x)
 {
   // http://www.stat.tamu.edu/~jnewton/604/chap3.pdf
@@ -173,12 +179,6 @@ stats_norm_std_F(double x)
     return 1 - stats_norm_std_F(-x);
   
   return 0.5 + 0.5 * ale_rilgamma(x*x*0.5, 0.5);
-}
-
-double
-stats_norm_rand(double mu, double sig)
-{
-  return mu + sig * stats_norm_rand_std();
 }
 
 double
