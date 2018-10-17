@@ -182,6 +182,12 @@ stats_norm_std_F(double x)
 }
 
 double
+stats_norm_F(double x, double mu, double sig)
+{
+  return stats_norm_std_F( (x - mu) / sig );
+}
+
+double
 stats_student_rand_std(uint64_t n)
 {
   // Num. recipes

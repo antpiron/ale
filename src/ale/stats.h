@@ -17,6 +17,7 @@ double stats_unif_rand(double min, double max);
 double stats_norm_rand_std();
 double stats_norm_rand(double mu, double sig);
 double stats_norm_std_F(double x);
+double stats_norm_F(double x, double mu, double sig);
 
 double stats_student_rand_std(uint64_t n);
 double stats_student_rand(uint64_t n, double mu, double sig);

@@ -9,7 +9,6 @@ main(int argc, char *argv[argc])
 {
   double eps = 0.01, res, delta;
 
-
   res = stats_norm_std_F(0);
   ERROR_UNDEF_FATAL(isnan(res), "FAIL: count(stats_norm_std_F(0)) == NaN\n");
   delta = fabs(0.5 - res);
