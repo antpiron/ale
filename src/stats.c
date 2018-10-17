@@ -201,9 +201,9 @@ double
 stats_student_std_F(double x, uint64_t n)
 {
   if (x < 0)
-    return 2 - stats_student_std_F(-x, n);
+    return 1 - stats_student_std_F(-x, n);
 
-  return 1 - ale_ibeta(n / (n + x*x), 0.5*n, 0.5);
+  return 1 - 0.5 * ale_ibeta(n / (n + x*x), 0.5*n, 0.5);
 }
   
 double
