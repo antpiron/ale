@@ -7,7 +7,7 @@
 int
 main(int argc, char *argv[argc])
 {
-  double eps = 0.01, res, delta;
+  double eps = 0.005, res, delta;
 
   res = stats_norm_F(2, 2, 4);
   ERROR_UNDEF_FATAL(isnan(res), "FAIL: count(stats_norm_F(2, 2, 4) == NaN\n");
