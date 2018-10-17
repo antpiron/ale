@@ -132,7 +132,7 @@ stats_unif_rand(double min, double max)
   return min + (max - min) * stats_unif_rand_std();
 }
 double
-stats_unif_rand_std_F(double x)
+stats_unif_std_F(double x)
 {
   if (x <= 0)
     return 0;
@@ -143,14 +143,14 @@ stats_unif_rand_std_F(double x)
 }
 
 double
-stats_unif_rand_F(double x, double min, double max)
+stats_unif_F(double x, double min, double max)
 {
   if (x <= min)
     return 0;
   if (x >= max)
     return 1;
 
-  return (x - min) / max;
+  return (x - min) / (max - min);
 }
 
 double

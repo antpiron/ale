@@ -13,8 +13,8 @@ void stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n]);
 
 double stats_unif_rand_std();
 double stats_unif_rand(double min, double max);
-double stats_unif_rand_std_F(double x);
-double stats_unif_rand_F(double x, double min, double max);
+double stats_unif_std_F(double x);
+double stats_unif_F(double x, double min, double max);
 
 double stats_norm_rand_std();
 double stats_norm_rand(double mu, double sig);
