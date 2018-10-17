@@ -7,7 +7,7 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (100000)
+#define LEN (200000)
   double x[LEN] = {0.0};
   double eps = 0.01, res, delta;
   double count = 0;
@@ -24,9 +24,9 @@ main(int argc, char *argv[argc])
   res = stats_mean(LEN, x);
   delta = fabs(0.0 - res);
   ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: mean(stats_unif_rand_std()) == %f != 0.0\n", res);
-  res = stats_var(LEN, x);
+  res = stats_sd(LEN, x);
   delta = fabs(1.0 - res);
-  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: var(stats_unif_rand_std()) == %f != 0.0\n", res);
+  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: sd(stats_unif_rand_std()) == %f != 1.0\n", res);
 
 
   return EXIT_SUCCESS;

@@ -1,8 +1,8 @@
 #include <stddef.h>
 #include "ale/math.h"
 
-#define EPS (1e-15)
-#define TINY_DOUBLE (1e-30)
+#define EPS (1E-15)
+#define TINY_DOUBLE (1E-30)
 
 double
 ale_gamma(double x)
@@ -85,12 +85,13 @@ double
 ale_rilgamma(double x, double a)
 {
   if (0.0 == x)
-    return 1.0;
+    return 0.0;
 
-  if (x <= a + 1)          
-    return ale_rilgamma_serie(x, a);
+  //if (x <= a + 1)          
+  return ale_rilgamma_serie(x, a);
 
-  return ale_rilgamma_cont_frac(x, a);
+  // For some reason do not return the same value than R
+  //return ale_rilgamma_cont_frac(x, a);
 }
 
 double
@@ -102,10 +103,12 @@ ale_riugamma(double x, double a)
 double
 ale_ibeta(double x, double a, double b)
 {
+  // 0 <= x <= 1, a,b > 0
+  // http://www.stat.tamu.edu/~jnewton/604/chap3.pdf
   if (x == 0.0 || x == 1.0)
     return x;
 
-  if ( x > (a+1.0) / (a+b+2.0) ) 
+  if ( x >= (a+1.0) / (a+b+2.0) ) 
     return 1.0 - ale_ibeta(1.0-x, b, a);
 
   
@@ -125,10 +128,10 @@ ale_ibeta(double x, double a, double b)
       c = 1.0 + frac_cont / c;
       if (fabs(c) < TINY_DOUBLE)
 	c = TINY_DOUBLE;
-      
+       
       double delta = c*d;
       f *= delta;
-      
+
       if (fabs(1.0 - delta) < EPS)
 	break;
       
@@ -136,7 +139,7 @@ ale_ibeta(double x, double a, double b)
 	break;
       
       m = i/2;
-      frac_cont = (i % 2 == 0)?-((a+m)*(a+b+m)*x)/((a+2.0*m)*(a+2.0*m+1)):
+      frac_cont = (i % 2)?-((a+m)*(a+b+m)*x)/((a+2.0*m)*(a+2.0*m+1)):
 	(m*(b-m)*x)/((a+2.0*m-1.0)*(a+2.0*m));
     }
   
