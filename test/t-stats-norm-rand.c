@@ -9,7 +9,7 @@ main(int argc, char *argv[argc])
 {
 #define LEN (200000)
   double x[LEN] = {0.0};
-  double eps = 0.02, res, delta;
+  double eps = 0.03, res, delta;
   double count = 0;
 
   for (int i = 0 ; i < LEN ; i++)

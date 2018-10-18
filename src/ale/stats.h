@@ -8,17 +8,16 @@ double stats_mean(size_t n, const double x[n]);
 double stats_var(size_t n, const double x[n]);
 double stats_sd(size_t n, const double x[n]);
 double stats_cov(size_t n, const double x[n], const double y[n]);
-double stats_pearson_corr(size_t n, const double x[n], const double y[n]);
-double stats_pearson_corr_full(size_t n, const double x[n], const double y[n],
-			       double *pvalue);
+int stats_pearson_corr(size_t n, const double x[n], const double y[n],
+		       double *rho, double *pvalue);
 void stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n]);
 
-double stats_unif_rand_std();
+double stats_unif_std_rand();
 double stats_unif_rand(double min, double max);
 double stats_unif_std_F(double x);
 double stats_unif_F(double x, double min, double max);
 
-double stats_norm_rand_std();
+double stats_norm_std_rand();
 double stats_norm_rand(double mu, double sig);
 double stats_norm_std_F(double x);
 double stats_norm_F(double x, double mu, double sig);

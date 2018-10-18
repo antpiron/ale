@@ -14,7 +14,7 @@ main(int argc, char *argv[argc])
 
   for (int i = 0 ; i < LEN ; i++)
     {
-      res = x[i] = stats_norm_rand_std();
+      res = x[i] = stats_norm_std_rand();
       if (res < 0)
 	count++;
     }

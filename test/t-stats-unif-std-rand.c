@@ -13,7 +13,7 @@ main(int argc, char *argv[argc])
 
   for (int i = 0 ; i < LEN ; i++)
     {
-      res = x[i] = stats_unif_rand_std();
+      res = x[i] = stats_unif_std_rand();
       ERROR_UNDEF_FATAL_FMT(0 > res, "FAIL: mean(stats_unif_rand()) == %f < 0\n", res);
       ERROR_UNDEF_FATAL_FMT(1 < res, "FAIL: mean(stats_unif_rand()) == %f > 1\n", res);
     }

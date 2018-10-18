@@ -49,8 +49,9 @@ stats_cov(size_t n, const double x[n], const double y[n])
   return s / (n - 1);
 }
 
-double
-stats_pearson_corr(size_t n, const double x[n], const double y[n])
+int
+stats_pearson_corr(size_t n, const double x[n], const double y[n],
+		   double *rho, double *pvalue)
 {
   double mx = stats_mean(n, x);
   double my = stats_mean(n, y);
@@ -64,29 +65,31 @@ stats_pearson_corr(size_t n, const double x[n], const double y[n])
       sx += xterm * xterm;
       sy += yterm * yterm;
     }
+  if ( sx <= 0 ||  sy <= 0)
+    return -1;
   cov /= n - 1;
   sx = sqrt(sx / (n - 1));
   sy = sqrt(sy / (n - 1));
 
 // Shieh, G. Behavior Research Methods (2010) 42: 906. https://doi.org/10.3758/BRM.42.4.906
-  double prod = sx * sy;
-  double r = prod?cov / prod:0;
+  double r = cov / (sx * sy);
   double rs = 1-r*r;
-  double rho = r * (1 + rs / (2 * (n - 2)) + 9 * rs * rs / (8 * n * (n - 2)));
+  double rho2 = r * (1 + rs / (2 * (n - 2)) + 9 * rs * rs / (8 * n * (n - 2)));
 
-  return rho;
-}
-
-double
-stats_pearson_corr_full(size_t n, const double x[n], const double y[n], double *pvalue)
-{
-  // https://support.minitab.com/en-us/minitab-express/1/help-and-how-to/modeling-statistics/regression/how-to/correlation/methods-and-formulas/
-  double r = stats_pearson_corr(n, x, y);
-  double t = fabs(r) * sqrt(n-2) / sqrt(1 - r*r);
-
-  *pvalue = 2 * (1 - stats_student_F(t, n-2));
-
-  return r;
+  if (rho)
+    *rho = rho2;
+  if (pvalue)
+    {
+      if (1.0 == rho2)
+	*pvalue = 0;
+      else
+	{
+	  double t = fabs(rho2) * sqrt(n-2) / sqrt(1 - rho2*rho2);
+	  *pvalue = 2 * (1 - stats_student_F(t, n-2));
+	}
+    }
+  
+  return 0;
 }
 
 
@@ -109,7 +112,7 @@ stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n])
 }
 
 double
-stats_unif_rand_std()
+stats_unif_std_rand()
 {
   // generate (0,1) and not [0,1]
   uint64_t a;
@@ -129,7 +132,7 @@ stats_unif_rand_std()
 double
 stats_unif_rand(double min, double max)
 {  
-  return min + (max - min) * stats_unif_rand_std();
+  return min + (max - min) * stats_unif_std_rand();
 }
 double
 stats_unif_std_F(double x)
@@ -154,7 +157,7 @@ stats_unif_F(double x, double min, double max)
 }
 
 double
-stats_norm_rand_std()
+stats_norm_std_rand()
 {
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
   static int flag = 1;
@@ -189,7 +192,7 @@ stats_norm_rand_std()
 double
 stats_norm_rand(double mu, double sig)
 {
-  return mu + sig * stats_norm_rand_std();
+  return mu + sig * stats_norm_std_rand();
 }
 
 double
@@ -237,7 +240,7 @@ stats_gamma_rand(double alpha, double beta)
 
   if (alpha < 1)
     {
-      u = stats_unif_rand_std();
+      u = stats_unif_std_rand();
       return stats_gamma_rand(1.0 + alpha, beta) * pow(u, 1.0 / alpha);
     }
   
@@ -245,13 +248,13 @@ stats_gamma_rand(double alpha, double beta)
     {
       do
 	{
-	  x = stats_norm_rand_std();
+	  x = stats_norm_std_rand();
 	  v = 1.0 + c * x;
 	}
       while (v <= 0);
       
       v = v * v * v;
-      u = stats_unif_rand_std();
+      u = stats_unif_std_rand();
     }
   while (u >= 1 - 0.0331 * x * x * x * x &&
 	 log(u) >= 0.5 * x * x + d * (1 - v + log (v)));
