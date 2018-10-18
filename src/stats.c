@@ -264,18 +264,26 @@ stats_gamma_rand(double alpha, double beta)
 
 
 double
-stats_t_test(size_t n, const double x[n], double mu,
+stats_t_test(size_t n, const double x[n], double mu, int H0,
 	     struct stats_t_test *data)
 {
+  double t, pvalue;
   double m = stats_mean(n, x);
   double s = stats_sd(n, x);
 
   if (s == 0)
     return -1;
   
-  double t = (m - mu) / (s / sqrt(n));
-  double pvalue = 2 * (1 - stats_student_F(fabs(t), n-1)); // two-sided
+  t = (m - mu) / (s / sqrt(n));
+  pvalue = 2 * (1 - stats_student_F(fabs(t), n-1)); // two-sided
 
+  if (0 == H0)
+     pvalue = 2 * (1 - stats_student_F(fabs(t), n-1)); // two-sided
+  else if (0 < H0)
+    pvalue = 1 - stats_student_F(t, n-1); // greater
+  else
+    pvalue = stats_student_F(t, n-1); // smaller
+  
   if (data)
     {
       data->pvalue = pvalue;

@@ -30,7 +30,7 @@ double stats_gamma_rand(double alpha, double beta);
 struct stats_t_test {
   double pvalue, df, t;
 };
-double stats_t_test(size_t n, const double x[n], double mu,
+double stats_t_test(size_t n, const double x[n], double mu, int H0,
 		    struct stats_t_test *data);
 double stats_t_test_paired(size_t n, const double x[n], const double y[n],
 			   struct stats_t_test *data);
