@@ -38,18 +38,20 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(delta >= eps,
 			"FAIL: stats_pearson_corr().pval == %f != 0\n", pvalue);
   
-  for (int i = 0 ; i < LEN ; i++)
+  for (long i = 0 ; i < LEN ; i++)
     {
-      x[i] = stats_unif_std_rand();
-      y[i] = stats_unif_std_rand();
+      x[i] = stats_unif_rand(0,100);
+      y[i] = stats_unif_rand(0,100);
     }
 
   ret = stats_pearson_corr(LEN, x, y, &res, &pvalue);
   ERROR_UNDEF_FATAL_FMT(-1 == ret, "FAIL: stats_stats_pearson_corr() == %d != 0\n", ret);
   exp = 0.0;
   delta = fabs(exp - res);
-  ERROR_UNDEF_FATAL_FMT(delta >= 0.1, "FAIL: stats_pearson_corr() == %f != %f. delta = %f\n", res, exp, delta);
-  ERROR_UNDEF_FATAL_FMT(pvalue < 0.05,
+  ERROR_UNDEF_FATAL_FMT(pvalue < 0.01 && delta >= eps,
+			"FAIL: stats_pearson_corr() == %f != %f. pval = %f\n",
+			res, exp, pvalue);
+  ERROR_UNDEF_FATAL_FMT(pvalue < 0.01,
 			"FAIL: stats_pearson_corr().pval == %f < 0.05\n", pvalue);
   
   
