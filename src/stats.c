@@ -84,8 +84,8 @@ stats_pearson_corr(size_t n, const double x[n], const double y[n],
 	*pvalue = 0;
       else
 	{
-	  double t = fabs(rho2) * sqrt(n-2) / sqrt(1 - rho2*rho2);
-	  *pvalue = 2 * (1 - stats_student_F(t, n-2));
+	  double t = rho2 * sqrt(n-2) / sqrt(1 - rho2*rho2);
+	  *pvalue = 2 * (1 - stats_student_F(fabs(t), n-2));
 	}
     }
   
