@@ -263,6 +263,17 @@ stats_gamma_rand(double alpha, double beta)
 }
 
 
+static double
+H0_pvalue(int H0, double t, double df)
+{
+  if (0 == H0)
+    return 2 * (1-stats_student_F(fabs(t), df)); // two-sided
+  else if (0 < H0)
+    return 1 - stats_student_F(t, df); // greater
+  
+  return stats_student_F(t, df); // smaller
+}
+
 double
 stats_t_test(size_t n, const double x[n], double mu, int H0,
 	     struct stats_t_test *data)
@@ -275,13 +286,7 @@ stats_t_test(size_t n, const double x[n], double mu, int H0,
     return -1;
   
   t = (m - mu) / (s / sqrt(n));
-
-  if (0 == H0)
-    pvalue = 2 * (1-stats_student_F(fabs(t), n-1)); // two-sided
-  else if (0 < H0)
-    pvalue = 1 - stats_student_F(t, n-1); // greater
-  else
-    pvalue = stats_student_F(t, n-1); // smaller
+  pvalue = H0_pvalue(H0, t, n-1);
   
   if (data)
     {
