@@ -264,7 +264,7 @@ stats_gamma_rand(double alpha, double beta)
 
 
 static double
-H0_pvalue(int H0, double t, double df)
+H0_student_pvalue(int H0, double t, double df)
 {
   if (0 == H0)
     return 2 * (1-stats_student_F(fabs(t), df)); // two-sided
@@ -286,7 +286,7 @@ stats_t_test(size_t n, const double x[n], double mu, int H0,
     return -1;
   
   t = (m - mu) / (s / sqrt(n));
-  pvalue = H0_pvalue(H0, t, n-1);
+  pvalue = H0_student_pvalue(H0, t, n-1);
   
   if (data)
     {
