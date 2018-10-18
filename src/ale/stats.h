@@ -22,9 +22,12 @@ double stats_norm_rand(double mu, double sig);
 double stats_norm_std_F(double x);
 double stats_norm_F(double x, double mu, double sig);
 
-double stats_student_rand(uint64_t n);
-double stats_student_F(double x, uint64_t n);
+double stats_student_rand(double df);
+double stats_student_F(double x, double df);
 
 double stats_gamma_rand(double alpha, double beta);
+
+
+int stats_t_test(size_t n, const double x[n], const double y[n]);
 
 #endif

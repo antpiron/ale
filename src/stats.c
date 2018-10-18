@@ -212,22 +212,22 @@ stats_norm_F(double x, double mu, double sig)
 }
 
 double
-stats_student_rand(uint64_t n)
+stats_student_rand(double df)
 {
   // Num. recipes
   double u = stats_unif_rand(0,1);
   double v = stats_unif_rand(0,1);
 
-  return sqrt(n * ( pow(u, -2/(double)n) - 1 ) ) * cos(2*M_PI*v);
+  return sqrt(df * ( pow(u, -2/df) - 1 ) ) * cos(2*M_PI*v);
 }
 
 double
-stats_student_F(double x, uint64_t n)
+stats_student_F(double x, double df)
 {
   if (x < 0)
-    return 1 - stats_student_F(-x, n);
+    return 1 - stats_student_F(-x, df);
 
-  return 1 - 0.5 * ale_ibeta(n / (n + x*x), 0.5*n, 0.5);
+  return 1 - 0.5 * ale_ibeta(df / (df + x*x), 0.5*df, 0.5);
 }
   
 double
