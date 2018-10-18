@@ -27,7 +27,12 @@ double stats_student_F(double x, double df);
 
 double stats_gamma_rand(double alpha, double beta);
 
-
-int stats_t_test(size_t n, const double x[n], const double y[n]);
+struct stats_t_test {
+  double pvalue, df, t;
+};
+double stats_t_test(size_t n, const double x[n], double mu,
+		    struct stats_t_test *data);
+double stats_t_test_paired(size_t n, const double x[n], const double y[n],
+			   struct stats_t_test *data);
 
 #endif

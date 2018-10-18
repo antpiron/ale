@@ -261,3 +261,27 @@ stats_gamma_rand(double alpha, double beta)
   
   return beta * d * v;  
 }
+
+
+double
+stats_t_test(size_t n, const double x[n], double mu,
+	     struct stats_t_test *data)
+{
+  double m = stats_mean(n, x);
+  double s = stats_sd(n, x);
+
+  if (s == 0)
+    return -1;
+  
+  double t = (m - mu) / (s / sqrt(n));
+  double pvalue = 2 * (1 - stats_student_F(fabs(t), n-1)); // two-sided
+
+  if (data)
+    {
+      data->pvalue = pvalue;
+      data->t = t;
+      data->df = n-1;
+    }
+  
+  return pvalue;
+}
