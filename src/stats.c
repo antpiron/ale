@@ -356,6 +356,7 @@ stats_t_test_welch(size_t nx, const double x[nx], size_t ny, const double y[ny],
 		    double mu, int H0,
 		    struct stats_t_test *data)
 {
+  // https://en.wikipedia.org/wiki/Welch%27s_t-test
   double t, pvalue;
   double mx = stats_mean(nx, x);
   double my = stats_mean(ny, y);
