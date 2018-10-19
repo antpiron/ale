@@ -49,6 +49,39 @@ stats_cov(size_t n, const double x[n], const double y[n])
   return s / (n - 1);
 }
 
+double
+stats_diff_mean(size_t n, const double x[n], const double y[n])
+{
+  double s = 0;
+
+  for (size_t i = 0 ; i < n ; i++)
+    s += y[i] - x[i];
+
+  return s / n;
+
+}
+
+double
+stats_diff_var(size_t n, const double x[n], const double y[n])
+{
+  double m = stats_diff_mean(n, x, y);
+  double s = 0;
+
+  for (size_t i = 0 ; i < n ; i++)
+    {
+      double term = y[i] - x[i] - m;
+      s += term * term;
+    }
+
+  return s / (n - 1);
+}
+
+double
+stats_diff_sd(size_t n, const double x[n], const double y[n])
+{
+  return sqrt(stats_diff_var(n, x, y));
+}
+  
 int
 stats_pearson_corr(size_t n, const double x[n], const double y[n],
 		   double *rho, double *pvalue)
@@ -274,13 +307,11 @@ H0_student_pvalue(int H0, double t, double df)
   return stats_student_F(t, df); // smaller
 }
 
-double
-stats_t_test(size_t n, const double x[n], double mu, int H0,
-	     struct stats_t_test *data)
+static inline double
+t_test(size_t n, double m, double s, double mu, int H0,
+       struct stats_t_test *data)
 {
   double t, pvalue;
-  double m = stats_mean(n, x);
-  double s = stats_sd(n, x);
 
   if (s == 0)
     return -1;
@@ -297,3 +328,54 @@ stats_t_test(size_t n, const double x[n], double mu, int H0,
   
   return pvalue;
 }
+  
+double
+stats_t_test(size_t n, const double x[n], double mu, int H0,
+	     struct stats_t_test *data)
+{
+  double m = stats_mean(n, x);
+  double s = stats_sd(n, x);
+  
+  return t_test(n, m, s, mu, H0, data);
+}
+
+
+double
+stats_t_test_paired(size_t n, const double x[n], const double y[n],
+		    double mu, int H0,
+		    struct stats_t_test *data)
+{
+  double m = stats_diff_mean(n, x, y);
+  double s = stats_diff_sd(n, x, y);
+
+  return t_test(n, m, s, mu, H0, data);
+}
+
+double
+stats_t_test_welch(size_t nx, const double x[nx], size_t ny, const double y[ny],
+		    double mu, int H0,
+		    struct stats_t_test *data)
+{
+  double t, pvalue;
+  double mx = stats_mean(nx, x);
+  double my = stats_mean(ny, y);
+  double sx = stats_sd(nx, x);
+  double sy = stats_sd(ny, y);
+  if (sx+sy == 0)
+    return -1;
+  double num = sx*sx/nx + sy*sy/ny;
+  double df = num*num / (sx*sx*sx*sx / (nx*nx * (nx-1)) + sy*sy*sy*sy / (ny*ny * (ny-1)) );   
+  t = (my - mx - mu) / sqrt(num);
+  pvalue = H0_student_pvalue(H0, t, df);
+  
+  if (data)
+    {
+      data->pvalue = pvalue;
+      data->t = t;
+      data->df = df;
+    }
+  
+  return pvalue;
+}
+
+
