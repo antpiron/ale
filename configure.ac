@@ -81,6 +81,7 @@ AC_SUBST(FADVISE_FUNC)
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h stdlib.h string.h])
 AC_CHECK_HEADERS([pthread.h],,[AC_MSG_ERROR(The pthread header is required in order to build the program!)])
+AC_CHECK_HEADERS([lapacke.h],,[AC_MSG_ERROR(The lapacke header is required in order to build the program!)])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
@@ -98,7 +99,10 @@ AC_SEARCH_LIBS([pthread_create], [pthread],,[AC_MSG_ERROR([
 -------------------------
  libpthread not found
 -------------------------])])
-
+AC_SEARCH_LIBS([LAPACKE_dgels], [lapacke],,[AC_MSG_ERROR([
+-------------------------
+ liblapacke not found
+-------------------------])])
 
 AC_CONFIG_FILES([Makefile src/Makefile test/Makefile perf/Makefile doc/Makefile src/ale/portability.h])
 AC_OUTPUT
