@@ -44,7 +44,6 @@ double stats_t_test_welch(size_t nx, const double x[nx], size_t ny, const double
 
 double stats_rss(size_t m, size_t n, const double y[m], const double x[m][n],
 		 double (*predict)(const double x[n], void *cls), void *cls);
-// https://en.wikipedia.org/wiki/Residual_sum_of_squares#Relation_with_Pearson's_product-moment_correlation
 int stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
 		   double (*predict)(const double x[n], void *cls), void *cls,
 		   double *rsquared);

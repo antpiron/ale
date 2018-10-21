@@ -412,6 +412,8 @@ stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
   if (0.0 == ssy)
     return -1;
 
+  // https://en.wikipedia.org/wiki/Residual_sum_of_squares#Relation_with_Pearson's_product-moment_correlation
+
   *rsquared = 1 - rss/ssy;
   
   return 0;
