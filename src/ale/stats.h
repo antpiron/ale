@@ -48,16 +48,6 @@ int stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
 		   double (*predict)(const double x[n], void *cls), void *cls,
 		   double *rsquared);
 
-struct stats_lm
-{
-  size_t n;
-  double rss, rsquared;
-  double *beta;
-};
-
-struct stats_lm* stats_lm_init(size_t m, size_t n, const double y[m], const double x[m][n]);
-void stats_lm_destroy(struct stats_lm* lm);
-double stats_lm_predict(struct stats_lm* lm, const double x[]);
 
 int stats_lm(size_t m, size_t n, size_t k, const double y[m][k], const double x[m][n],
 	     double beta[n+1][k], double rss[k]);
@@ -67,5 +57,6 @@ int stats_ridge(size_t m, size_t n, size_t k, const double y[m][k], const double
 		double lambda, double beta[n+1][k]);
 
 
+int stats_cross_validation();
 
 #endif
