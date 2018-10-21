@@ -51,6 +51,6 @@ int stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
 int stats_lm(size_t m, size_t n, size_t k, const double y[m][k], const double x[m][n],
 	     double beta[n+1][k], double rss[k]);
 int stats_ridge(size_t m, size_t n, size_t k, const double y[m][k], const double x[m][n],
-		double beta[n+1][k]);
+		double lambda, double beta[n+1][k]);
 
 #endif
