@@ -1,4 +1,6 @@
 #include <math.h>
+#include <string.h>
+#include <lapacke.h>
 #include "ale/stats.h"
 #include "ale/error.h"
 #include "ale/portability.h"
@@ -379,4 +381,72 @@ stats_t_test_welch(size_t nx, const double x[nx], size_t ny, const double y[ny],
   return pvalue;
 }
 
+double
+stats_rss(size_t m, size_t n, const double y[m], const double x[m][n],
+	  double (*predict)(const double x[n], void *cls), void *cls)
+{
+  double rss = 0;
+  for (size_t i = 0 ; i < m ; i++)
+    {
+      double term = y[i] - predict(x[i], cls);
+      rss += term*term;
+    }
 
+  return rss;
+}
+
+int
+stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
+	       double (*predict)(const double x[n], void *cls), void *cls, double *rsquared)
+{
+  double rss = 0, ssy = 0;
+  double my = stats_mean(m, y);
+  for (size_t i = 0 ; i < m ; i++)
+    {
+      double term = y[i] - predict(x[i], cls);
+      double ssy_term = my - y[i];
+      rss += term*term;
+      ssy += ssy_term*ssy_term;
+    }
+
+  if (0.0 == ssy)
+    return -1;
+
+  *rsquared = 1 - rss/ssy;
+  
+  return 0;
+}
+
+int
+stats_lm(size_t m, size_t n, size_t k, const double y[m][k], const double x[m][n],
+	 double beta[n+1][k], double rss[k])
+{
+  double A[m][n+1]; // = [1|x];
+  double B[m][k]; // = y
+
+  memcpy(B, y, sizeof(double) * m * k);
+  for (size_t i = 0 ; i < m ; i++)
+    {
+      A[i][0] = 1;
+      for (size_t j = 0 ; j < n ; j++)
+	 A[i][j+1] = x[i][j];
+    }
+      
+  int info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', m, n+1, k,
+			   (double*) A, n+1, (double*) B, k);
+
+
+  for (size_t j = 0 ; j < k ; j++)
+    rss[j] = 0;
+  if (m >= n+1)
+    {
+      for (size_t i = 0 ; i < n+1 ; i++)
+	for (size_t j = 0 ; j < k ; j++)
+	  beta[i][j] = B[i][j];
+      for (size_t i = n+1 ; i < m ; i++)
+	for (size_t j = 0 ; j < k ; j++)
+	  rss[j] += B[i][j] * B[i][j];      
+    }
+  
+  return info;
+}

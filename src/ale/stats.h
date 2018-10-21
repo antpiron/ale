@@ -43,10 +43,14 @@ double stats_t_test_welch(size_t nx, const double x[nx], size_t ny, const double
 			  struct stats_t_test *data);
 
 double stats_rss(size_t m, size_t n, const double y[m], const double x[m][n],
-		 double (*model)(const double x[n], void *cls), void *cls);
+		 double (*predict)(const double x[n], void *cls), void *cls);
+// https://en.wikipedia.org/wiki/Residual_sum_of_squares#Relation_with_Pearson's_product-moment_correlation
+int stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
+		   double (*predict)(const double x[n], void *cls), void *cls,
+		   double *rsquared);
 int stats_lm(size_t m, size_t n, size_t k, const double y[m][k], const double x[m][n],
-	     double beta[n][k]);
+	     double beta[n+1][k], double rss[k]);
 int stats_ridge(size_t m, size_t n, size_t k, const double y[m][k], const double x[m][n],
-		double beta[n][k]);
+		double beta[n+1][k]);
 
 #endif
