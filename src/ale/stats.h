@@ -55,8 +55,7 @@ struct stats_lm
   double *beta;
 };
 
-struct stats_lm* stats_lm_init(size_t m, size_t n, size_t k,
-			       const double y[m], const double x[m][n]);
+struct stats_lm* stats_lm_init(size_t m, size_t n, const double y[m], const double x[m][n]);
 void stats_lm_destroy(struct stats_lm* lm);
 double stats_lm_predict(struct stats_lm* lm, const double x[]);
 
