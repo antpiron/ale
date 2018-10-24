@@ -13,5 +13,6 @@
 #include <ale/hash.h>
 #include <ale/stats.h>
 #include <ale/math.h>
+#include <ale/algebra.h>
 
 #endif
