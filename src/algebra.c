@@ -36,8 +36,29 @@ alg_identity_init(size_t m, size_t n, double A[m][n])
   return &A[0][0];
 }
 
+double
+alg_dot(size_t n, const double v1[n], const double v2[n])
+{
+  double res = 0;
+  for (size_t i = 0 ; i < n ; i++)
+    res += v1[i] * v2[i];
+
+  return res;
+}
+
 double*
-alg_div_v_c(size_t n, double vec[n], double d,  double res[n])
+alg_lin_comb2(size_t n, double a1, const double v1[n],
+	      double a2, const double v2[n], double res[n])
+{
+
+  for (size_t i = 0 ; i < n ; i++)
+    res[i] = a1*v1[i] + a2*v2[i];
+
+  return res;
+}
+
+double*
+alg_div_v_c(size_t n, const double vec[n], double d,  double res[n])
 {
   for (size_t i = 0 ; i < n ; i++)
     res[i] = vec[i] / d;
@@ -46,12 +67,26 @@ alg_div_v_c(size_t n, double vec[n], double d,  double res[n])
 }
 
 double*
-alg_mul_v_c(size_t n, double vec[n], double d,  double res[n])
+alg_mul_v_c(size_t n, const double vec[n], double d,  double res[n])
 {
   for (size_t i = 0 ; i < n ; i++)
     res[i] = vec[i] * d;
 
   return res;
+}
+
+double*
+alg_transpose(size_t m, size_t n, const double A[m][n], double res[n][m])
+{
+  for (size_t i = 0 ; i < n ; i++)
+    for (size_t j = 0 ; j < n ; j++)
+      {
+	double tmp = A[i][j];
+	res[i][j] = A[j][i];
+	res[j][i] = tmp;
+      }
+
+  return (double*) res;
 }
 
 int
@@ -76,10 +111,23 @@ alg_Ux_b_solve(size_t n, const double U[n][n], const double b[n], double x[n])
 
 
 int
-alg_qr_mgs(size_t m, size_t n, const double A[m][n], double Q[m][n], double R[m][n])
+alg_QtR_mgs(size_t m, size_t n, const double A[m][n], double Qt[n][m], double R[n][n])
 {
   // http://www.math.iit.edu/~fass/477577_Chapter_4.pdf
-  
+
+  alg_transpose(m,n,A,Qt);
+  for (size_t i = 0 ; i < n ; i++)
+    {
+      R[i][i] = alg_norm(m, Qt[i]);
+      alg_div_v_c(m, Qt[i], R[i][i], Qt[i]);
+      for (size_t j = i+1 ; j < n ; j++)
+	{
+	  R[i][j] = alg_dot(m, Qt[i], Qt[i]);
+	  alg_lin_comb2(m, 1.0, Qt[j], -R[i][j], Qt[i], Qt[j]);
+	}
+    }
+
+  return 0;
 }
 
 
