@@ -76,6 +76,19 @@ alg_mul_v_c(size_t n, const double vec[n], double d,  double res[n])
 }
 
 double*
+alg_mul_m_v(size_t m, size_t n, const double A[m][n], const double vec[n], double res[n])
+{
+  for (size_t i = 0 ; i < m ; i++)
+    {
+      res[i] = 0;
+      for (size_t j = 0 ; j < n ; j++)
+	res[i] += A[i][j] * vec[j];
+    }
+
+  return res;
+}
+
+double*
 alg_transpose(size_t m, size_t n, const double A[m][n], double res[n][m])
 {
   for (size_t i = 0 ; i < n ; i++)
