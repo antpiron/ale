@@ -127,6 +127,8 @@ int
 alg_QtR_mgs(size_t m, size_t n, const double A[m][n], double Qt[n][m], double R[n][n])
 {
   // http://www.math.iit.edu/~fass/477577_Chapter_4.pdf
+  if (m < n)
+    return -1;
 
   alg_transpose(m,n,A,Qt);
   for (size_t i = 0 ; i < n ; i++)
