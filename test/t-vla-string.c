@@ -45,12 +45,12 @@ main(int argc, char *argv[argc])
   FILE *file = fopen("t-vla-string.c","r");
   string_set(strp2, "");
   int ret = string_readline(strp2, file);
-  ERROR_FATAL_FMT(0 != ret, "FATAL: string_readline() = %d != 0'\n", ret);
+  ERROR_FATAL_FMT(-1 == ret, "FATAL: string_readline() = %d'\n", ret);
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp2->str, "#include <stdlib.h>\n"), "FATAL: %s != '#include <stdlib.h>\\n'\n", strp2->str);
   while ( 0 != feof(file) )
     {
       int ret = string_readline(strp2, file);
-      ERROR_FATAL_FMT(0 != ret, "FATAL: string_readline() = %d != 0'\n", ret);
+      ERROR_FATAL_FMT(-1 == ret, "FATAL: string_readline() = %d'\n", ret);
     }
   
   fclose(file);

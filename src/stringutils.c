@@ -75,7 +75,8 @@ string_init_size(struct string *string, size_t size)
   if ( size > 0)
     {
       string->str = malloc(size);
-      ERROR_UNDEF_FATAL(NULL == string->str, "string_init() unable to allocate memory!\n");
+      ERROR_UNDEF_FATAL(NULL == string->str,
+			"string_init() unable to allocate memory!\n");
     }
 
   string->alloc_size = size;
@@ -182,23 +183,24 @@ string_append_char(struct string *dst, const char src)
    return 0;
 }
 
-int
+ssize_t
 string_readline(struct string *dst, FILE *file)
 {
   int c;
-
+  
+  string_set(dst, "");
   do
     {
       c = getc(file);
       if ( EOF == c )
 	{
 	  ERROR_FERROR_RET(0 != ferror(file), -1);
-	  return 0;
+	  break;
 	}
 	
       string_append_char(dst, c);
     }
   while ('\n' != c);
   
-  return 0;
+  return dst->len;
 }

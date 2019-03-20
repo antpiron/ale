@@ -26,6 +26,6 @@ int string_set(struct string *dst, char *str);
 int string_append(struct string *dst, struct string *src);
 int string_append_c(struct string *dst, const char *src);
 int string_append_char(struct string *dst, const char src);
-int string_readline(struct string *dst, FILE *file);
+ssize_t string_readline(struct string *dst, FILE *file);
 
 #endif
