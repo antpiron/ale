@@ -38,6 +38,22 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp2->str, "Hello "), "FATAL: %s != 'Hello '\n", strp2->str);
   string_append(strp2, strp1);
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp2->str, "Hello Plop!"), "FATAL: %s != 'Hello Plop!'\n", strp2->str);
+
+  string_append_char(strp2, 'a');
+  ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp2->str, "Hello Plop!a"), "FATAL: %s != 'Hello Plop!a'\n", strp2->str);
+
+  FILE *file = fopen("t-vla-string.c","r");
+  string_set(strp2, "");
+  int ret = string_readline(strp2, file);
+  ERROR_FATAL_FMT(0 != ret, "FATAL: string_readline() = %d != 0'\n", ret);
+  ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp2->str, "#include <stdlib.h>\n"), "FATAL: %s != '#include <stdlib.h>\\n'\n", strp2->str);
+  while ( 0 != feof(file) )
+    {
+      int ret = string_readline(strp2, file);
+      ERROR_FATAL_FMT(0 != ret, "FATAL: string_readline() = %d != 0'\n", ret);
+    }
+  
+  fclose(file);
   
   return EXIT_SUCCESS;
 }

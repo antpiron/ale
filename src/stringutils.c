@@ -167,3 +167,38 @@ string_append_c(struct string *dst, const char *src)
     
   return 0;
 }
+
+int
+string_append_char(struct string *dst, const char src)
+{
+   size_t len = dst->len + 1;
+   
+   str_resize(dst, len);
+   
+   dst->str[dst->len] = src;
+   dst->str[len] = '\0';
+   dst->len = len;
+
+   return 0;
+}
+
+int
+string_readline(struct string *dst, FILE *file)
+{
+  int c;
+
+  do
+    {
+      c = getc(file);
+      if ( EOF == c )
+	{
+	  ERROR_FERROR_RET(0 != ferror(file), -1);
+	  return 0;
+	}
+	
+      string_append_char(dst, c);
+    }
+  while ('\n' != c);
+  
+  return 0;
+}

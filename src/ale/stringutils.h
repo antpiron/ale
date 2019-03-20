@@ -2,6 +2,7 @@
 #define __ALE_STRINGUTILS_H
 
 #include <string.h>
+#include <stdio.h>
 
 char* strjoin(const char *sep, const char **str); 
 void strtolower(char *dst, const char *src); 
@@ -24,5 +25,7 @@ void string_free(struct string *string);
 int string_set(struct string *dst, char *str);
 int string_append(struct string *dst, struct string *src);
 int string_append_c(struct string *dst, const char *src);
+int string_append_char(struct string *dst, const char src);
+int string_readline(struct string *dst, FILE *file);
 
 #endif
