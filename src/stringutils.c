@@ -204,3 +204,24 @@ string_readline(struct string *dst, FILE *file)
   
   return dst->len;
 }
+
+int
+string_chomp(struct string *dst)
+{
+  ssize_t len = dst->len - 1;
+
+  while ( len >= 0 )
+    {
+      char c = dst->str[len];
+
+      if ('\n' != c &&  '\r' != c)
+	break;
+
+      len--;
+    }
+  
+  dst->str[len+1] = 0;
+  dst->len = len+1;
+  
+  return 0;
+}

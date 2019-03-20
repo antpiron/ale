@@ -54,6 +54,11 @@ main(int argc, char *argv[argc])
     }
   
   fclose(file);
+
+  string_set(&str1, "aaaa\n\r\n");
+  string_chomp(&str1);
+  ERROR_UNDEF_FATAL_FMT(0 != strcmp(str1.str, "aaaa"),
+			"FATAL: %s != 'aaaa'\n", str1.str);
   
   return EXIT_SUCCESS;
 }
