@@ -64,9 +64,10 @@ int main(void)
 ,
 )
 
-
+RANDOM_HEADER="#include <sys/random.h>"
 RANDOM_FUNC=""
 if test "x$ac_cv_func_getrandom" != xyes; then
+   RANDOM_HEADER=""
    if test "x$HAVE_GETRANDOM_SYSCALL" == xyes; then
       RANDOM_FUNC="int portability_getrandom_syscall(void *buf, size_t buflen, unsigned int flags);
 #define getrandom portability_getrandom_syscall"
@@ -76,6 +77,7 @@ if test "x$ac_cv_func_getrandom" != xyes; then
 fi
 
 AC_SUBST(RANDOM_FUNC)
+AC_SUBST(RANDOM_HEADER)
 AC_SUBST(FADVISE_FUNC)
 
 # Checks for header files.
