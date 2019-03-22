@@ -127,7 +127,7 @@ str_resize(struct string *dst, size_t len)
 }
 
 int
-string_set(struct string *dst, char *str)
+string_set(struct string *dst, const char *str)
 {
   size_t len = strlen(str);
 
@@ -140,24 +140,10 @@ string_set(struct string *dst, char *str)
   return 0;
 }
 
+static inline
 int
-string_append(struct string *dst, struct string *src)
+string_append_full_c(struct string *dst, const char *src, size_t src_len)
 {
-  size_t len = dst->len + src->len;
-
-  str_resize(dst, len);
-
-  memcpy(dst->str + dst->len, src->str, src->len);
-  dst->str[len] = '\0';
-  dst->len = len;
-    
-  return 0;
-}
-
-int
-string_append_c(struct string *dst, const char *src)
-{
-  size_t src_len = strlen(src);
   size_t len = dst->len + src_len;
 
   str_resize(dst, len);
@@ -167,6 +153,18 @@ string_append_c(struct string *dst, const char *src)
   dst->len = len;
     
   return 0;
+}
+
+int
+string_append(struct string *dst, struct string *src)
+{
+  return string_append_full_c(dst, src->str, src->len);
+}
+
+int
+string_append_c(struct string *dst, const char *src)
+{
+  return string_append_full_c(dst, src, strlen(src));
 }
 
 int

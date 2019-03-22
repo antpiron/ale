@@ -22,7 +22,7 @@ void string_destroy(struct string *string);
 struct string *string_new(char *str);
 void string_free(struct string *string);
 
-int string_set(struct string *dst, char *str);
+int string_set(struct string *dst, const char *str);
 int string_append(struct string *dst, struct string *src);
 int string_append_c(struct string *dst, const char *src);
 int string_append_char(struct string *dst, const char src);
