@@ -68,7 +68,7 @@ The fields @var{type} and @var{errnum} are both defined as int. @var{type} takes
 The variable define a variable (may be a macro) of type error_st.
 @end defvar
 
-The next macro is used to propagate -- bubble -- an error up in the call stack
+The following macros are used to propagate -- bubble -- an error up in the call stack
 
 @deffn {C Macro} ERROR_RET (@var{test},@var{val})
 Bubble the error and returns @var{val} if @var{test} is true. This is equivalent to
@@ -78,7 +78,15 @@ Bubble the error and returns @var{val} if @var{test} is true. This is equivalent
        @end example
 @end deffn
 
-The following macro set @var{error.type} to the type of errors and returns a value if an error condition is met
+@deffn {C Macro} ERROR_GOTO (@var{test},@var{label})
+Bubble the error and go to @var{label} if @var{test} is true. This is equivalent to
+       @example
+        if (@var{test})
+          goto @var{label};
+       @end example
+@end deffn
+
+The following macros set @var{error.type} to the type of errors and returns a value if an error condition is met
 
 @deffn {C Macro} ERROR_ERRNO_RET (test,val)
 Set @var{error.type} to @var{ERR_ERRNO} and returns @var{val} if @var{test} is true.
@@ -103,6 +111,33 @@ Set @var{error.type} to @var{ERR_UNDEF} and returns @var{val} if @var{test} is t
 
 Set @var{error.type} to @var{ERR_CUSTOM} and @var{error.errnum} to @var{err} and returns @var{val} if @var{test} is true. ``custom'' means user defined error codes.
 @end deffn
+
+The following macros set @var{error.type} to the type of errors and go to @var{label} if an error condition is met
+
+@deffn {C Macro} ERROR_ERRNO_GOTO (test,label)
+Set @var{error.type} to @var{ERR_ERRNO} and go to @var{label} if @var{test} is true.
+@end deffn
+
+@deffn {C Macro} ERROR_GAI_GOTO (test,label)
+
+Set @var{error.type} to @var{ERR_GAI} and go to @var{label} if @var{test} is true.
+@end deffn
+
+@deffn {C Macro} ERROR_FERROR_GOTO (test,label)
+
+Set @var{error.type} to @var{ERR_FERROR} and go to @var{label} if @var{test} is true.
+@end deffn
+
+@deffn {C Macro} ERROR_UNDEF_GOTO (test,label)
+
+Set @var{error.type} to @var{ERR_UNDEF} and go to @var{label} if @var{test} is true. ``undef'' means unrelated to posix system error.
+@end deffn
+
+@deffn {C Macro} ERROR_CUSTOM_GOTO (test,err,label)
+
+Set @var{error.type} to @var{ERR_CUSTOM} and @var{error.errnum} to @var{err} and go to  @var{label} if @var{test} is true. ``custom'' means user defined error codes.
+@end deffn
+
 
 The following macro are used to show up an appropriate error message
 

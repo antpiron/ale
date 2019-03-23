@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <sys/types.h>
 
 char* strjoin(const char *sep, const char **str); 
 void strtolower(char *dst, const char *src); 

@@ -33,6 +33,14 @@ struct error_st* error_get_errno();
     }						\
   while (0)
 
+#define ERROR_GOTO(test,label)			\
+  do						\
+    {						\
+      if (test)					\
+	  goto label;				\
+    }						\
+  while (0)
+
 #define SUCCESS_RET(test)						\
   do									\
     {									\
@@ -61,6 +69,24 @@ struct error_st* error_get_errno();
 #define ERROR_FERROR_RET(test,val) ERROR_TYPE_RET((test),ERR_FERROR,0,(val))
 #define ERROR_UNDEF_RET(test,val) ERROR_TYPE_RET((test),ERR_UNDEF,0,(val))
 #define ERROR_CUSTOM_RET(test,err,val) ERROR_TYPE_RET((test),ERR_CUSTOM,(err),(val))
+
+#define ERROR_TYPE_GOTO(test,typ,err,label)	\
+  do						\
+    {						\
+      if (test)					\
+	{					\
+	  error.type = (typ);			\
+	  error.errnum = (err);			\
+	  goto label;				\
+	}					\
+    }						\
+  while (0)
+
+#define ERROR_ERRNO_GOTO(test,label) ERROR_TYPE_GOTO((test),ERR_ERRNO,(errno),label)
+#define ERROR_GAI_GOTO(test,label) ERROR_TYPE_GOTO((test),ERR_GAI,0,label)
+#define ERROR_FERROR_GOTO(test,label) ERROR_TYPE_GOTO((test),ERR_FERROR,0,label)
+#define ERROR_UNDEF_GOTO(test,label) ERROR_TYPE_GOTO((test),ERR_UNDEF,0,label)
+#define ERROR_CUSTOM_GOTO(test,err,label) ERROR_TYPE_GOTO((test),ERR_CUSTOM,(err),label)
 
 
 #define ERROR_PRINTF(fmt,...)						\
