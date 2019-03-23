@@ -24,6 +24,7 @@ process_popenv(const char *pathname, char *const argv[])
       _exit(EXIT_SUCCESS); // never here
     }
 
+  // father
   file = fdopen(pipefd[0],"r");
   ERROR_ERRNO_GOTO(NULL == file, ERROR_FDOPEN);
   close(pipefd[1]);
