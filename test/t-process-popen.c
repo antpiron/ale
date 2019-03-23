@@ -14,7 +14,7 @@ main(int argc, char *argv[argc])
   FILE *out;
   struct string string;
 
-  out = process_popenv("/bin/echo", (char* []){"echo", "-n", "plop!", NULL} );
+  out = process_popenvp("echo", (char* []){"echo", "-n", "plop!", NULL} );
   ERROR_FATAL(NULL == out, "FAIL: process_popenv()");
 
   string_init(&string);

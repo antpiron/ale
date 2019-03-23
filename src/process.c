@@ -4,7 +4,7 @@
 #include "ale/error.h"
 
 FILE*
-process_popenv(const char *pathname, char *const argv[])
+process_popenvp(const char *pathname, char *const argv[])
 {
   int pipefd[2];
   pid_t pid;
@@ -18,9 +18,9 @@ process_popenv(const char *pathname, char *const argv[])
     {
       close(pipefd[0]);
       ERROR_ERRNO_FATAL(-1 == dup2(pipefd[1], STDOUT_FILENO),
-			"process_openv(): dup2 failed.\n");
-      ERROR_ERRNO_FATAL(-1 == execv(pathname, argv),
-			"process_openv(): execv failed.\n");
+			"process_openvp(): dup2 failed.\n");
+      ERROR_ERRNO_FATAL(-1 == execvp(pathname, argv),
+			"process_openvp(): execv failed.\n");
       _exit(EXIT_SUCCESS); // never here
     }
 

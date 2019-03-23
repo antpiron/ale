@@ -3,6 +3,6 @@
 
 #include <stdio.h>
 
-FILE* process_popenv(const char *pathname, char *const argv[]);
+FILE* process_popenvp(const char *pathname, char *const argv[]);
 
 #endif
