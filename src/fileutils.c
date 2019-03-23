@@ -119,7 +119,7 @@ gzfopen(const char *pathname, const char *mode)
       ERROR_ERRNO_RET(1, NULL);
     }
 
-  return process_popenp("gunzip", "gunzip", pathname, NULL);
+  return process_popenp("gunzip", "gunzip", "--stdout", pathname, NULL);
 }
 
 int
