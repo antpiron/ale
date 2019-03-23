@@ -36,6 +36,7 @@ process_popenvp(const char *pathname, char *const argv[])
  ERROR_FORK:
   close(pipefd[0]);
   close(pipefd[1]);
+  errno = error.errnum;
   ERROR_RET(1, NULL);
 }
 

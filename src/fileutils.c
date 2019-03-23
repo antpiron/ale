@@ -113,18 +113,13 @@ mkpath_fopen(const char *pathname, const char *mode)
 FILE*
 gzfopen(const char *pathname, const char *mode)
 {
-  FILE *file;
-  
   if (0 != strcmp("r", mode))
     {
       errno = EINVAL;
       ERROR_ERRNO_RET(1, NULL);
     }
 
-  file = process_popenp("gunzip", "gunzip", pathname, NULL);
-  errno = error.errnum;
-  
-  return file;
+  return process_popenp("gunzip", "gunzip", pathname, NULL);
 }
 
 int
