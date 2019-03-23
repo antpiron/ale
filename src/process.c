@@ -2,6 +2,7 @@
 
 #include "ale/process.h"
 #include "ale/error.h"
+#include "ale/vector.h"
 
 FILE*
 process_popenvp(const char *pathname, char *const argv[])
@@ -36,4 +37,27 @@ process_popenvp(const char *pathname, char *const argv[])
   close(pipefd[0]);
   close(pipefd[1]);
   ERROR_RET(1, NULL);
+}
+
+VECTOR_INIT(ptr,char*)
+ 
+FILE*
+process_popenp(const char *pathname, ...)
+{
+  va_list ap;
+  size_t len;
+  char *ptr = (char*) pathname;
+  struct vector_ptr argv;
+  
+  vector_ptr_init(&argv);
+  
+  va_start(ap, pathname); 
+  for (len = 0 ; NULL != ptr ; len++)
+    {
+      ptr = va_arg(ap, char*);
+      vector_ptr_set(&argv, len, ptr);
+    }
+  va_end(ap);
+
+  return process_popenvp(pathname, argv.data);
 }

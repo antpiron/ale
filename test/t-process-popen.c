@@ -15,12 +15,22 @@ main(int argc, char *argv[argc])
   struct string string;
 
   out = process_popenvp("echo", (char* []){"echo", "-n", "plop!", NULL} );
-  ERROR_FATAL(NULL == out, "FAIL: process_popenv()");
+  ERROR_FATAL(NULL == out, "FAIL: process_popenvp()");
 
   string_init(&string);
   string_readline(&string, out);
   ERROR_UNDEF_FATAL_FMT( 0 != strcmp("plop!", string.str),
-			 "FATAL: %s != 'plop!'\n", string.str);
+			 "FATAL: process_popenvp() %s != 'plop!'\n", string.str);
+
+  fclose(out);
+
+  out = process_popenp("echo", "echo", "-n", "plop!", NULL );
+  ERROR_FATAL(NULL == out, "FAIL: process_popenp()");
+
+  string_init(&string);
+  string_readline(&string, out);
+  ERROR_UNDEF_FATAL_FMT( 0 != strcmp("plop!", string.str),
+			 "FATAL: process_popenp() %s != 'plop!'\n", string.str);
 
   fclose(out);
   return EXIT_SUCCESS;
