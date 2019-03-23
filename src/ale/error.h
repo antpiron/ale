@@ -94,7 +94,13 @@ struct error_st* error_get_errno();
     {									\
       fprintf(stderr, fmt, __VA_ARGS__);				\
       if (ERR_ERRNO == error.type)					\
-	perror(NULL);							\
+	{								\
+	  const size_t buflen = 1024;					\
+	  char buf[buflen];						\
+	  buf[buflen] = 0;						\
+	  strerror_r(error.errnum, buf, buflen);			\
+	  fprintf(stderr, "%s\n", buf);					\
+	}								\
       else if (ERR_FERROR == error.type)				\
 	fprintf(stderr, "%s\n", "file error\n");			\
       else if (ERR_GAI == error.type)					\
