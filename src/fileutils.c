@@ -10,6 +10,7 @@
 
 #include "ale/error.h"
 #include "ale/fileutils.h"
+#include "ale/process.h"
 
 #include "csv_lexer.h"
 #include "csv_tokens.h"
@@ -109,7 +110,16 @@ mkpath_fopen(const char *pathname, const char *mode)
   return file; // TODO: if fopen fail, empty directories may be present
 }
 
-
+FILE*
+gzfopen(const char *pathname, const char *mode)
+{
+  if (0 != strcmp("r", mode))
+    {
+      errno = EINVAL;
+      ERROR_ERRNO_RET(1, NULL);
+    }
+  return process_popenp("gunzip", "gunzip", pathname, NULL);
+}
 
 int
 csv_init(struct csv *csv, FILE *file)
