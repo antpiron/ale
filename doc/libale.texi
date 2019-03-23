@@ -44,6 +44,7 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 * Daemon::
 * Fileutils::
 * Stringutils::
+* Process::
 * Index::                       Complete index.
 @end menu
 
@@ -298,7 +299,7 @@ Performs @var{dst} = @var{a} xor @var{b} on n bits, n being the minimum number o
 @end deftypefn
 
 @deftypefn {C Function} {static inline size_t} @
-                        bitset_ones(struct bitset @var{bs})
+                        bitset_ones (struct bitset @var{bs})
 Return the number of ones.
 @end deftypefn
 
@@ -748,20 +749,27 @@ Create recursively the directory @var{pathname} with the mode @var{mode} as for 
 Open the file @var{pathname} with mode @var{mode} as for posix fopen(). If the directory components of @var{pathname} do not exist, they are created.
 @end deftypefn
 
+@deftypefn {C Function} FILE* @
+                        gzfopen (const char *@var{pathname}, const char @var{*mode})
+
+Open the gzip compressed file @var{pathname} with mode @var{mode} as for posix fopen(). Returns NULL on error and sets error and errno accordingly.
+@end deftypefn
+
+
 @deftypefn {C Function} int @
-                        csv_init(struct csv *@var{csv}, FILE *@var{file})
+                        csv_init (struct csv *@var{csv}, FILE *@var{file})
 
 Initialize the @var{csv} structure with the csv input stream @var{file}. Return 0 on success. May abruptly kill the current process if unable to allocate memory.
 @end deftypefn
 
 @deftypefn {C Function} void @
-                        csv_destroy(struct csv *@var{csv})
+                        csv_destroy (struct csv *@var{csv})
 
 Destroy the @var{csv} structure.
 @end deftypefn
 
 @deftypefn {C Function} int @
-                        csv_readline(struct csv *@var{csv}, struct vector_int *@var{vector})
+                        csv_readline (struct csv *@var{csv}, struct vector_int *@var{vector})
 
 Read one csv line from the @var{csv} structure and sets the @var{vector} to the fields. Return the number of fields on success. Return -1 on error, and sets accordingly the error in ale/error.h.
 @end deftypefn
@@ -834,8 +842,50 @@ Append @var{src} to @var{dst}.
 Append @var{src} to @var{dst}.
 @end deftypefn
 
+@node Process, Index, Stringutils, Top
+@chapter Process
 
-@node Index,  , Stringutils, Top
+@example
+
+#include <stdio.h>
+#include <ale/process.h>
+
+int
+main(int argc, char *argv[ ]) 
+@{
+  FILE *out;
+  struct string string;
+
+  out = process_popenvp("echo", (char* [])@{ "echo", "-n", "plop!", NULL @} );
+  ERROR_FATAL(NULL == out, "FAIL: process_popenvp()");
+
+  string_init(&string);
+  string_readline(&string, out);
+  
+  printf("%s\n", string.str);
+
+  string_destroy(&string);
+  fclose(out);
+
+  return EXIT_SUCCESS;
+@}
+
+@end example
+
+@deftypefn {C Function} FILE* @
+                        process_popenvp (const char *@var{pathname}, char *const @var{argv}[]);
+                        
+Run the program @var{pathname} with parameters  @var{argv}. The behavior is similar to execvp. Returns NULL on error.
+@end deftypefn
+
+@deftypefn {C Function} FILE* @
+                        process_popenp (const char *@var{pathname}, ...);
+                        
+Run the program @var{pathname} with variable number of parameters, terminated by NULL. The behavior is similar to execp. Returns NULL on error.
+@end deftypefn
+
+
+@node Index,  , Process, Top
 @unnumbered Index
      
 @printindex fn
