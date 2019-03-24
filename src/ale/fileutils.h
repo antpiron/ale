@@ -8,10 +8,12 @@
 
 #include <ale/vector.h>
 
+
 int rmpath(const char *dname, const char *pathname);
 int unlink_path(const char *dname, const char *pathname);
 int mkpath(const char *pathname, mode_t mode);
 FILE* mkpath_fopen(const char *pathname, const char *mode);
+int is_gzip(const char *filename);
 FILE* gzfopen(const char *pathname, const char *mode);
 
 VECTOR_INIT(int,char*)

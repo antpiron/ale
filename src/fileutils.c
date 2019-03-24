@@ -110,6 +110,27 @@ mkpath_fopen(const char *pathname, const char *mode)
   return file; // TODO: if fopen fail, empty directories may be present
 }
 
+int
+is_gzip(const char *filename)
+{
+  FILE *file;
+  const size_t header_size = 2;
+  unsigned char id[header_size];
+  int ret = 0;
+
+  file = fopen(filename, "r");
+  if (NULL != file)
+    {      
+      size_t nread = fread(id, 1, header_size, file);
+      if ( 2 == nread && 0x1f == id[0] && 0x8b == id[1] )
+	ret = 1;
+      
+      fclose(file);
+    }
+  
+  return ret;
+}
+
 FILE*
 gzfopen(const char *pathname, const char *mode)
 {
