@@ -749,6 +749,12 @@ Create recursively the directory @var{pathname} with the mode @var{mode} as for 
 Open the file @var{pathname} with mode @var{mode} as for posix fopen(). If the directory components of @var{pathname} do not exist, they are created.
 @end deftypefn
 
+@deftypefn {C Function} int @
+                        is_gzip (const char *@var{filename});
+
+Test if file  @var{filename} is a gzip compressed file. Returns 1 if @var{filename} is a gzip file otherwise 0.
+@end deftypefn
+
 @deftypefn {C Function} FILE* @
                         gzfopen (const char *@var{pathname}, const char @var{*mode})
 
