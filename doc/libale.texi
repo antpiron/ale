@@ -750,7 +750,7 @@ Open the file @var{pathname} with mode @var{mode} as for posix fopen(). If the d
 @end deftypefn
 
 @deftypefn {C Function} int @
-                        is_gzip (const char *@var{filename});
+                        is_gzip (const char *@var{filename})
 
 Test if file  @var{filename} is a gzip compressed file. Returns 1 if @var{filename} is a gzip file otherwise 0.
 @end deftypefn
