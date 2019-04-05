@@ -29,6 +29,9 @@ double stats_student_rand(double df);
 double stats_student_F(double x, double df);
 
 double stats_gamma_rand(double alpha, double beta);
+double stats_gamma_rand_k_theta(double k, double theta);
+double stats_gamma_F(double x, double alpha, double beta);
+
 
 struct stats_t_test {
   double pvalue, df, t;

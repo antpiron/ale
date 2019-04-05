@@ -304,6 +304,12 @@ stats_gamma_rand(double alpha, double beta)
   return stats_gamma_rand_k_theta(alpha, 1/beta);
 }
 
+double
+stats_gamma_F(double x, double alpha, double beta)
+{
+  return exp(ale_rilgamma(alpha, beta * x) - ale_lgamma(alpha));
+}
+
 static double
 H0_student_pvalue(int H0, double t, double df)
 {
