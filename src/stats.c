@@ -169,6 +169,7 @@ stats_unif_rand(double min, double max)
 {  
   return min + (max - min) * stats_unif_std_rand();
 }
+
 double
 stats_unif_std_F(double x)
 {
@@ -266,17 +267,17 @@ stats_student_F(double x, double df)
 }
   
 double
-stats_gamma_rand(double alpha, double beta)
+stats_gamma_rand_k_theta(double k, double theta)
 {
   // A Simple Method for Generating Gamma -- GEORGE MARSAGLIA, WAI WAN TSANG
   double u, x, v;
-  double d = alpha - 1.0 / 3.0;
+  double d = k - 1.0 / 3.0;
   double c = (1.0 / 3.0) / sqrt (d);
 
-  if (alpha < 1)
+  if (k < 1)
     {
       u = stats_unif_std_rand();
-      return stats_gamma_rand(1.0 + alpha, beta) * pow(u, 1.0 / alpha);
+      return stats_gamma_rand(1.0 + k, theta) * pow(u, 1.0 / k);
     }
   
   do
@@ -294,9 +295,14 @@ stats_gamma_rand(double alpha, double beta)
   while (u >= 1 - 0.0331 * x * x * x * x &&
 	 log(u) >= 0.5 * x * x + d * (1 - v + log (v)));
   
-  return beta * d * v;  
+  return theta * d * v;  
 }
 
+double
+stats_gamma_rand(double alpha, double beta)
+{
+  return stats_gamma_rand_k_theta(alpha, 1/beta);
+}
 
 static double
 H0_student_pvalue(int H0, double t, double df)
