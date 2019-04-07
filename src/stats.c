@@ -310,6 +310,12 @@ stats_gamma_F(double x, double alpha, double beta)
   return ale_rilgamma(beta * x, alpha);
 }
 
+double
+stats_beta_F(double x, double alpha, double beta)
+{
+  return ale_ibeta(x, alpha, beta);
+}
+
 static double
 H0_student_pvalue(int H0, double t, double df)
 {
