@@ -32,6 +32,7 @@ double stats_gamma_rand(double alpha, double beta);
 double stats_gamma_rand_k_theta(double k, double theta);
 double stats_gamma_F(double x, double alpha, double beta);
 
+double stats_beta_rand(double alpha, double beta);
 double stats_beta_F(double x, double alpha, double beta);
 
 struct stats_t_test {

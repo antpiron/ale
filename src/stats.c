@@ -310,6 +310,17 @@ stats_gamma_F(double x, double alpha, double beta)
   return ale_rilgamma(beta * x, alpha);
 }
 
+
+// https://en.wikipedia.org/wiki/Beta_distribution#Generating_beta-distributed_random_variates
+double
+stats_beta_rand(double alpha, double beta)
+{
+  double x = stats_gamma_rand(alpha, 1);
+  double y = stats_gamma_rand(beta, 1);
+  
+  return x / (x + y) ;
+}
+
 double
 stats_beta_F(double x, double alpha, double beta)
 {
