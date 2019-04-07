@@ -110,7 +110,7 @@ ale_ibeta(double x, double a, double b)
   if (x == 0.0 || x == 1.0)
     return x;
 
-  if ( x >= (a+1.0) / (a+b+2.0) ) 
+  if ( x > (a+1.0) / (a+b+2.0) ) 
     return 1.0 - ale_ibeta(1.0-x, b, a);
 
   

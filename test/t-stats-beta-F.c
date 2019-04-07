@@ -23,6 +23,10 @@ main(int argc, char *argv[argc])
 {
 
   test(0.5, 1, 1, 0.5);
+  test(0.5, 1, 2, 0.75);
+  test(0.7, 1, 2, 0.91);
+  test(0.1, 1, 2, 0.19);
+  test(0.4, 300, 500, 0.9270784);
  
  
   return EXIT_SUCCESS;
