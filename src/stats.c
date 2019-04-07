@@ -307,7 +307,7 @@ stats_gamma_rand(double alpha, double beta)
 double
 stats_gamma_F(double x, double alpha, double beta)
 {
-  return exp(ale_rilgamma(alpha, beta * x) - ale_lgamma(alpha));
+  return ale_rilgamma(beta * x, alpha);
 }
 
 static double
