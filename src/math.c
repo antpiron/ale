@@ -29,6 +29,8 @@ ale_lbeta(double a, double b)
 }
 
 
+// Regularized Incomplete Lower gamma function
+// IG(x;a) in http://www.stat.tamu.edu/~jnewton/604/chap3.pdf
 static double
 ale_rilgamma_serie(double x, double a)
 {
