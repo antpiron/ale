@@ -327,6 +327,18 @@ stats_beta_F(double x, double alpha, double beta)
   return ale_ibeta(x, alpha, beta);
 }
 
+void
+stats_beta_fit_mm(size_t n, const double x[n], double *alpha, double *beta)
+{
+  double m = stats_mean(n, x);
+  double v = stats_var(n, x);
+  double t1_m = 1-m;
+  double tfrac = m * t1_m / v - 1;
+  
+  *alpha = m*tfrac;
+  *beta =  t1_m *tfrac;
+}
+
 static double
 H0_student_pvalue(int H0, double t, double df)
 {
