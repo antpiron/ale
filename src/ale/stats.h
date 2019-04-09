@@ -31,6 +31,7 @@ double stats_student_F(double x, double df);
 double stats_gamma_rand(double alpha, double beta);
 double stats_gamma_rand_k_theta(double k, double theta);
 double stats_gamma_F(double x, double alpha, double beta);
+void stats_gamma_fit_mm(size_t n, const double x[n], double *alpha, double *beta);
 
 double stats_beta_rand(double alpha, double beta);
 double stats_beta_F(double x, double alpha, double beta);

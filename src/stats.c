@@ -311,6 +311,17 @@ stats_gamma_F(double x, double alpha, double beta)
 }
 
 
+// https://ocw.mit.edu/courses/mathematics/18-443-statistics-for-applications-spring-2015/lecture-notes/MIT18_443S15_LEC3.pdf
+void
+stats_gamma_fit_mm(size_t n, const double x[n], double *alpha, double *beta)
+{
+  double m = stats_mean(n, x);
+  double v = stats_var(n, x);
+  
+  *beta = m/v;
+  *alpha =  m * *beta;
+}
+
 // https://en.wikipedia.org/wiki/Beta_distribution#Generating_beta-distributed_random_variates
 double
 stats_beta_rand(double alpha, double beta)
