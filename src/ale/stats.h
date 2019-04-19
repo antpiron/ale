@@ -36,6 +36,8 @@ void stats_gamma_fit_mm(size_t n, const double x[n], double *alpha, double *beta
 double stats_beta_rand(double alpha, double beta);
 double stats_beta_F(double x, double alpha, double beta);
 void stats_beta_fit_mm(size_t n, const double x[n], double *alpha, double *beta);
+void stats_beta_fit(size_t n, const double x[n], double *alpha, double *beta);
+
 
 struct stats_t_test {
   double pvalue, df, t;

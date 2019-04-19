@@ -322,6 +322,24 @@ stats_gamma_fit_mm(size_t n, const double x[n], double *alpha, double *beta)
   *alpha =  m * *beta;
 }
 
+// https://en.wikipedia.org/wiki/Likelihood_function#Example:_the_gamma_distribution
+// https://tminka.github.io/papers/minka-gamma.pdf
+// not tested
+void
+stats_gamma_fit_ml(size_t n, const double x[n], double *alpha, double *beta)
+{
+  double m = stats_mean(n, x);
+  double a;
+
+  // add computation of alpha
+  // https://tminka.github.io/papers/minka-gamma.pdf
+  // https://en.wikipedia.org/wiki/Digamma_function#Computation_and_approximation
+  a=1;
+  
+  *beta = m/a;
+  *alpha = a;
+}
+
 // https://en.wikipedia.org/wiki/Beta_distribution#Generating_beta-distributed_random_variates
 double
 stats_beta_rand(double alpha, double beta)
@@ -348,6 +366,89 @@ stats_beta_fit_mm(size_t n, const double x[n], double *alpha, double *beta)
   
   *alpha = m*tfrac;
   *beta =  t1_m *tfrac;
+}
+
+void
+stats_beta_fit(size_t n, const double x[n], double *alpha, double *beta)
+{
+  stats_beta_fit_mm(n, x, alpha, beta);
+}
+
+struct stats_em
+{
+  size_t n;
+  double *x;
+  unsigned int *z;
+  int ncat;
+};
+
+struct stats_beta_par
+{
+  double alpha;
+  double beta;
+};
+
+void
+stats_beta_expectation(struct stats_em *em, void *cls)
+{
+  struct stats_beta_par *par = cls;
+}
+    
+void
+stats_beta_maximisation(struct stats_em *em, void *cls)
+{
+   struct stats_beta_par *par = cls;
+
+   for (size_t i = 0 ; i <  em->n ; i++)
+     {
+       double minp = 1;
+       int minc = -1;
+       
+       for (int c = 0 ; c <  em->ncat ; c++)
+	 {
+	   // P[Z = c | alpha,beta ] =  
+	   double p = 2 * fabs(0.5 - stats_beta_F(em->x[i], par[c].alpha, par[c].beta));
+	   if (p < minp)
+	     {
+	       minp = p;
+	       minc = c;
+	     }
+	 }
+       em->z[i] = minc;
+     }
+}
+
+int
+stats_em(struct stats_em *em,
+	 void expectation(struct stats_em *em, void *cls),
+	 void maximisation(struct stats_em *em, void *cls),
+	 void *cls)
+{
+  const size_t max_iter = em->n;
+  unsigned int oldz[em->n];
+  int equal = 1;
+  unsigned int a;
+
+  for (size_t i = 0 ; i <  em->n ; i++)
+    {
+      ERROR_ERRNO_MSG(-1 == getrandom(&a, sizeof(a), 0),
+		      "stats_unif_rand_std(): failed");
+      em->z[i] = a % em->ncat;
+    }
+
+  for (size_t iter = 0 ; iter < max_iter && equal ; iter++)
+    {
+      expectation(em, cls);
+      memcpy(oldz, em->z, em->n * sizeof(int));
+      maximisation(em, cls);
+
+      equal = 1;
+      for (size_t i = 0 ; i < em->n && equal; i++)
+	equal = (oldz[i] == em->z[i]);
+    }
+  while (! equal);
+
+  return 1;
 }
 
 static double
