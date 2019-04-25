@@ -418,6 +418,8 @@ stats_beta_maximisation(struct stats_em *em, void *cls)
      }
 }
 
+
+// EM explanation https://www.youtube.com/watch?v=qMTuMa86NzU
 int
 stats_em(struct stats_em *em,
 	 void expectation(struct stats_em *em, void *cls),
