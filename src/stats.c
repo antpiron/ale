@@ -485,6 +485,59 @@ t_test(size_t n, double m, double s, double mu, int H0,
   
   return pvalue;
 }
+
+double
+stats_hyper_f(long k, long K, long n, long N)
+{
+  long upper = (k < K)? k: K;
+  long lower = K-N+n;
+  
+  if (lower < 0)
+    lower = 0;
+
+  if (k > upper || k < lower)
+    return 0;
+  
+  double cb1 = ale_lgamma(K+1) -  ale_lgamma(k+1) + ale_lgamma(K-k+1);
+  double cb2 = ale_lgamma(N-K+1) -  ale_lgamma(n-k+1) + ale_lgamma(N-K-n+k+1);
+  double cb3 = ale_lgamma(N+1) -  ale_lgamma(n+1) + ale_lgamma(N-n+1);
+
+  return exp(cb1 + cb2 - cb3);
+}
+
+double
+stats_hyper_F(long k, long K, long n, long N)
+{
+  long mode = (n + 1) * (K + 1) / (N + 2);
+  double res = 0;
+  long upper = (n < K)? n : K;
+  long lower = K-N+n;
+  
+  if (lower < 0)
+    lower = 0;
+
+  double fk = stats_hyper_f(k, K, n , N);
+  if ( k <= mode )
+    {
+      for (long i = k ; i >= lower ; i--)
+	{
+	  res += fk;
+	  fk *= i *(N-K-n+i) / ( (n-i+1) * (K-i+1) );
+	}
+    }
+  else
+    {
+      for (long i = k ; i <= upper  ; i++)
+	{
+	  fk *=  (n-i)*(K-i) /  ( (i+1) * (N-K-n+i+1) );
+	  res += fk;
+	}
+      res = 1 -res;
+    }
+  
+  return res;
+}
+
   
 double
 stats_t_test(size_t n, const double x[n], double mu, int H0,

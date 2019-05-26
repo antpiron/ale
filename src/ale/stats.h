@@ -38,6 +38,9 @@ double stats_beta_F(double x, double alpha, double beta);
 void stats_beta_fit_mm(size_t n, const double x[n], double *alpha, double *beta);
 void stats_beta_fit(size_t n, const double x[n], double *alpha, double *beta);
 
+double stats_hyper_f(long k, long K, long n, long N);
+double stats_hyper_F(long k, long K, long n, long N);
+
 
 struct stats_t_test {
   double pvalue, df, t;
