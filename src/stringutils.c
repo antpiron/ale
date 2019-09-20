@@ -225,7 +225,13 @@ string_chomp(struct string *dst)
 }
 
 int
-string_cmp(struct string *a, struct string *b)
+string_truncate(struct string *str)
 {
-  return strcmp(a->str, b->str);
+  str->len = 0;
+  if (str->alloc_size > 0)
+    {
+      str->str[0] = 0;
+    }
+
+  return 0;
 }

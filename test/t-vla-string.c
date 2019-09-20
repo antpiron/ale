@@ -60,14 +60,6 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(str1.str, "aaaa"),
 			"FATAL: %s != 'aaaa'\n", str1.str);
 
-  string_set(&str1, "aaa");
-  string_set(&str2, "aaa");
-  ret = string_cmp(&str1, &str2);
-  ERROR_UNDEF_FATAL_FMT(0 != ret, "FATAL: string_cmp() returned %d\n", ret);
-
-  string_set(&str2, "baa");
-  ret = string_cmp(&str1, &str2);
-  ERROR_UNDEF_FATAL_FMT(0 <= ret, "FATAL: string_cmp() returned %d\n", ret);  
   
   return EXIT_SUCCESS;
 }

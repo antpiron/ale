@@ -40,7 +40,7 @@ hash_func_string(struct string *buf, const uint8_t *key)
 static inline int
 equal_func_string(struct string *a, struct string *b)
 {
-  return a == b;
+  return 0 == strcmp(a->str, b->str);
 }
 
 #define HASH_INCREMENT(index,increment,modulo) do { index = (index + (increment)) % (modulo); } while (0)
