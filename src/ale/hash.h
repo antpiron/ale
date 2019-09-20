@@ -6,6 +6,7 @@
 #include <inttypes.h>
 #include <ale/siphash24.h>
 #include <ale/portability.h>
+#include <ale/stringutils.h>
 
 #define HASH_DEFAULT_SIZE ( (1 << 16) + 1 )
 #define HASH_MAX_COL ( 1 << 5 )
@@ -22,6 +23,22 @@ hash_func_int(int buf, const uint8_t *key)
 
 static inline int
 equal_func_int(int a, int b)
+{
+  return a == b;
+}
+
+static inline size_t
+hash_func_string(struct string *buf, const uint8_t *key)
+{
+  uint64_t hashed;
+
+  siphash((uint8_t *) &hashed, (uint8_t*) buf->str, (uint64_t) buf->len, key);
+  
+  return (size_t) hashed;
+}
+
+static inline int
+equal_func_string(struct string *a, struct string *b)
 {
   return a == b;
 }

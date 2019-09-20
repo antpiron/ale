@@ -223,3 +223,9 @@ string_chomp(struct string *dst)
   
   return 0;
 }
+
+int
+string_cmp(struct string *a, struct string *b)
+{
+  return strcmp(a->str, b->str);
+}
