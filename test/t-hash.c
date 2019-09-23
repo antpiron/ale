@@ -6,11 +6,15 @@
 #define MAX_INSERT (1 << 18)
 
 HASH_INIT(int, int , int, equal_func_int, hash_func_int)
+HASH_INIT(string, struct string*, struct string*, equal_func_string, hash_func_string)
 
 int
 main(int argc, char *argv[argc])
 {
   struct hash_int hash;
+  struct hash_string shash;
+  struct string *skey, *skey_ret;
+  struct string *sval, *sval_ret;
   int ret, val, key;
   
   hash_int_init(&hash);
@@ -56,6 +60,38 @@ main(int argc, char *argv[argc])
   
   hash_int_destroy(&hash);
 
+  // Strings
+
+  fprintf(stderr,"HERE\n");
+  skey = string_new("key");
+  ERROR_FATAL(NULL == skey, "FATAL: string_new()\n");
+  sval = string_new("val");
+  ERROR_FATAL(NULL == sval, "FATAL: string_new()\n");
+
+  fprintf(stderr, "HERE\n");
+  hash_string_init(&shash);
+  ERROR_UNDEF_FATAL_FMT(HASH_DEFAULT_SIZE != shash.size,
+			"FATAL: hash.size == %zu != %d\n", shash.size, HASH_DEFAULT_SIZE);
+
+  printf("HERE\n");
+  ret = hash_string_set(&shash, skey, sval, NULL);
+  ERROR_UNDEF_FATAL_FMT(0 != ret, "FATAL: hash_string_set(1) returned %d\n", ret);
+  
+  ret = hash_string_get(&shash, skey, &sval_ret);
+  ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: hash_string_get(1) returned %d\n", ret);
+  ERROR_UNDEF_FATAL(sval != sval_ret, "FATAL: hash_string_get('key') != \n");
+
+  ret = hash_string_delete(&shash, skey, &skey_ret, &sval_ret);
+  ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: hash_string_delete(1) returned %d\n", ret);
+  ERROR_UNDEF_FATAL(skey != skey_ret, "FATAL: hash_string_delete(1) wrong key\n");
+  ERROR_UNDEF_FATAL(sval != sval_ret, "FATAL: hash_string_delete(1) wrong val\n");
+
+  ERROR_UNDEF_FATAL_FMT(0 != (ret = hash_string_delete(&shash, skey, &skey_ret, &sval_ret)),
+			"FATAL: hash_string_delete(1) returned %d\n", ret);
+
+
+  hash_string_destroy(&shash);
+  string_free(skey);
   
   return EXIT_SUCCESS;
 }

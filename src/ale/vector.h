@@ -5,6 +5,7 @@
 #include <inttypes.h>
 
 #define VECTOR_DEFAULT_SIZE (256)
+#define VECTOR_MAX_INCREMENT (1 << 24)
 
 #define VECTOR_INIT(name,type)				\
   VECTOR_INIT_FULL(name,type,VECTOR_DEFAULT_SIZE)
@@ -38,7 +39,7 @@
   {									\
     if (vector->size <= pos)						\
       {									\
-  	const size_t newsize = ((VECTOR_DEFAULT_SIZE + pos) / VECTOR_DEFAULT_SIZE) * VECTOR_DEFAULT_SIZE; \
+  	const size_t newsize = ((VECTOR_DEFAULT_SIZE + pos*2) / VECTOR_DEFAULT_SIZE) * VECTOR_DEFAULT_SIZE; \
   	ERROR_UNDEF_FATAL(NULL == (vector->data = realloc(vector->data, sizeof(type) * newsize)), \
   			  "Unable to allocate memory in vector_init()\n"); \
   	vector->size = newsize;						\
