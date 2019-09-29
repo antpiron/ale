@@ -118,20 +118,10 @@ ssize_t
 string_readline(struct string *dst, FILE *file)
 {
  ssize_t ret;
- char *line = NULL;
- size_t len = 0;
-      
  
- ret = getline(&line, &len, file);
- if ( -1 == ret )
-   {
-     free(line);
-     ERROR_FERROR_RET(0 != ferror(file), -1);
-     ERROR_ERRNO_RET(1, -1);
-   }
- string_set(dst, line);
- free(line);
- 
+ dst->len = ret = getline(&dst->str, &dst->alloc_size, file);
+ ERROR_ERRNO_RET(-1 == ret, -1);
+  
  return dst->len;
 }
 
