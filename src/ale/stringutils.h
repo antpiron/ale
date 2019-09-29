@@ -24,7 +24,9 @@ void string_destroy(struct string *string);
 struct string *string_new(char *str);
 void string_free(struct string *string);
 
+// Internal usage
 static inline void string_resize(struct string *dst, size_t len);
+
 int string_set(struct string *dst, const char *str);
 int string_append(struct string *dst, struct string *src);
 int string_append_c(struct string *dst, const char *src);
