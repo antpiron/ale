@@ -31,7 +31,7 @@ int string_set(struct string *dst, const char *str);
 int string_append(struct string *dst, struct string *src);
 int string_append_c(struct string *dst, const char *src);
 static inline int string_append_char(struct string *dst, const char src);
-ssize_t string_readline(struct string *dst, FILE *file);
+static inline ssize_t string_readline(struct string *dst, FILE *file);
 static int string_chomp(struct string *dst);
 static int string_truncate(struct string *str);
 
@@ -40,7 +40,8 @@ static int string_truncate(struct string *str);
 // INLINE
 // ======
 
-static inline int
+static inline
+int
 string_append_char(struct string *dst, const char src)
 {
    size_t len = dst->len + 1;
@@ -54,7 +55,8 @@ string_append_char(struct string *dst, const char src)
    return 0;
 }
 
-static inline int
+static inline
+int
 string_truncate(struct string *str)
 {
   str->len = 0;
@@ -66,7 +68,8 @@ string_truncate(struct string *str)
   return 0;
 }
 
-static inline int
+static inline
+int
 string_chomp(struct string *dst)
 {
   ssize_t len = dst->len - 1;
@@ -87,6 +90,50 @@ string_chomp(struct string *dst)
   return 0;
 }
 
+/* static inline */
+/* ssize_t */
+/* string_readline(struct string *dst, FILE *file) */
+/* { */
+/*   int c; */
+  
+/*   string_truncate(dst); */
+/*   do */
+/*     { */
+/*       c = getc(file); */
+/*       if ( EOF == c ) */
+/* 	{ */
+/* 	  ERROR_FERROR_RET(0 != ferror(file), -1); */
+/* 	  break; */
+/* 	} */
+	
+/*       string_append_char(dst, c); */
+/*     } */
+/*   while ('\n' != c); */
+  
+/*   return dst->len; */
+/* } */
+
+static inline
+ssize_t
+string_readline(struct string *dst, FILE *file)
+{
+ ssize_t ret;
+ char *line = NULL;
+ size_t len = 0;
+      
+ 
+ ret = getline(&line, &len, file);
+ if ( -1 == ret )
+   {
+     free(line);
+     ERROR_FERROR_RET(0 != ferror(file), -1);
+     ERROR_ERRNO_RET(1, -1);
+   }
+ string_set(dst, line);
+ free(line);
+ 
+ return dst->len;
+}
 
 
 

@@ -151,25 +151,4 @@ string_append_c(struct string *dst, const char *src)
   return string_append_full_c(dst, src, strlen(src));
 }
 
-ssize_t
-string_readline(struct string *dst, FILE *file)
-{
-  int c;
-  
-  string_set(dst, "");
-  do
-    {
-      c = getc(file);
-      if ( EOF == c )
-	{
-	  ERROR_FERROR_RET(0 != ferror(file), -1);
-	  break;
-	}
-	
-      string_append_char(dst, c);
-    }
-  while ('\n' != c);
-  
-  return dst->len;
-}
 
