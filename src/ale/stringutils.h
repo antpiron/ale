@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/types.h>
+#include "ale/error.h"
 
 char* strjoin(const char *sep, const char **str); 
 void strtolower(char *dst, const char *src); 
@@ -23,13 +24,88 @@ void string_destroy(struct string *string);
 struct string *string_new(char *str);
 void string_free(struct string *string);
 
+static inline void string_resize(struct string *dst, size_t len);
 int string_set(struct string *dst, const char *str);
 int string_append(struct string *dst, struct string *src);
 int string_append_c(struct string *dst, const char *src);
-int string_append_char(struct string *dst, const char src);
+static inline int string_append_char(struct string *dst, const char src);
 ssize_t string_readline(struct string *dst, FILE *file);
-int string_chomp(struct string *dst);
-int string_truncate(struct string *str);
+static int string_chomp(struct string *dst);
+static int string_truncate(struct string *str);
 
+
+// ======
+// INLINE
+// ======
+
+static inline int
+string_append_char(struct string *dst, const char src)
+{
+   size_t len = dst->len + 1;
+   
+   string_resize(dst, len);
+   
+   dst->str[dst->len] = src;
+   dst->str[len] = '\0';
+   dst->len = len;
+
+   return 0;
+}
+
+static inline int
+string_truncate(struct string *str)
+{
+  str->len = 0;
+  if (str->alloc_size > 0)
+    {
+      str->str[0] = 0;
+    }
+
+  return 0;
+}
+
+static inline int
+string_chomp(struct string *dst)
+{
+  ssize_t len = dst->len - 1;
+
+  while ( len >= 0 )
+    {
+      char c = dst->str[len];
+
+      if ('\n' != c &&  '\r' != c)
+	break;
+
+      len--;
+    }
+  
+  dst->str[len+1] = 0;
+  dst->len = len+1;
+  
+  return 0;
+}
+
+
+
+
+// ===================
+// INTERNAL USAGE ONLY
+// ===================
+
+static inline void
+string_resize(struct string *dst, size_t len)
+{
+  if (len + 1 > dst->alloc_size)
+    {
+      size_t new_size = ((len + 1 + STRING_DEFAULT_SIZE) / STRING_DEFAULT_SIZE) * STRING_DEFAULT_SIZE;
+
+      if (dst->alloc_size > 0)
+	dst->str = realloc(dst->str, new_size);
+      else
+	dst->str = malloc(new_size);
+      ERROR_UNDEF_FATAL(NULL == dst->str, "string_append() unable to allocate memory!\n");
+      dst->alloc_size = new_size;      
+    }
+}
 
 #endif

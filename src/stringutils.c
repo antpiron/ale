@@ -110,28 +110,12 @@ string_free(struct string *string)
 }
 
 
-static void
-str_resize(struct string *dst, size_t len)
-{
-  if (len + 1 > dst->alloc_size)
-    {
-      size_t new_size = ((len + 1 + STRING_DEFAULT_SIZE) / STRING_DEFAULT_SIZE) * STRING_DEFAULT_SIZE;
-
-      if (dst->alloc_size > 0)
-	dst->str = realloc(dst->str, new_size);
-      else
-	dst->str = malloc(new_size);
-      ERROR_UNDEF_FATAL(NULL == dst->str, "string_append() unable to allocate memory!\n");
-      dst->alloc_size = new_size;      
-    }
-}
-
 int
 string_set(struct string *dst, const char *str)
 {
   size_t len = strlen(str);
 
-  str_resize(dst, len);
+  string_resize(dst, len);
 
   memcpy(dst->str, str, len);
   dst->str[len] = '\0';
@@ -146,7 +130,7 @@ string_append_full_c(struct string *dst, const char *src, size_t src_len)
 {
   size_t len = dst->len + src_len;
 
-  str_resize(dst, len);
+  string_resize(dst, len);
 
   memcpy(dst->str + dst->len, src, src_len);
   dst->str[len] = '\0';
@@ -165,20 +149,6 @@ int
 string_append_c(struct string *dst, const char *src)
 {
   return string_append_full_c(dst, src, strlen(src));
-}
-
-int
-string_append_char(struct string *dst, const char src)
-{
-   size_t len = dst->len + 1;
-   
-   str_resize(dst, len);
-   
-   dst->str[dst->len] = src;
-   dst->str[len] = '\0';
-   dst->len = len;
-
-   return 0;
 }
 
 ssize_t
@@ -203,35 +173,3 @@ string_readline(struct string *dst, FILE *file)
   return dst->len;
 }
 
-int
-string_chomp(struct string *dst)
-{
-  ssize_t len = dst->len - 1;
-
-  while ( len >= 0 )
-    {
-      char c = dst->str[len];
-
-      if ('\n' != c &&  '\r' != c)
-	break;
-
-      len--;
-    }
-  
-  dst->str[len+1] = 0;
-  dst->len = len+1;
-  
-  return 0;
-}
-
-int
-string_truncate(struct string *str)
-{
-  str->len = 0;
-  if (str->alloc_size > 0)
-    {
-      str->str[0] = 0;
-    }
-
-  return 0;
-}

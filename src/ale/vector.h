@@ -18,17 +18,22 @@
   };									\
   									\
   static inline int							\
-  vector_##name##_init(struct vector_##name *vector)			\
+  vector_##name##_init_size(struct vector_##name *vector, size_t size)	\
   {									\
-    vector->data = malloc(sizeof(type) * (initsize));			\
+    vector->data = malloc(sizeof(type) * size);			\
     ERROR_UNDEF_FATAL(NULL == vector->data,				\
   		      "Unable to allocate memory in vector_init()\n");	\
     									\
-    vector->size = (initsize);						\
+    vector->size = size;						\
     return 0;								\
   }								 	\
-  									\
-  static inline void									\
+  static inline int							\
+  vector_##name##_init(struct vector_##name *vector)			\
+  {									\
+    return vector_##name##_init_size(vector, (initsize));		\
+  }									\
+									\
+static inline void							\
   vector_##name##_destroy(struct vector_##name *vector)			\
   {									\
     free(vector->data);							\
