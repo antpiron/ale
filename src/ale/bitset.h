@@ -71,6 +71,32 @@ bitset_xor(struct bitset dst, struct bitset a, struct bitset b)
     dst.buf[i] = a.buf[i] ^ b.buf[i];
 }
 
+static inline void
+bitset_and(struct bitset dst, struct bitset a, struct bitset b)
+{
+  size_t s = b.n;
+  if (a.n < s)
+    s = a.n;
+  if (dst.n < s)
+    s = dst.n;
+
+  for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
+    dst.buf[i] = a.buf[i] & b.buf[i];
+}
+
+static inline void
+bitset_or(struct bitset dst, struct bitset a, struct bitset b)
+{
+  size_t s = b.n;
+  if (a.n < s)
+    s = a.n;
+  if (dst.n < s)
+    s = dst.n;
+
+  for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
+    dst.buf[i] = a.buf[i] | b.buf[i];
+}
+
 static inline size_t
 bitset_ones(struct bitset bs)
 {
