@@ -119,9 +119,10 @@ string_readline(struct string *dst, FILE *file)
 {
  ssize_t ret;
  
- dst->len = ret = getline(&dst->str, &dst->alloc_size, file);
+ ret = getline(&dst->str, &dst->alloc_size, file);
  ERROR_ERRNO_RET(-1 == ret, -1);
-  
+ dst->len = ret;
+ 
  return dst->len;
 }
 

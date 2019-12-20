@@ -21,51 +21,62 @@ main(int argc, char *argv[argc])
   for (int i = 0 ; i < (NBRBIT + 63) / 64 ; i++)
     ERROR_FATAL_FMT(bs.buf[i], "FAIL: bitset_init() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
 
-  bitset_set(bs, 57);
+  bitset_set(&bs, 57);
   ERROR_FATAL_FMT((1ull << 57) != bs.buf[0], "FAIL: bitset_set() %"PRIx64" != %llx\n", bs.buf[0], (1ull << 57));
-  ERROR_FATAL(! bitset_isset(bs, 57), "FAIL: bitset_set() isset(57) != 1");
+  ERROR_FATAL(! bitset_isset(&bs, 57), "FAIL: bitset_set() isset(57) != 1");
+  for (int i = 1 ; i < (NBRBIT + 63) / 64 ; i++)
+    ERROR_FATAL_FMT(bs.buf[i], "FAIL:  bitset_set() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
 
-  bitset_unset(bs, 57);
-  ERROR_FATAL(bitset_isset(bs, 57), "FAIL: bitset_unset() isset(57) != 0");
+  bitset_unset(&bs, 57);
+  ERROR_FATAL(bitset_isset(&bs, 57), "FAIL: bitset_unset() isset(57) != 0");
+  for (int i = 0 ; i < (NBRBIT + 63) / 64 ; i++)
+    ERROR_FATAL_FMT(bs.buf[i], "FAIL:  bitset_unset() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
 
-  bitset_setrange(bs, 8, 48);
+  bitset_setrange(&bs, 8, 48);
   ERROR_FATAL_FMT(0x00FFFFFFFFFFFF00ull != bs.buf[0], "FAIL: bitset_setrange() %"PRIx64" != 0x00FFFFFFFFFFFF00", bs.buf[0]);
   for (int i = 1 ; i < (NBRBIT + 63) / 64 ; i++)
-    ERROR_FATAL_FMT(bs.buf[i], "FAIL: bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
+    ERROR_FATAL_FMT(bs.buf[i], "FAIL: bitset_setrange() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
 
-  bitset_setrange(bs, 73,553);
+  bitset_setrange(&bs, 73,553);
   for (int i = 73 ; i < 73+553 ; i++)
-    ERROR_FATAL_FMT(! bitset_isset(bs, i), "FAIL: setrange() isset(%d) != 1", i);
+    ERROR_FATAL_FMT(! bitset_isset(&bs, i), "FAIL: setrange() isset(%d) != 1", i);
 
-  bitset_reset(bs);
+  bitset_reset(&bs);
   for (int i = 0 ; i <  (NBRBIT + 63) / 64 ; i++)
     ERROR_FATAL_FMT(bs.buf[i], "FAIL:  bitset_reset() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
     
-  ERROR_FATAL(0 == bitset_isempty(bs), "FAIL: bitset_isempty() do not say empty\n");
-  bitset_set(bs, 1201);
-  ERROR_FATAL(bitset_isempty(bs), "FAIL: bitset_isempty() say empty\n");
+  ERROR_FATAL(0 == bitset_isempty(&bs), "FAIL: bitset_isempty() do not say empty\n");
+  bitset_set(&bs, 1201);
+  ERROR_FATAL(bitset_isempty(&bs), "FAIL: bitset_isempty() say empty\n");
 
-  bitset_reset(bs);
+  bitset_reset(&bs);
   ERROR_FATAL(bitset_init(&a,NBRBIT) < 0, "FAIL: Init failed\n");
   ERROR_FATAL(bitset_init(&b,NBRBIT) < 0, "FAIL: Init failed\n");
-  bitset_setrange(a, 0,553);
-  bitset_setrange(b, 1,552);
-  bitset_xor(bs, a, b);
+  bitset_setrange(&a, 0,553);
+  bitset_setrange(&b, 1,552);
+  bitset_xor(&bs, &a, &b);
   ERROR_FATAL_FMT(0x1ull != bs.buf[0], "FAIL: bitset_xor() %"PRIx64" != 0x1", bs.buf[0]);
-  bitset_unset(bs, 0);
+  bitset_unset(&bs, 0);
   for (int i = 0 ; i <  (NBRBIT + 63) / 64 ; i++)
     ERROR_FATAL_FMT(bs.buf[i], "FAIL:  bitset_xor() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
-  ERROR_FATAL(0 == bitset_isempty(bs), "FAIL: bitset_isempty() do not say empty\n");
+  ERROR_FATAL(0 == bitset_isempty(&bs), "FAIL: bitset_isempty() do not say empty\n");
   
-  bitset_free(a);
-  bitset_free(b);
+  bitset_destroy(&a);
+  bitset_destroy(&b);
 
-  bitset_reset(bs);
-  bitset_setrange(bs, 73,553);
-  ones = bitset_ones(bs);
+  bitset_reset(&bs);
+  bitset_setrange(&bs, 73,553);
+  ones = bitset_ones(&bs);
   ERROR_UNDEF_FATAL_FMT(553 != ones, "FAIL: %zu != 553\n", ones);
+
+  bitset_set(&bs, NBRBIT + 10);
+  ERROR_FATAL_FMT(2054 != bs.n, "FAIL: bitset_set() n = %zu != 2054", bs.n);
+  ERROR_FATAL_FMT(65 != bs.alloc_size,
+		  "FAIL: bitset_set() alloc_size = %zu != %d",  bs.alloc_size, 65);
+  ERROR_FATAL(! bitset_isset(&bs, NBRBIT + 10), "FAIL: bitset_set() isset(2052) != 1");
+
   
-  bitset_free(bs);
+  bitset_destroy(&bs);
 
   return EXIT_SUCCESS;
 }
