@@ -41,6 +41,9 @@ void stats_beta_fit(size_t n, const double x[n], double *alpha, double *beta);
 double stats_binom_f(long k, long n, double p);
 double stats_binom_F(long k, long n, double p);
 
+double stats_poisson_f(long k, double lambda);
+double stats_poisson_F(long k, double lambda);
+
 double stats_hyper_f(long k, long K, long n, long N);
 double stats_hyper_F(long k, long K, long n, long N);
 

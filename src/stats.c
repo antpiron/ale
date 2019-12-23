@@ -531,6 +531,47 @@ stats_binom_F(long k, long n, double p)
 }
 
 double
+stats_poisson_f(long k, double lambda)
+{
+  if (k < 0)
+    return 0.0;
+  
+  return exp(-ale_lgamma(k+1) + k * log(lambda) - lambda);
+}
+
+double
+stats_poisson_F(long k, double lambda)
+{
+  long mode = (long) floor(lambda);
+  double sum = 0;
+  double eps = 1e-9;
+
+  if (k <= mode)
+    {
+      double pk = stats_poisson_f(k, lambda);
+      sum = pk;
+      for (long i = k ; i > 0 && pk > eps ; i--)
+	{
+	  pk *= i / lambda;
+	  sum += pk;
+	}
+    }
+  else
+    {
+      double pk = stats_poisson_f(k+1, lambda);
+      sum = pk;
+      for (long i = k+1 ; pk > eps ; i++)
+	{
+	  pk *= lambda / (double)(i + 1);
+	  sum += pk;
+	}
+      sum = 1 - sum;
+    }
+
+  return sum;
+}
+
+double
 stats_hyper_f(long k, long K, long n, long N)
 {
   long upper = (k < K)? k: K;
