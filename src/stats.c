@@ -487,6 +487,50 @@ t_test(size_t n, double m, double s, double mu, int H0,
 }
 
 double
+stats_binom_f(long k, long n, double p)
+{
+  double lres = ale_lgamma(n+1) - ale_lgamma(k+1) - ale_lgamma(n-k+1) + k * log(p) + (n-k) * log(1-p);
+  
+  return exp(lres);
+}
+
+double
+stats_binom_F(long k, long n, double p)
+{
+  long mode = (long)(n*p);
+  double sum = 0;
+  double eps = 1e-9;
+
+  if (k <= mode)
+    {
+      double cons = (1 - p) / p;
+      double pk = stats_binom_f(k, n, p);
+ 
+      sum = pk;
+      for (long i = k ; i > 0 && pk > eps ; i--)
+	{
+	  pk *= (double)(i*cons) / (double)(n - i + 1);
+	  sum += pk;
+	}
+    }
+  else
+    {
+      double cons = p / (1-p);
+      double pk = stats_binom_f(k+1, n, p);
+      sum = pk;
+      for (long i = k+1 ; i < n && pk > eps ; i++)
+	{
+	  pk *= (double)((n-i)*cons) / (double)(i + 1);
+	  sum += pk;
+	}
+      
+      sum = 1 - sum;
+    }
+
+  return sum;
+}
+
+double
 stats_hyper_f(long k, long K, long n, long N)
 {
   long upper = (k < K)? k: K;
