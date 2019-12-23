@@ -522,14 +522,14 @@ stats_hyper_F(long k, long K, long n, long N)
       for (long i = k ; i >= lower ; i--)
 	{
 	  res += fk;
-	  fk *= ((double) i * (N-K-n+i)) / ((double) (n-i+1) * (K-i+1) );
+	  fk *= (double)(i * (N-K-n+i)) / (double) ((n-i+1) * (K-i+1) );
 	}
     }
   else
     {
       for (long i = k ; i <= upper  ; i++)
 	{
-	  fk *=  ((double)(n-i)*(K-i)) /  ((double) (i+1) * (N-K-n+i+1) );
+	  fk *=  (double)((n-i)*(K-i)) /  (double) ((i+1) * (N-K-n+i+1) );
 	  res += fk;
 	}
       res = 1 -res;
