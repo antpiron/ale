@@ -7,7 +7,7 @@
 int
 main(int argc, char *argv[argc])
 {
-  double eps = 0.005, res, delta;
+  double eps = 0.000001, res, delta;
 
 
   
@@ -15,6 +15,11 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL(isnan(res), "FAIL: stats_hyper_f(1, 5, 5, 10) == NaN\n");
   delta = fabs(0.09920635 - res);
   ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_hyper_f(1, 5, 5, 10) == %f != 0.09920635\n", res);
+
+  res = stats_hyper_f(2, 5, 5, 10);
+  ERROR_UNDEF_FATAL(isnan(res), "FAIL: stats_hyper_f(2, 5, 5, 10) == NaN\n");
+  delta = fabs(0.3968254 - res);
+  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_hyper_f(2, 5, 5, 10) == %f != 0.3968254\n", res);
 
   res = 0;
   for (long k = 0 ; k < 11 ; k++)
