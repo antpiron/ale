@@ -5,14 +5,20 @@
 
 
 double
-alg_norm(size_t n, const double vec[n])
+alg_sum_of_squares(size_t n, const double vec[n])
 {
   double sum = 0;
 
   for (size_t i = 0 ; i < n ; i++)
     sum += vec[i] * vec[i];
 
-  return sqrt(sum);
+  return sum;
+}
+
+double
+alg_norm(size_t n, const double vec[n])
+{
+  return sqrt(alg_sum_of_squares(n, vec));
 }
 
 double*
@@ -146,36 +152,43 @@ alg_QtR_mgs(size_t m, size_t n, const double A[m][n], double Qt[n][m], double R[
 }
 
 
+
+
+// destroy A
 int
-alg_qr_hh(size_t m, size_t n, const double A[m][n], double Q[m][n], double R[m][n])
+alg_QR_Qtb_householder(size_t m, size_t n, double A[m][n], const double b[m], double Qtb[n])
 {
+  // https://math.dartmouth.edu/~m116w17/Householder.pdf
   if (m < n)
     return -1;
 
-  alg_identity_init(m, n, Q);
-  memcpy(R, A, n*m*sizeof(double));
-
-  for (size_t j = 0 ; j < n ; j++)
+  for (size_t k = 0 ; k < n ; k++)
     {
-      size_t nw = n-j;
-      double w[nw];
-      double s, u1, tau, norm;
-      
-      for (size_t i = 0 ; i < nw ; i++)
-	w[i] = R[i+j][j];
-      norm = alg_norm(nw, w);
+      size_t mv= m-k;
+      double v[mv], vA[n];
+      double ss, norm;
 
-      // w[0] ==  R[j][j]
-      s =  - copysign(1.0, w[0]);
-      u1 = w[0] - s * norm;
-      alg_div_v_c(nw, w, u1, w);
-      w[0] = 1;
-      tau = -s * u1 / norm;
+      for (size_t i = 0 ; i < mv ; i++)
+	v[i] = A[i+k][k];
+      ss = alg_sum_of_squares(mv-1, v+1);
+      norm = sqrt(v[0]*v[0] + ss);
+      v[0] += copysign(1.0, v[0]) * norm;
+      norm = sqrt(v[0]*v[0] + ss);
+      alg_div_v_c(mv, v, norm, v);
 
-      double (*RR)[n] = &R[j];
-      // alg_sub_m(nw, n, RR, );
+      for (size_t j = 0 ; j < n ; j++)
+	{
+	  vA[j] = 0;
+	  for (size_t i = 0 ; i < mv ; i++)
+	    vA[j] += v[i] * A[i+k][j];
+	}
+
+      for (size_t i = k ; i < m ; i++)
+	for (size_t j = k ; j < n ; j++)
+	  {
+	    A[i][j] = A[i][j] - 2 * v[i-k] * vA[j-k];
+	  }
     }
   
   return 0;
 }
-
