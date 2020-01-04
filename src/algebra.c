@@ -154,9 +154,9 @@ alg_QtR_mgs(size_t m, size_t n, const double A[m][n], double Qt[n][m], double R[
 
 
 
-// destroy A and b
+// destroy A and B
 int
-alg_QR_Qtb_householder(size_t m, size_t n, double A[m][n], double b[m])
+alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m][p])
 {
   // https://math.dartmouth.edu/~m116w17/Householder.pdf
   if (m < n)
@@ -165,7 +165,7 @@ alg_QR_Qtb_householder(size_t m, size_t n, double A[m][n], double b[m])
   for (size_t k = 0 ; k < n ; k++)
     {
       size_t mv= m-k;
-      double v[mv], vA[n], vb;
+      double v[mv], vA[n], vb[p];
       double ss, norm;
 
       for (size_t i = 0 ; i < mv ; i++)
@@ -185,13 +185,19 @@ alg_QR_Qtb_householder(size_t m, size_t n, double A[m][n], double b[m])
 
       for (size_t i = k ; i < m ; i++)
 	for (size_t j = k ; j < n ; j++)
-	  {
-	    A[i][j] += - 2 * v[i-k] * vA[j-k];
-	  }
+	  A[i][j] += - 2 * v[i-k] * vA[j-k];
+
       
-      vb = alg_dot(mv, v, b+k);
+
+      for (size_t i = 0 ; i < p ; i++)
+	vb[i] = 0;
       for (size_t i = k ; i < m ; i++)
-      	b[i] += - 2 * b[i] * vb;
+	for (size_t j = 0 ; j < p ; j++)
+	  vb[j] += v[i-k] * B[i][j];
+
+      for (size_t i = k ; i < m ; i++)
+	for (size_t j = 0 ; j < p ; j++)
+	  B[i][j] += - 2 * B[i][j] * vb[j];
     }
   
   return 0;
