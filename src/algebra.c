@@ -184,8 +184,11 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
       for (size_t i = 0 ; i < mv ; i++)
 	v[i] = A[i+k][k];
       ss = alg_sum_of_squares(mv-1, v+1);
+      // ||v||
       norm = sqrt(v[0]*v[0] + ss);
+      // v = v + sign(v1) * e1
       v[0] += copysign(1.0, v[0]) * norm;
+      // ||v||
       norm = sqrt(v[0]*v[0] + ss);
       alg_div_v_c(mv, v, norm, v);
 
