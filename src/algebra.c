@@ -107,13 +107,13 @@ alg_Ux_b_solve(size_t n, const double U[n][n], const double b[n], double x[n])
 {
 
   for (ssize_t i = n - 1 ; i >= 0 ; i--)
-    {
+    { 
+      if (0.0 == U[i][i])
+	return -1;
+
       double sum = b[i];
       for (size_t j = i+1 ; j < n ; j++)
 	sum -= U[i][j] * x[j];
-
-      if (0.0 == U[i][i])
-	return -1;
 
       x[i] = sum / U[i][i] ;
     }
