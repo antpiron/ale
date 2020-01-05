@@ -108,16 +108,17 @@ alg_mul_vt_m(size_t m, size_t n, const double vec[m], const double A[m][n], doub
 }
 
 double*
-alg_mul_m_m(size_t m, size_t n, size_t k, const double A[m][n], const double B[n][p], double res[m][p])
+alg_mul_m_m(size_t m, size_t n, size_t p, const double A[m][n], const double B[n][p], double res[m][p])
 {
   for (size_t i = 0 ; i < m ; i++)
     for (size_t j = 0 ; j < p ; j++)
       {
 	res[i][j] = 0;
-	// for (size_t 
+	for (size_t k = 0 ; k < n ; k++)
+	  res[i][j] += A[i][k] * B[k][j];
       }
 
-  return res;
+  return res[0];
 }
 
 double*
