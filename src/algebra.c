@@ -108,6 +108,19 @@ alg_mul_vt_m(size_t m, size_t n, const double vec[m], const double A[m][n], doub
 }
 
 double*
+alg_mul_m_m(size_t m, size_t n, size_t k, const double A[m][n], const double B[n][p], double res[m][p])
+{
+  for (size_t i = 0 ; i < m ; i++)
+    for (size_t j = 0 ; j < p ; j++)
+      {
+	res[i][j] = 0;
+	// for (size_t 
+      }
+
+  return res;
+}
+
+double*
 alg_transpose(size_t m, size_t n, const double A[m][n], double res[n][m])
 {
   for (size_t i = 0 ; i < n ; i++)
@@ -178,11 +191,12 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
   for (size_t k = 0 ; k < n ; k++)
     {
       size_t mv= m-k;
-      double v[mv], vA[n], vb[p];
+      double v[mv], vA[n], vB[p];
       double ss, norm;
 
       for (size_t i = 0 ; i < mv ; i++)
 	v[i] = A[i+k][k];
+      // ||v_2:m-k||
       ss = alg_sum_of_squares(mv-1, v+1);
       // ||v||
       norm = sqrt(v[0]*v[0] + ss);
@@ -192,26 +206,24 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
       norm = sqrt(v[0]*v[0] + ss);
       alg_div_v_c(mv, v, norm, v);
 
-      // alg_mul_vt_m(mv, n, v, &B[k], vA);
-      for (size_t j = 0 ; j < n ; j++)
-	{
-	  vA[j] = 0;
-	  for (size_t i = 0 ; i < mv ; i++)
-	    vA[j] += v[i] * A[i+k][j];
-	}
+      // v^t * A_k:m,k:n
+      for (size_t i = 0 ; i < mv ; i++)
+	vA[i] = 0;
+      for (size_t i = 0 ; i < mv ; i++)
+	for (size_t j = k ; j < n ; j++)
+	  vA[j] += v[i] * A[i+k][j];
 
+      // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
       for (size_t i = k ; i < m ; i++)
 	for (size_t j = k ; j < n ; j++)
 	  A[i][j] += - 2 * v[i-k] * vA[j-k];
 
-      
 
-      alg_mul_vt_m(mv, p, v, &B[k], vb);
-      
-
+      // B_k:m,1:p = B_k:m,1:p - 2 * v * v^t *  B_k:m,1:p
+      alg_mul_vt_m(mv, p, v, &B[k], vB);      
       for (size_t i = k ; i < m ; i++)
 	for (size_t j = 0 ; j < p ; j++)
-	  B[i][j] += - 2 * B[i][j] * vb[j];
+	  B[i][j] += - 2 * B[i][j] * vB[j];
     }
   
   return 0;
