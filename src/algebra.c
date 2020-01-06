@@ -224,9 +224,9 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
       // v^t * A_k:m,k:n
       for (size_t i = 0 ; i < n ; i++)
 	vA[i] = 0;
-      for (size_t i = 0 ; i < mv ; i++)
+      for (size_t i = k ; i < m ; i++)
 	for (size_t j = k ; j < n ; j++)
-	  vA[j-k] += v[i] * A[i+k][j];
+	  vA[j-k] += v[i-k] * A[i][j];
 
       // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
       for (size_t i = k ; i < m ; i++)
@@ -238,15 +238,16 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
       // v^t * B_k:m,k:p
       for (size_t i = 0 ; i < p ; i++)
 	vB[i] = 0;
-      for (size_t i = 0 ; i < mv ; i++)
+      for (size_t i = k ; i < m ; i++)
 	for (size_t j = k ; j < p ; j++)
-	  vB[j-k] += v[i] * B[i+k][j];
+	  vB[j-k] += v[i-k] * B[i][j];
       
       // B_k:m,1:p = B_k:m,1:p - 2 * v * v^t *  B_k:m,k:p
       //alg_mul_vt_m(mv, p, v, &B[k], vB);      
       for (size_t i = k ; i < m ; i++)
 	for (size_t j = k ; j < p ; j++)
 	  B[i][j] += - 2 * v[i-k] * vB[j-k];
+      print_m(m, p, B);
     }
   
   return 0;
