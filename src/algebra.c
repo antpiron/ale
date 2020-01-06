@@ -201,6 +201,7 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
     return -1;
 
   print_m(m,n, A);
+  print_m(m,p, B);
 
   for (size_t k = 0 ; k < n ; k++)
     {

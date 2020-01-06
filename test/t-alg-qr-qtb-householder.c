@@ -9,17 +9,16 @@
 int
 main(int argc, char *argv[argc])
 {
-  const size_t m = 3, n = 3, p = 3;
-  double A[3][3] = { {2, 1, 1},
-		     {1, 2, 1},
-		     {1, 1, 2}} ;
-  double B[3][3] = { {1, 0, 0},
-		     {0, 1, 0},
-		     {0, 0, 1}};
-  double C[3][3];
+  const size_t m = 2, n = 2, p = 2;
+  double A[m][n], B[m][n], C[m][n];
 
+  alg_identity_init(m, n, B);
+  for (size_t i = 0 ; i < m ; i++)
+    for (size_t j = 0 ; j < n ; j++)
+      A[i][j] = (i == j)?2:1;
+  
   alg_QR_Qtb_householder(m, n, p, A, B);
-  printf("A=\n");
+  printf("\nA=\n");
   print_m(m, n, A);
 
   printf("B=\n");
@@ -32,6 +31,8 @@ main(int argc, char *argv[argc])
   printf("C=\n");
   print_m(m, n, C);
 
+
+  
 
   // res = ale_beta(1, 1);
   // delta = fabs(res - 1);
