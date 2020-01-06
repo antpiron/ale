@@ -21,7 +21,11 @@ main(int argc, char *argv[argc])
   alg_QR_Qtb_householder(m, n, p, A, B);
   printf("A=\n");
   print_m(m, n, A);
+
   printf("B=\n");
+  print_m(m, n, B);
+  alg_transpose(m, n, B, B);
+  printf("B^t=\n");
   print_m(m, n, B);
 
   alg_mul_m_m(m,n,p, B, A, C);
