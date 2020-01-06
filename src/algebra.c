@@ -241,6 +241,7 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
       for (size_t i = 0 ; i < mv ; i++)
 	for (size_t j = k ; j < p ; j++)
 	  vB[j-k] += v[i] * B[i+k][j];
+      
       // B_k:m,1:p = B_k:m,1:p - 2 * v * v^t *  B_k:m,k:p
       //alg_mul_vt_m(mv, p, v, &B[k], vB);      
       for (size_t i = k ; i < m ; i++)
