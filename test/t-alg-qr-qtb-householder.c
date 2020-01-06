@@ -5,22 +5,12 @@
 #include "ale/algebra.h"
 
 
-void
-print_m(size_t m, size_t n, double A[m][n])
-{
-  for (size_t i = 0 ; i < m ; i++)
-    {
-      for (size_t j = 0 ; j < n ; j++)
-	printf("%f\t", A[i][j]);
-      printf("\n");
-    }
-}
 
 int
 main(int argc, char *argv[argc])
 {
   const size_t m = 3, n = 3, p = 3;
-  double A[3][3] = { {1, 1, 1},
+  double A[3][3] = { {2, 1, 1},
 		     {1, 2, 2},
 		     {1, 2, 3}} ;
   double B[3][3] = { {1, 0, 0},
@@ -29,12 +19,13 @@ main(int argc, char *argv[argc])
   double C[3][3];
 
   alg_QR_Qtb_householder(m, n, p, A, B);
+  printf("A=\n");
   print_m(m, n, A);
-  printf("\n");
+  printf("B=\n");
   print_m(m, n, B);
 
   alg_mul_m_m(m,n,p, B, A, C);
-  printf("\n");
+  printf("C=\n");
   print_m(m, n, C);
 
 

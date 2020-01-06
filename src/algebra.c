@@ -1,6 +1,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
+#include <stdio.h>
 #include "ale/algebra.h"
 
 
@@ -179,6 +180,16 @@ alg_QtR_mgs(size_t m, size_t n, const double A[m][n], double Qt[n][m], double R[
 }
 
 
+void
+print_m(size_t m, size_t n, double A[m][n])
+{
+  for (size_t i = 0 ; i < m ; i++)
+    {
+      for (size_t j = 0 ; j < n ; j++)
+	printf("%f\t", A[i][j]);
+      printf("\n");
+    }
+}
 
 
 // destroy A and B
@@ -189,12 +200,15 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
   if (m < n)
     return -1;
 
+  print_m(m,n, A);
+
   for (size_t k = 0 ; k < n ; k++)
     {
       size_t mv= m-k;
       double v[mv], vA[n], vB[p];
       double ss, norm;
 
+      printf("%d\n",k);
       for (size_t i = 0 ; i < mv ; i++)
 	v[i] = A[i+k][k];
       // ||v_2:m-k||
@@ -208,23 +222,24 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
       alg_div_v_c(mv, v, norm, v);
 
       // v^t * A_k:m,k:n
-      for (size_t i = 0 ; i < mv ; i++)
+      for (size_t i = 0 ; i < n ; i++)
 	vA[i] = 0;
       for (size_t i = 0 ; i < mv ; i++)
 	for (size_t j = k ; j < n ; j++)
-	  vA[j] += v[i] * A[i+k][j];
+	  vA[j-k] += v[i] * A[i+k][j];
 
       // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
       for (size_t i = k ; i < m ; i++)
 	for (size_t j = k ; j < n ; j++)
 	  A[i][j] += - 2 * v[i-k] * vA[j-k];
 
+      print_m(m,n, A);
 
       // B_k:m,1:p = B_k:m,1:p - 2 * v * v^t *  B_k:m,1:p
       alg_mul_vt_m(mv, p, v, &B[k], vB);      
       for (size_t i = k ; i < m ; i++)
 	for (size_t j = 0 ; j < p ; j++)
-	  B[i][j] += - 2 * B[i][j] * vB[j];
+	  B[i][j] += - 2 * v[i-k] * vB[j];
     }
   
   return 0;
