@@ -9,7 +9,7 @@
 int
 main(int argc, char *argv[argc])
 {
-  const size_t m = 2, n = 2, p = 2;
+  const size_t m = 3, n = 3, p = 3;
   double A[m][n], B[m][n], C[m][n];
 
   alg_identity_init(m, n, B);
