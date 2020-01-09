@@ -125,6 +125,11 @@ alg_mul_m_m(size_t m, size_t n, size_t p, const double A[m][n], const double B[n
 double*
 alg_transpose(size_t m, size_t n, const double A[m][n], double res[n][m])
 {
+  size_t min_m_n = (m < n)?m:n;
+  if ( (void*) &res != (void*) &A )
+    for (size_t i = 0 ; i < min_m_n ; i++)
+      res[i][i] = A[i][i];
+  
   for (size_t i = 1 ; i < m ; i++)
     {
       size_t min_i_n = (i < n)?i:n;
@@ -215,14 +220,19 @@ householder_proj(size_t m, size_t n, size_t k, double v[k], double A[m][n])
 
 // destroy A and B
 int
-alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m][p])
+alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double (*B)[m][p], double (*X)[m][p])
 {
+  double V[n][m];
+
   // https://math.dartmouth.edu/~m116w17/Householder.pdf
   if (m < n)
     return -1;
 
-  print_m(m,n, A);
-  print_m(m,p, B);
+  print_m(m, n, A);
+  printf("\n");
+  print_m(m, p, *B);
+  printf("\n");
+  print_m(m, p, *X);
 
   for (size_t k = 0 ; k < n ; k++)
     {
@@ -242,7 +252,7 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
       // ||v||
       norm = sqrt(v[0]*v[0] + ss);
       if (0 == norm)
-	printf("norm == 0\n");
+	return -1;
       alg_div_v_c(mv, v, norm, v);
 
       // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
@@ -250,11 +260,25 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
       print_m(m,n, A);
       printf("\n");
       // B_k:m,1:p = B_k:m,1:p - 2 * v * v^t *  B_k:m,k:p
-      householder_proj(m, p, k, v, B);
-      print_m(m, p, B);
-      printf("%ld %ld %ld %ld\n", k, m, n, p);
+      // householder_proj(m, p, k, v, *B);
+      // print_m(m, p, *B);
+
+      memcpy(V[k], v, sizeof(double) * mv);
     }
 
+  if ( NULL != B)
+    {
+      for (size_t k = 0 ; k < n ; k++)
+	householder_proj(m, p, k, V[k], *B);
+      print_m(m, p, *B);
+    }
+
+  if ( NULL != X)
+    {
+      for (ssize_t k = n-1 ; k >= 0 ; k--)
+	householder_proj(m, p, k, V[k], *X);
+      print_m(m, p, *X);
+    }
  
   return 0;
 }
