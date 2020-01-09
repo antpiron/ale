@@ -29,6 +29,9 @@ main(int argc, char *argv[argc])
   printf("B^t=\n");
   print_m(m, n, B);
 
+  printf("X=\n");
+  print_m(m, p, X);
+
   alg_mul_m_m(m,n,p, X, A, C);
   printf("C=\n");
   print_m(m, n, C);
