@@ -126,12 +126,15 @@ double*
 alg_transpose(size_t m, size_t n, const double A[m][n], double res[n][m])
 {
   for (size_t i = 1 ; i < m ; i++)
-    for (size_t j = 0 ; j < i ; j++)
-      {
-	double tmp = A[i][j];
-	res[i][j] = A[j][i];
-	res[j][i] = tmp;
+    {
+      size_t min_i_n = (i < n)?i:n;
+      for (size_t j = 0 ; j < min_i_n ; j++)
+	{
+	  double tmp = A[i][j];
+	  res[i][j] = A[j][i];
+	  res[j][i] = tmp;
       }
+    }
 
   return (double*) res;
 }
