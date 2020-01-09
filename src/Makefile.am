@@ -1,17 +1,24 @@
 AM_CFLAGS = -Wall -Wextra -I..
 AM_LFLAGS=-R
 
-lib_LTLIBRARIES = libale.la
-libale_la_SOURCES = ale/error.h error.c ale/daemon.h daemon.c portability.c ale/portability.h.in ale/bitset.h ale/fileutils.h fileutils.c ale/stringutils.h stringutils.c ale/exparser.h exparser.c btree.c btree-funcs.c ale/btree.h sl_list.c ale/sl_list.h ale/hash.h ale/siphash24.h siphash24.c ale/knn.h knn.c csv_lexer.l csv_tokens.h csv_tokens.c ale/vector.h ale/skiplist.h netutils.c ale/netutils.h ale/stats.h stats.c  ale/math.h math.c ale/algebra.h algebra.c ale/process.h process.c
+
+LIBRARY_SOURCES=ale/error.h error.c ale/daemon.h daemon.c portability.c ale/portability.h.in ale/bitset.h ale/fileutils.h fileutils.c ale/stringutils.h stringutils.c ale/exparser.h exparser.c btree.c btree-funcs.c ale/btree.h sl_list.c ale/sl_list.h ale/hash.h ale/siphash24.h siphash24.c ale/knn.h knn.c csv_lexer.l csv_tokens.h csv_tokens.c ale/vector.h ale/skiplist.h netutils.c ale/netutils.h ale/stats.h stats.c  ale/math.h math.c ale/algebra.h algebra.c ale/process.h process.c
+
+lib_LTLIBRARIES = libale.la 
+noinst_LTLIBRARIES=libale-debug.la
+#noinst_lib_LTLIBRARIES=libale-debug.la
+libale_la_SOURCES = $(LIBRARY_SOURCES)
 BUILT_SOURCES = csv_lexer.h csv_lexer.c 
 include_HEADERS = ale.h
 pkginclude_HEADERS = ale/error.h ale/daemon.h ale/portability.h ale/bitset.h ale/fileutils.h ale/stringutils.h ale/exparser.h ale/btree.h ale/sl_list.h ale/hash.h ale/siphash24.h ale/knn.h ale/vector.h ale/skiplist.h ale/netutils.h ale/stats.h ale/math.h ale/algebra.h ale/process.h
 
+libale_debug_la_SOURCES = $(LIBRARY_SOURCES)
+libale_debug_la_CFLAGS=-g -O0 -fsanitize=bounds
 
 bin_PROGRAMS = ipinfo
 ipinfo_SOURCES = ipinfo.c
 ipinfo_LDADD = libale.la
-ipinfo_AM_LDFLAGS = -static
+ipinfo_LDFLAGS = -static
 
 
 csv_lexer.c csv_lexer.h:	csv_lexer.l

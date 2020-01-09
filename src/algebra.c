@@ -191,6 +191,24 @@ print_m(size_t m, size_t n, double A[m][n])
     }
 }
 
+void
+householder_proj(size_t m, size_t n, size_t k, double v[k], double A[m][n])
+{
+  size_t nk = n - k;
+  double vA[nk];
+  
+  // v^t * A_k:m,k:n
+  for (size_t i = 0 ; i < nk ; i++)
+    vA[i] = 0;
+  for (size_t i = k ; i < m ; i++)
+    for (size_t j = k ; j < n ; j++)
+      vA[j-k] += v[i-k] * A[i][j];
+  
+  // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
+  for (size_t i = k ; i < m ; i++)
+    for (size_t j = k ; j < n ; j++)
+      A[i][j] += - 2 * v[i-k] * vA[j-k];
+}
 
 // destroy A and B
 int
@@ -205,11 +223,11 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
 
   for (size_t k = 0 ; k < n ; k++)
     {
-      size_t mv= m-k;
-      double v[mv], vA[n], vB[p];
+      size_t mv = m-k;
+      double v[mv];
       double ss, norm;
 
-      printf("%d\n",k);
+      printf("%ld %ld %ld %ld\n", k, m, n, p);
       for (size_t i = 0 ; i < mv ; i++)
 	v[i] = A[i+k][k];
       // ||v_2:m-k||
@@ -220,36 +238,20 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double B[m]
       v[0] += copysign(1.0, v[0]) * norm;
       // ||v||
       norm = sqrt(v[0]*v[0] + ss);
+      if (0 == norm)
+	printf("norm == 0\n");
       alg_div_v_c(mv, v, norm, v);
 
-      // v^t * A_k:m,k:n
-      for (size_t i = 0 ; i < n ; i++)
-	vA[i] = 0;
-      for (size_t i = k ; i < m ; i++)
-	for (size_t j = k ; j < n ; j++)
-	  vA[j-k] += v[i-k] * A[i][j];
-
       // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
-      for (size_t i = k ; i < m ; i++)
-	for (size_t j = k ; j < n ; j++)
-	  A[i][j] += - 2 * v[i-k] * vA[j-k];
-
+      householder_proj(m, n, k, v, A);
       print_m(m,n, A);
-
-      // v^t * B_k:m,k:p
-      for (size_t i = 0 ; i < p ; i++)
-	vB[i] = 0;
-      for (size_t i = k ; i < m ; i++)
-	for (size_t j = k ; j < p ; j++)
-	  vB[j-k] += v[i-k] * B[i][j];
-      
+      printf("\n");
       // B_k:m,1:p = B_k:m,1:p - 2 * v * v^t *  B_k:m,k:p
-      //alg_mul_vt_m(mv, p, v, &B[k], vB);      
-      for (size_t i = k ; i < m ; i++)
-	for (size_t j = k ; j < p ; j++)
-	  B[i][j] += - 2 * v[i-k] * vB[j-k];
+      householder_proj(m, p, k, v, B);
       print_m(m, p, B);
+      printf("%ld %ld %ld %ld\n", k, m, n, p);
     }
-  
+
+ 
   return 0;
 }

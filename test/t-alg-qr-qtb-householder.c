@@ -9,7 +9,7 @@
 int
 main(int argc, char *argv[argc])
 {
-  const size_t m = 3, n = 3, p = 3;
+  const size_t m = 5, n = 5, p = 5;
   double A[m][n], B[m][n], C[m][n];
 
   alg_identity_init(m, n, B);
@@ -23,6 +23,7 @@ main(int argc, char *argv[argc])
 
   printf("B=\n");
   print_m(m, n, B);
+
   alg_transpose(m, n, B, B);
   printf("B^t=\n");
   print_m(m, n, B);
@@ -30,7 +31,6 @@ main(int argc, char *argv[argc])
   alg_mul_m_m(m,n,p, B, A, C);
   printf("C=\n");
   print_m(m, n, C);
-
 
   
 
