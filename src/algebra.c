@@ -202,20 +202,19 @@ print_m(size_t m, size_t n, double A[m][n])
 void
 householder_proj(size_t m, size_t n, size_t k, double v[k], double A[m][n])
 {
-  size_t nk = n - k;
-  double vA[nk];
+  double vA[n];
   
   // v^t * A_k:m,k:n
-  for (size_t i = 0 ; i < nk ; i++)
+  for (size_t i = 0 ; i < n ; i++)
     vA[i] = 0;
   for (size_t i = k ; i < m ; i++)
-    for (size_t j = k ; j < n ; j++)
-      vA[j-k] += v[i-k] * A[i][j];
+    for (size_t j = 0 ; j < n ; j++)
+      vA[j] += v[i-k] * A[i][j];
   
   // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
   for (size_t i = k ; i < m ; i++)
-    for (size_t j = k ; j < n ; j++)
-      A[i][j] += - 2 * v[i-k] * vA[j-k];
+    for (size_t j = 0 ; j < n ; j++)
+      A[i][j] += - 2 * v[i-k] * vA[j];
 }
 
 // destroy A and B
