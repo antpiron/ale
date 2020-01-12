@@ -236,19 +236,12 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double (*B)
   if (m < n)
     return -1;
 
-  print_m(m, n, A);
-  printf("\n");
-  print_m(m, p, *B);
-  printf("\n");
-  print_m(m, p, *X);
-
   for (size_t k = 0 ; k < n ; k++)
     {
       size_t mv = m-k;
       double v[mv];
       double ss, norm;
 
-      printf("%ld %ld %ld %ld\n", k, m, n, p);
       for (size_t i = 0 ; i < mv ; i++)
 	v[i] = A[i+k][k];
       // ||v_2:m-k||
@@ -265,13 +258,10 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double (*B)
 
       // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
       householder_proj(m, n, k, v, A);
-      print_m(m,n, A);
-      printf("\n");
       if ( NULL != B)
 	{
 	  // B_k:m,1:p = B_k:m,1:p - 2 * v * v^t *  B_k:m,k:p
 	  householder_proj(m, p, k, v, *B);
-	  print_m(m, p, *B);
 	}
 
       if ( NULL != X)
@@ -282,7 +272,6 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double (*B)
     {
       for (ssize_t k = n-1 ; k >= 0 ; k--)
 	householder_proj(m, p, k, V[k], *X);
-      print_m(m, p, *X);
     }
  
   return 0;
