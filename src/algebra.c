@@ -65,6 +65,15 @@ alg_lin_comb2(size_t n, double a1, const double v1[n],
 }
 
 double*
+alg_sub_v_v(size_t n, double v1[n], double v2[n], double res[n])
+{
+  for (size_t i = 0 ; i < n ; i++)
+    res[i] = v1[i] - v2[i];
+  
+  return res;
+}
+
+double*
 alg_div_v_c(size_t n, const double vec[n], double d,  double res[n])
 {
   for (size_t i = 0 ; i < n ; i++)
