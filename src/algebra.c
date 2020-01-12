@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "ale/algebra.h"
 
 
@@ -230,15 +231,20 @@ householder_proj(size_t m, size_t n, size_t k, double v[k], double A[m][n])
 int
 alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double (*B)[m][p], double (*X)[m][p])
 {
-  double V[n][m];
+  double (*V)[n][m] = NULL;
 
-  // https://math.dartmouth.edu/~m116w17/Householder.pdf
   if (m < n)
     return -1;
+  
+  if (NULL != X)
+    V = malloc(sizeof(*V));
+
+  // https://math.dartmouth.edu/~m116w17/Householder.pdf
 
   for (size_t k = 0 ; k < n ; k++)
     {
       size_t mv = m-k;
+      // TODO: de-vla
       double v[mv];
       double ss, norm;
 
@@ -253,7 +259,7 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double (*B)
       // ||v||
       norm = sqrt(v[0]*v[0] + ss);
       if (0 == norm)
-	return -1;
+        goto ERROR;
       alg_div_v_c(mv, v, norm, v);
 
       // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
@@ -265,14 +271,19 @@ alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double (*B)
 	}
 
       if ( NULL != X)
-	memcpy(V[k], v, sizeof(double) * mv);
+	memcpy((*V)[k], v, sizeof(double) * mv);
     }
 
   if ( NULL != X)
     {
       for (ssize_t k = n-1 ; k >= 0 ; k--)
-	householder_proj(m, p, k, V[k], *X);
+	householder_proj(m, p, k, (*V)[k], *X);
+      free(V);
     }
  
   return 0;
+ ERROR:
+  if ( NULL != X)
+    free(V);
+  return -1;
 }
