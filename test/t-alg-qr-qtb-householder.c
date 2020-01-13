@@ -10,7 +10,7 @@ int
 main(int argc, char *argv[argc])
 {
   const size_t m = 4, n = 3;
-  double A[m][n],  C[m][n];
+  double A[m][n],  V[n][m], C[m][n];
   double Qt[m][m], Q[m][m];
   double exp_C[m][n];
   double res, delta;
@@ -23,7 +23,9 @@ main(int argc, char *argv[argc])
       exp_C[i][j] = A[i][j] = (i == j)?2:1;
 
   
-  alg_QR_Qtb_householder(m, n, m, A, &Qt, &Q);
+  alg_QR_householder(m, n, A, V);
+  householder_proj_QtB(m, n, m, V, Qt);
+  householder_proj_QX(m, n, m, V, Q);
   printf("\nA=\n");
   print_m(m, n, A);
 

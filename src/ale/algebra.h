@@ -11,6 +11,8 @@ double* alg_mul_m_m(size_t m, size_t n, size_t p, const double A[m][n], const do
 void print_m(size_t m, size_t n, double A[m][n]);
 
 int alg_Ux_b_solve(size_t n, const double U[n][n], const double b[n], double x[n]);
-int alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double (*B)[m][p], double (*X)[m][p]);
+int alg_QR_householder(size_t m, size_t n, double A[m][n], double V[n][m]);
+int householder_proj_QtB(size_t m, size_t n, size_t p, double V[n][m], double B[m][p]);
+int householder_proj_QX(size_t m, size_t n, size_t p, double V[n][m], double X[m][p]);
 
 #endif

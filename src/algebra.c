@@ -227,63 +227,58 @@ householder_proj(size_t m, size_t n, size_t k, double v[k], double A[m][n])
       A[i][j] += - 2 * v[i-k] * vA[j];
 }
 
+int
+householder_proj_QtB(size_t m, size_t n, size_t p, double V[n][m], double B[m][p])
+{
+  for (size_t k = 0 ; k < n ; k++)
+    householder_proj(m, p, k, V[k], B);
+
+  return 0;
+}
+
+int
+householder_proj_QX(size_t m, size_t n, size_t p, double V[n][m], double X[m][p])
+{
+  for (ssize_t k = n-1 ; k >= 0 ; k--)
+    householder_proj(m, p, k, V[k], X);
+  
+  return 0;
+}
+
+
+
 // destroy A and B
 int
-alg_QR_Qtb_householder(size_t m, size_t n, size_t p, double A[m][n], double (*B)[m][p], double (*X)[m][p])
+alg_QR_householder(size_t m, size_t n, double A[m][n], double V[n][m])
 {
-  double (*V)[n][m] = NULL;
-
   if (m < n)
     return -1;
   
-  if (NULL != X)
-    V = malloc(sizeof(*V));
-
-  // https://math.dartmouth.edu/~m116w17/Householder.pdf
+ // https://math.dartmouth.edu/~m116w17/Householder.pdf
 
   for (size_t k = 0 ; k < n ; k++)
     {
-      size_t mv = m-k;
-      // TODO: de-vla
-      double v[mv];
+      size_t mv = m - k;
       double ss, norm;
 
       for (size_t i = 0 ; i < mv ; i++)
-	v[i] = A[i+k][k];
+	V[k][i] = A[i+k][k];
       // ||v_2:m-k||
-      ss = alg_sum_of_squares(mv-1, v+1);
+      ss = alg_sum_of_squares(mv-1, V[k]+1);
       // ||v||
-      norm = sqrt(v[0]*v[0] + ss);
+      norm = sqrt(V[k][0]*V[k][0] + ss);
       // v = v + sign(v1) * e1
-      v[0] += copysign(1.0, v[0]) * norm;
+      V[k][0] += copysign(1.0, V[k][0]) * norm;
       // ||v||
-      norm = sqrt(v[0]*v[0] + ss);
+      norm = sqrt(V[k][0]*V[k][0] + ss);
       if (0 == norm)
-        goto ERROR;
-      alg_div_v_c(mv, v, norm, v);
+        return -1;
+      alg_div_v_c(mv, V[k], norm, V[k]);
 
       // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
-      householder_proj(m, n, k, v, A);
-      if ( NULL != B)
-	{
-	  // B_k:m,1:p = B_k:m,1:p - 2 * v * v^t *  B_k:m,k:p
-	  householder_proj(m, p, k, v, *B);
-	}
-
-      if ( NULL != X)
-	memcpy((*V)[k], v, sizeof(double) * mv);
+      householder_proj(m, n, k, V[k], A);
     }
 
-  if ( NULL != X)
-    {
-      for (ssize_t k = n-1 ; k >= 0 ; k--)
-	householder_proj(m, p, k, (*V)[k], *X);
-      free(V);
-    }
- 
+
   return 0;
- ERROR:
-  if ( NULL != X)
-    free(V);
-  return -1;
 }
