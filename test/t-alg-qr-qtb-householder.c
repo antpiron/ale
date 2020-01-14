@@ -44,6 +44,17 @@ main(int argc, char *argv[argc])
   print_m(m, n, C);
 
   res = 0;
+  for (size_t i = 1 ; i < m ; i++)
+    {
+      double min = (i < n)?i:n;
+      for (size_t j = 0 ; j < min ; j++)
+	res += A[i][j];
+    }
+
+  delta = fabs(0.0 - res);
+  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_QR_householder() A is not upper diagonal res = %f\n", res);
+
+  res = 0;
   for (size_t i = 0 ; i < m ; i++)
     for (size_t j = 0 ; j < n ; j++)
       {
@@ -54,7 +65,25 @@ main(int argc, char *argv[argc])
   // res = alg_sub_v_v(m*m, (double[]) exp_C, (double[]) C,  
   // res = ale_alg(1, 1);
   // delta = fabs(res - 1);
-  ERROR_UNDEF_FATAL(delta >= eps, "FAIL: alg_QR_Qtb_householder() exp_C != C = QR\n");
+  ERROR_UNDEF_FATAL(delta >= eps, "FAIL: alg_QR_householder() exp_C != C = QR\n");
+
+  for (size_t i = 0 ; i < m ; i++)
+    {
+      double norm = alg_norm(m, Q[i]);
+      
+      delta = fabs(1.0 - norm);
+      ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_QR_householder() 1.0 != ||C[%ld|| = %f\n", i, norm);
+    }
+
+  for (size_t i = 0 ; i < m ; i++)
+    for (size_t j = i+1 ; j < m ; j++)
+    {
+      double dot = alg_dot(m, Q[i], Q[j]);
+      
+      delta = fabs(0.0 - dot);
+      ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_QR_householder() 0.0 != C[%ld]*C[%ld] = %f\n", i, j, dot);
+    }
+
 
 
   return EXIT_SUCCESS;
