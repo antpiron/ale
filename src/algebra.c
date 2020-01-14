@@ -211,6 +211,18 @@ alg_LX_B_solve(size_t n, size_t p, const double L[n][n], const double B[n][p], d
 }
 
 
+// destroy A and B
+int
+alg_AX_B_solve(size_t n, size_t p, double A[n][n], double B[n][p], double X[n][p])
+{
+  double (*V)[n][n] = malloc(sizeof(double) * n * n);
+  
+  alg_QR_householder(n, n, A, *V);
+  householder_proj_QtB(n, n, p, *V, B);
+
+  return alg_UX_B_solve(n, p, A, B, X);
+}
+
 int
 alg_QtR_mgs(size_t m, size_t n, const double A[m][n], double Qt[n][m], double R[n][n])
 {
