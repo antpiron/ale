@@ -216,11 +216,16 @@ int
 alg_AX_B_solve(size_t n, size_t p, double A[n][n], double B[n][p], double X[n][p])
 {
   double (*V)[n][n] = malloc(sizeof(double) * n * n);
+  int ret;
   
   alg_QR_householder(n, n, A, *V);
   householder_proj_QtB(n, n, p, *V, B);
 
-  return alg_UX_B_solve(n, p, A, B, X);
+  ret = alg_UX_B_solve(n, p, A, B, X);
+
+  free(V);
+
+  return ret;
 }
 
 int
