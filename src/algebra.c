@@ -159,6 +159,10 @@ alg_UX_B_solve(size_t n, size_t p, const double U[n][n], const double B[n][p], d
 {
   double sum[p];
 	
+  for (size_t i = 0 ; i < n ; i++)
+    if (0 == U[i][i])
+      return -1;
+
   for (ssize_t i = n - 1 ; i >= 0 ; i--)
     { 
       if (0.0 == U[i][i])
@@ -170,7 +174,7 @@ alg_UX_B_solve(size_t n, size_t p, const double U[n][n], const double B[n][p], d
 	for (size_t k = 0 ; k < p ; k++)
 	  sum[k] += U[i][j] * X[j][k];
       
-      for (size_t k = 0 ; k < p ; k++)	
+      for (size_t k = 0 ; k < p ; k++)
 	X[i][k] = (B[i][k] - sum[k]) / U[i][i] ;
     }
   
