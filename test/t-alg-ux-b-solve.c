@@ -18,22 +18,22 @@ main(int argc, char *argv[argc])
     for (size_t j = i ; j < n ; j++)
       U[i][j] = (i == j)?2:1;
 
+  printf("U=\n");
+  print_m(n,n,U);
   alg_UX_B_solve(n, p, U, B, X);
-  print_m(n,n,X);
+  printf("X=\n");
+  print_m(n,p,X);
   alg_mul_m_m(n,n,n, U, X, I);
+  printf("UX=\n");
   print_m(n,n,I);
   
 
-  /* for (size_t i = 0 ; i < m ; i++) */
-  /*   for (size_t j = i+1 ; j < m ; j++) */
-  /*   { */
-  /*     double dot = alg_dot(m, Q[i], Q[j]); */
-      
-  /*     delta = fabs(0.0 - dot); */
-  /*     ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_QR_householder() 0.0 != C[%ld]*C[%ld] = %f\n", i, j, dot); */
-  /*   } */
-
-
+  for (size_t i = 0 ; i < n ; i++)
+    for (size_t j = 0; j < n ; j++)
+      {
+	double delta = fabs(((i == j)?1:0) - I[i][j]);
+	ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_UX_B_solve() delta[%ld, %ld] != 0", i, j, delta);
+      }
 
   return EXIT_SUCCESS;
 }
