@@ -155,7 +155,7 @@ alg_transpose(size_t m, size_t n, const double A[m][n], double res[n][m])
 }
 
 int
-alg_Ux_b_solve(size_t n, const double U[n][n], const double b[n], double x[n])
+alg_UX_B_solve(size_t n, size_t p, const double U[n][n], const double B[n][p], double X[n][p])
 {
 
   for (ssize_t i = n - 1 ; i >= 0 ; i--)
@@ -163,11 +163,12 @@ alg_Ux_b_solve(size_t n, const double U[n][n], const double b[n], double x[n])
       if (0.0 == U[i][i])
 	return -1;
 
-      double sum = b[i];
+      double sum = 0;
       for (size_t j = i+1 ; j < n ; j++)
-	sum -= U[i][j] * x[j];
+	sum += U[i][j] * X[j][i];
 
-      x[i] = sum / U[i][i] ;
+      for (size_t j = 0 ; j < p ; j++)	
+	X[i][j] = (B[i][j] - sum) / U[i][i] ;
     }
   
   return 0;
