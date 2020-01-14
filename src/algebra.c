@@ -182,6 +182,33 @@ alg_UX_B_solve(size_t n, size_t p, const double U[n][n], const double B[n][p], d
   return 0;
 }
 
+int
+alg_LX_B_solve(size_t n, size_t p, const double L[n][n], const double B[n][p], double X[n][p])
+{
+  double *sum = NULL;
+	
+  for (size_t i = 0 ; i < n ; i++)
+    if (0 == L[i][i])
+      return -1;
+
+  sum = malloc(sizeof(double) * p);
+
+  for (size_t i = 0 ; i < n ; i++)
+    { 
+      for (size_t k = 0 ; k < p ; k++)
+	sum[k] = 0;
+      for (size_t j = 0 ; j < i ; j++)
+	for (size_t k = 0 ; k < p ; k++)
+	  sum[k] += L[i][j] * X[j][k];
+      
+      for (size_t k = 0 ; k < p ; k++)
+	X[i][k] = (B[i][k] - sum[k]) / L[i][i] ;
+    }
+
+  free(sum);
+
+  return 0;
+}
 
 
 int
