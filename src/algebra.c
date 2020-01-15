@@ -133,6 +133,20 @@ alg_mul_m_m(size_t m, size_t n, size_t p, const double A[m][n], const double B[n
 }
 
 double*
+alg_mul_L_A(size_t n, size_t p, const double L[n][n], const double A[n][p], double LA[n][p])
+{
+  for (size_t i = 0 ; i < n ; i++)
+    for (size_t j = 0 ; j < p ; j++)
+      {
+	LA[i][j] = 0;
+	for (size_t k = 0 ; k < i+1 ; k++)
+	  LA[i][j] += L[i][k] * A[k][j];
+      }
+  
+  return LA[0];
+}
+
+double*
 alg_transpose(size_t m, size_t n, const double A[m][n], double res[n][m])
 {
   size_t min_m_n = (m < n)?m:n;
@@ -154,6 +168,20 @@ alg_transpose(size_t m, size_t n, const double A[m][n], double res[n][m])
   return (double*) res;
 }
 
+double*
+alg_U_transpose(size_t n, const double U[n][n], double L[n][n])
+{
+  
+  for (size_t i = 0 ; i < n ; i++)
+    for (size_t j = i+1 ; j < n ; j++)
+      {
+	L[j][i] = U[i][j];
+	L[i][j] = 0;
+      }
+
+  return L[0];
+}
+  
 int
 alg_UX_B_solve(size_t n, size_t p, const double U[n][n], const double B[n][p], double X[n][p])
 {
@@ -224,6 +252,34 @@ alg_AX_B_solve(size_t n, size_t p, double A[n][n], double B[n][p], double X[n][p
   ret = alg_UX_B_solve(n, p, A, B, X);
 
   free(V);
+
+  return ret;
+}
+
+// destroy A and B
+int
+alg_AX_B_OLS_solve(size_t m, size_t n, size_t p, double A[m][n], double B[m][p], double X[n][p])
+{
+  double (*V)[n][m] = malloc(sizeof(double) * n * m);
+  double (*Rt)[n][n] = malloc(sizeof(double) * n * n);
+  double (*RtQtB)[n][p] = malloc(sizeof(double) * n * p);
+  double (*Y)[n][p] =  malloc(sizeof(double) * n * p);
+  int ret;
+  
+  alg_QR_householder(m, n, A, *V);
+  householder_proj_QtB(m, n, p, *V, B);
+  alg_U_transpose(n, A, *Rt);
+  alg_mul_L_A(n, p,  *Rt, B, *RtQtB);
+  
+  ret = alg_LX_B_solve(n, p, A, *RtQtB, *Y);
+  if (ret >= 0)
+    ret = alg_UX_B_solve(n, p, A, *Y, X);
+  
+  
+  free(V);
+  free(Rt);
+  free(RtQtB);
+  free(Y);
 
   return ret;
 }
