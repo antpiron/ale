@@ -11,6 +11,7 @@ double* alg_mul_m_m(size_t m, size_t n, size_t p, const double A[m][n], const do
 int alg_UX_B_solve(size_t n, size_t p, const double U[n][n], const double B[n][p], double X[n][p]);
 int alg_LX_B_solve(size_t n, size_t p, const double L[n][n], const double B[n][p], double X[n][p]);
 int alg_AX_B_solve(size_t n, size_t p, double A[n][n], double B[n][p], double X[n][p]);
+int alg_AX_B_OLS_solve(size_t m, size_t n, size_t p, double A[m][n], double B[m][p], double X[n][p]);
 
 double alg_norm(size_t n, const double vec[n]);
 double alg_dot(size_t n, const double v1[n], const double v2[n]);
