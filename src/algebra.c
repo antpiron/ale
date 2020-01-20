@@ -268,6 +268,7 @@ alg_AX_B_OLS_solve(size_t m, size_t n, size_t p, double A[m][n], double B[m][p],
   
   alg_QR_householder(m, n, A, *V);
   householder_proj_QtB(m, n, p, *V, B);
+  print_m(n,n, A);
   alg_U_transpose(n, A, *Rt);
   alg_mul_L_A(n, p,  *Rt, B, *RtQtB);
   
