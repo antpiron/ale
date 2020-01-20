@@ -268,18 +268,12 @@ alg_AX_B_OLS_solve(size_t m, size_t n, size_t p, double A[m][n], double B[m][p],
   double (*Y)[n][p] =  malloc(sizeof(*Y));
   int ret;
   
-  printf("\nalg_AX_B_OLS_solve\n");
   alg_QR_householder(m, n, A, *V);
   householder_proj_QtB(m, n, p, *V, B);
-  printf("\nQtB=\n");
-  print_m(m,p, B);
+
   alg_U_transpose(n, A, *Rt);
-  printf("\nR^t=\n");
-  print_m(n,n, *Rt);
+
   alg_mul_L_A(n, p,  *Rt, B, *RtQtB);
-  printf("\nRtQtB=\n");
-  print_m(n,n, *RtQtB);
-  
   
   ret = alg_LX_B_solve(n, p, *Rt, *RtQtB, *Y);
   if (ret >= 0)
@@ -290,7 +284,6 @@ alg_AX_B_OLS_solve(size_t m, size_t n, size_t p, double A[m][n], double B[m][p],
   free(Rt);
   free(RtQtB);
   free(Y);
-  printf("\nalg_AX_B_OLS_solve [DONE]\n");
 
   return ret;
 }
