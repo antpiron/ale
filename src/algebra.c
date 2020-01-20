@@ -170,14 +170,16 @@ alg_transpose(size_t m, size_t n, const double A[m][n], double res[n][m])
 
 double*
 alg_U_transpose(size_t n, const double U[n][n], double L[n][n])
-{
-  
+{  
   for (size_t i = 0 ; i < n ; i++)
-    for (size_t j = i+1 ; j < n ; j++)
-      {
-	L[j][i] = U[i][j];
-	L[i][j] = 0;
-      }
+    {
+      L[i][i] = U[i][i];
+      for (size_t j = i+1 ; j < n ; j++)
+	{
+	  L[j][i] = U[i][j];
+	  L[i][j] = 0;
+	}
+    }
 
   return L[0];
 }
@@ -243,7 +245,7 @@ alg_LX_B_solve(size_t n, size_t p, const double L[n][n], const double B[n][p], d
 int
 alg_AX_B_solve(size_t n, size_t p, double A[n][n], double B[n][p], double X[n][p])
 {
-  double (*V)[n][n] = malloc(sizeof(double) * n * n);
+  double (*V)[n][n] = malloc(sizeof(*V));
   int ret;
   
   alg_QR_householder(n, n, A, *V);
@@ -260,18 +262,26 @@ alg_AX_B_solve(size_t n, size_t p, double A[n][n], double B[n][p], double X[n][p
 int
 alg_AX_B_OLS_solve(size_t m, size_t n, size_t p, double A[m][n], double B[m][p], double X[n][p])
 {
-  double (*V)[n][m] = malloc(sizeof(double) * n * m);
-  double (*Rt)[n][n] = malloc(sizeof(double) * n * n);
-  double (*RtQtB)[n][p] = malloc(sizeof(double) * n * p);
-  double (*Y)[n][p] =  malloc(sizeof(double) * n * p);
+  double (*V)[n][m] = malloc(sizeof(*V));
+  double (*Rt)[n][n] = malloc(sizeof(*Rt));
+  double (*RtQtB)[n][p] = malloc(sizeof(*RtQtB));
+  double (*Y)[n][p] =  malloc(sizeof(*Y));
   int ret;
   
+  printf("\nalg_AX_B_OLS_solve\n");
   alg_QR_householder(m, n, A, *V);
   householder_proj_QtB(m, n, p, *V, B);
+  printf("\nQtB=\n");
+  print_m(m,p, B);
   alg_U_transpose(n, A, *Rt);
+  printf("\nR^t=\n");
+  print_m(n,n, *Rt);
   alg_mul_L_A(n, p,  *Rt, B, *RtQtB);
+  printf("\nRtQtB=\n");
+  print_m(n,n, *RtQtB);
   
-  ret = alg_LX_B_solve(n, p, A, *RtQtB, *Y);
+  
+  ret = alg_LX_B_solve(n, p, *Rt, *RtQtB, *Y);
   if (ret >= 0)
     ret = alg_UX_B_solve(n, p, A, *Y, X);
   
@@ -280,6 +290,7 @@ alg_AX_B_OLS_solve(size_t m, size_t n, size_t p, double A[m][n], double B[m][p],
   free(Rt);
   free(RtQtB);
   free(Y);
+  printf("\nalg_AX_B_OLS_solve [DONE]\n");
 
   return ret;
 }

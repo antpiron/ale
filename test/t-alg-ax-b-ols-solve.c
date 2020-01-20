@@ -34,6 +34,10 @@ main(int argc, char *argv[argc])
   printf("\nB=\n");
   print_m(n, n, B);
   ret = alg_AX_B_OLS_solve(n, n, n, A, B, X);
+  printf("\nA=\n");
+  print_m(n, n, A);
+  printf("\nB=\n");
+  print_m(n, n, B);
   ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve() ret = %d\n != 0", ret);
   
   printf("\nX=\n");
