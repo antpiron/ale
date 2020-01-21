@@ -14,6 +14,7 @@
 #include <ale/stats.h>
 #include <ale/math.h>
 #include <ale/algebra.h>
+#include <ale/stats.h>
 #include <ale/process.h>
 
 #endif
