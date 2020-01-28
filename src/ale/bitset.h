@@ -135,11 +135,10 @@ bitset_ones(struct bitset *bs)
 
   for (size_t i = 0 ; i < (bs->n + 63) / 64 ; i++)
     {
-      uint64_t v = bs->buf[i];
-
 #if defined HAVE_POPCOUNTLL && SIZEOF_LONG_LONG == 8
-      c += __builtin_popcountll(v);
+      c += __builtin_popcountll(bs->buf[i]);
 #else
+      uint64_t v = bs->buf[i];
       for (; v; c++)
 	v &= v - 1; // clear the least significant bit set
 #endif
