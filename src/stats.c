@@ -712,36 +712,36 @@ stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
   return 0;
 }
 
-int
-stats_lm(size_t m, size_t n, size_t k, const double y[m][k], const double x[m][n],
-	 double beta[n+1][k], double rss[k])
-{
-  double A[m][n+1]; // = [1|x];
-  double B[m][k]; // = y
+/* int */
+/* stats_lm(size_t m, size_t n, size_t k, const double y[m][k], const double x[m][n], */
+/* 	 double beta[n+1][k], double rss[k]) */
+/* { */
+/*   double A[m][n+1]; // = [1|x]; */
+/*   double B[m][k]; // = y */
 
-  memcpy(B, y, sizeof(double) * m * k);
-  for (size_t i = 0 ; i < m ; i++)
-    {
-      A[i][0] = 1;
-      for (size_t j = 0 ; j < n ; j++)
-	 A[i][j+1] = x[i][j];
-    }
+/*   memcpy(B, y, sizeof(double) * m * k); */
+/*   for (size_t i = 0 ; i < m ; i++) */
+/*     { */
+/*       A[i][0] = 1; */
+/*       for (size_t j = 0 ; j < n ; j++) */
+/* 	 A[i][j+1] = x[i][j]; */
+/*     } */
       
-  int info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', m, n+1, k,
-			   (double*) A, n+1, (double*) B, k);
+/*   int info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', m, n+1, k, */
+/* 			   (double*) A, n+1, (double*) B, k); */
 
 
-  for (size_t j = 0 ; j < k ; j++)
-    rss[j] = 0;
-  if (m >= n+1)
-    {
-      for (size_t i = 0 ; i < n+1 ; i++)
-	for (size_t j = 0 ; j < k ; j++)
-	  beta[i][j] = B[i][j];
-      for (size_t i = n+1 ; i < m ; i++)
-	for (size_t j = 0 ; j < k ; j++)
-	  rss[j] += B[i][j] * B[i][j];      
-    }
+/*   for (size_t j = 0 ; j < k ; j++) */
+/*     rss[j] = 0; */
+/*   if (m >= n+1) */
+/*     { */
+/*       for (size_t i = 0 ; i < n+1 ; i++) */
+/* 	for (size_t j = 0 ; j < k ; j++) */
+/* 	  beta[i][j] = B[i][j]; */
+/*       for (size_t i = n+1 ; i < m ; i++) */
+/* 	for (size_t j = 0 ; j < k ; j++) */
+/* 	  rss[j] += B[i][j] * B[i][j];       */
+/*     } */
   
-  return info;
-}
+/*   return info; */
+/* } */
