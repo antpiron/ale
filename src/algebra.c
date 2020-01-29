@@ -267,7 +267,8 @@ alg_AX_B_OLS_solve(size_t m, size_t n, size_t p, double A[m][n], double B[m][p],
   double (*RtQtB)[n][p] = malloc(sizeof(*RtQtB));
   double (*Y)[n][p] =  malloc(sizeof(*Y));
   int ret;
-  
+
+  // TODO: handle return code
   alg_QR_householder(m, n, A, *V);
   householder_proj_QtB(m, n, p, *V, B);
 
