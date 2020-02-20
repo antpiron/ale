@@ -1,6 +1,7 @@
+#define _GNU_SOURCE
 #include <math.h>
 #include <string.h>
-#include <lapacke.h>
+#include <stdlib.h>
 #include "ale/stats.h"
 #include "ale/error.h"
 #include "ale/portability.h"
@@ -712,36 +713,38 @@ stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
   return 0;
 }
 
-/* int */
-/* stats_lm(size_t m, size_t n, size_t k, const double y[m][k], const double x[m][n], */
-/* 	 double beta[n+1][k], double rss[k]) */
-/* { */
-/*   double A[m][n+1]; // = [1|x]; */
-/*   double B[m][k]; // = y */
 
-/*   memcpy(B, y, sizeof(double) * m * k); */
-/*   for (size_t i = 0 ; i < m ; i++) */
-/*     { */
-/*       A[i][0] = 1; */
-/*       for (size_t j = 0 ; j < n ; j++) */
-/* 	 A[i][j+1] = x[i][j]; */
-/*     } */
-      
-/*   int info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', m, n+1, k, */
-/* 			   (double*) A, n+1, (double*) B, k); */
+static int
+indirect_compar_double(const void *p1, const void *p2, void *arg)
+{
+  const double *d = arg;
+  const size_t *a = p1;
+  const size_t *b = p2;
 
-
-/*   for (size_t j = 0 ; j < k ; j++) */
-/*     rss[j] = 0; */
-/*   if (m >= n+1) */
-/*     { */
-/*       for (size_t i = 0 ; i < n+1 ; i++) */
-/* 	for (size_t j = 0 ; j < k ; j++) */
-/* 	  beta[i][j] = B[i][j]; */
-/*       for (size_t i = n+1 ; i < m ; i++) */
-/* 	for (size_t j = 0 ; j < k ; j++) */
-/* 	  rss[j] += B[i][j] * B[i][j];       */
-/*     } */
+  if (d[*a] < d[*b])
+    return -1;
+  else if (d[*a] == d[*b])
+    return 0;
   
-/*   return info; */
-/* } */
+  return 1;
+}
+
+int
+stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n])
+{
+  size_t *index = malloc(sizeof(size_t) * n);
+
+  ERROR_ERRNO_RET(NULL == index, -1);
+
+  for (size_t i = 0 ; i < n ; i++)
+    index[i] = i;
+  
+  qsort_r(index, n, sizeof(index[0]),
+          indirect_compar_double, (void*) p);
+
+  for (size_t i = 0 ; i < n ; i++)
+    padj[i] = p[i] * (double ) n / (double) ( index[i] + 1 );
+
+  free(index);
+  return 0;
+}
