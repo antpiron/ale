@@ -20,7 +20,7 @@ main(int argc, char *argv[argc])
 
   res = stats_p_adjust_fdr_bh(LEN, p, padj);
   ERROR_UNDEF_FATAL_FMT(res < 0, "FAIL: stats_p_adjust_fdr_bh()  res = %d != 0\n", res);
-  for (int i = 1 ; i < LEN ; i++)
+  for (int i = 0 ; i < LEN ; i++)
     {
       printf("%f ", padj[i]);
       ERROR_UNDEF_FATAL_FMT(p[i] > padj[i] , "FAIL: stats_p_adjust_fdr_bh()  padj[%d] = %f < %f\n", i, padj[i], p[i]);

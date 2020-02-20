@@ -68,6 +68,7 @@ int stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
 
 
 int stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n]);
+int stats_p_adjust_fwer_bonf(size_t n,  const double p[n], double padj[n]);
 
 int stats_cross_validation();
 

@@ -729,6 +729,20 @@ indirect_compar_double(const void *p1, const void *p2, void *arg)
   return 1;
 }
 
+
+// http://www.biostathandbook.com/multiplecomparisons.html
+int
+stats_p_adjust_fwer_bonf(size_t n,  const double p[n], double padj[n])
+{
+  for (size_t i = 0 ; i < n ; i++)
+    {
+      double correction = p[i] * (double ) n;
+      padj[i] = (correction > 1.0d)? 1.0d : correction;
+    }
+
+  return 0;
+}
+
 int
 stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n])
 {
