@@ -772,7 +772,7 @@ stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n])
 	}
 
        double correction =  current_val * (double ) n / (double) ( last_pos + 1 );
-      padj[index[i]] = (correction > 1.0d)? 1.0d : correction;
+       padj[index[i]] = (correction > 1.0d)? 1.0d : correction;
      }
    
   free(index);
