@@ -749,6 +749,8 @@ int
 stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n])
 {
   size_t *index = malloc(sizeof(size_t) * n);
+  double last_val = -1;
+  size_t last_pos = n-1;
 
   ERROR_ERRNO_RET(NULL == index, -1);
 
@@ -758,9 +760,21 @@ stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n])
   qsort_r(index, n, sizeof(index[0]),
           indirect_compar_double, (void*) p);
 
-  for (size_t i = 0 ; i < n ; i++)
-    padj[i] = p[i] * (double ) n / (double) ( index[i] + 1 );
+  for (ssize_t i = n-1 ; i >= 0  ; i--)
+    {
+      double current_val = p[index[i]];
 
+      // in case of equality 0.5 0.1 0.1 ranking is pessimistic 3 2 2
+      if (last_val != current_val)
+	{
+	  last_val = current_val;
+	  last_pos = i;
+	}
+
+       double correction =  current_val * (double ) n / (double) ( last_pos + 1 );
+      padj[index[i]] = (correction > 1.0d)? 1.0d : correction;
+     }
+   
   free(index);
   return 0;
 }
