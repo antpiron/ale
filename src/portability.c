@@ -124,7 +124,7 @@ portability_getrandom(void *buf, size_t buflen, unsigned int flags)
       counter++;
     }
   
-  return 0;  
+  return buflen;  
 }
 #pragma GCC diagnostic pop
 
