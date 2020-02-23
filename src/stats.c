@@ -156,7 +156,7 @@ stats_unif_std_rand()
 
   do
     {
-      ERROR_ERRNO_MSG(-1 == getrandom(&a, sizeof(a), 0),
+      ERROR_ERRNO_MSG(-1 == portability_getrandom(&a, sizeof(a), 0),
 		      "stats_unif_rand_std(): failed");
       r = (double) a / (double) UINT64_MAX;
     }
@@ -434,7 +434,7 @@ stats_em(struct stats_em *em,
 
   for (size_t i = 0 ; i <  em->n ; i++)
     {
-      ERROR_ERRNO_MSG(-1 == getrandom(&a, sizeof(a), 0),
+      ERROR_ERRNO_MSG(-1 == portability_getrandom(&a, sizeof(a), 0),
 		      "stats_unif_rand_std(): failed");
       em->z[i] = a % em->ncat;
     }
