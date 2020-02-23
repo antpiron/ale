@@ -9,12 +9,15 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (10000)
-  double x[LEN] = {0.0};
-  double y[LEN] = {0.0};
+#define LEN (40000)
+  double *x = malloc(sizeof(double) * LEN);
+  double *y = malloc(sizeof(double) * LEN);
   double res, exp, delta, pvalue;
   double eps = 0.0001;
   int ret;
+
+  for (int i = 0 ; i < LEN ; i++)
+    x[i] = y[i] = 0.0d;
 
   ret = stats_pearson_corr(LEN, x, y, &res, &pvalue);
   ERROR_UNDEF_FATAL_FMT(-1 != ret, "FAIL: stats_stats_pearson_corr() == %d != -1\n", ret);
@@ -54,6 +57,8 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(pvalue < 0.01,
 			"FAIL: stats_pearson_corr().pval == %f < 0.05\n", pvalue);
   
+  free(x);
+  free(y);
   
   return EXIT_SUCCESS;
 }
