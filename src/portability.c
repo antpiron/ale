@@ -104,6 +104,7 @@ gen_key(uint8_t *key)
 int
 portability_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
+  // TODO: make it thread safe
   uint8_t *ubuf = buf;
   static uint64_t counter = 0;
   uint8_t sip[SIP_HASHLEN];
