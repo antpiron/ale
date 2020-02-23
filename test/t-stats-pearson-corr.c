@@ -9,7 +9,7 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (1000)
+#define LEN (10000)
   double x[LEN] = {0.0};
   double y[LEN] = {0.0};
   double res, exp, delta, pvalue;

@@ -9,11 +9,11 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (10000)
-  double x[LEN] = {0.0};
+#define LEN (60000)
+  double *x = malloc(sizeof(double) * LEN);
   double res, exp, delta;
   struct stats_t_test data;
-  double eps = 0.01;
+  double eps = 0.001;
 
   for (int i = 0 ; i < LEN ; i++)
     x[i] = stats_student_rand(LEN-1);
@@ -23,6 +23,7 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(res < eps, "FAIL: stats_t_test() == %f < 0.5. Mean = %f \n",
 			res, m);
   
+  free(x);
   
   return EXIT_SUCCESS;
 }

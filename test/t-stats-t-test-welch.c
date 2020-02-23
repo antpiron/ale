@@ -9,13 +9,13 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN1 (10000)
-#define LEN2 (9000)
-  double x[LEN1] = {0.0};
-  double y[LEN2] = {0.0};
+#define LEN1 (60000)
+#define LEN2 (48000)
+  double *x = malloc(sizeof(double) * LEN1);
+  double *y = malloc(sizeof(double) * LEN2);
   double res, exp, delta;
   struct stats_t_test data;
-  double eps = 0.01;
+  double eps = 0.001;
 
   for (int i = 0 ; i < LEN1 ; i++)
     x[i] = stats_norm_std_rand();
@@ -41,6 +41,8 @@ main(int argc, char *argv[argc])
 			"FAIL: stats_t_test_welch() == %f < %f. Mean = %f, y = %f \n",
 			res, eps, mx, my);
   
+  free(x);
+  free(y);
   
   return EXIT_SUCCESS;
 }
