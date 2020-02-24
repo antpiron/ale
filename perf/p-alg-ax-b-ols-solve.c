@@ -21,7 +21,7 @@ main(int argc, char *argv[argc])
 
   printf("%s:\n", argv[0]);
 
-  for (size_t m = (1l << 16)  ; m < (1l << 20) ; m <<= 1)
+  for (size_t m = (1l << 16)  ; m < (1l << 21) ; m <<= 1)
     {
       double (*A)[m][n] = malloc(m*n*sizeof(double));
       double (*X)[n][p] = malloc(n*p*sizeof(double));
@@ -49,7 +49,7 @@ main(int argc, char *argv[argc])
       ftime(&et);
       diff = (et.time - st.time) + (et.millitm - st.millitm) / 1000.0;
   
-      printf("Computed A[%6zu, %3zu] X[%6zu, %3zu] = B[%6zu, %3zu] in %6.2f seconds\n", m, n, n, p, m, p, diff);
+      printf("Computed A[%7zu, %3zu] X[%7zu, %3zu] = B[%7zu, %3zu] in %6.3f seconds\n", m, n, n, p, m, p, diff);
 
       free(A);
       free(X);
