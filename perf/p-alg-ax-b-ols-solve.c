@@ -11,7 +11,7 @@
 int
 main(int argc, char *argv[argc])
 {
-  size_t m = 8, n = 10, p = 5;;
+  size_t m = 8, n = 10, p = 8;;
   // double A[m][n],  X[n][p], B[m][p];
   double delta;
   int ret;
@@ -49,7 +49,7 @@ main(int argc, char *argv[argc])
       ftime(&et);
       diff = (et.time - st.time) + (et.millitm - st.millitm) / 1000.0;
   
-      printf("Computed A[%7zu, %3zu] X[%7zu, %3zu] = B[%7zu, %3zu] in %6.3f seconds\n", m, n, n, p, m, p, diff);
+      printf("Solved A[%7zu, %3zu] X[%7zu, %3zu] = B[%7zu, %3zu] in %6.3f seconds\n", m, n, n, p, m, p, diff);
 
       free(A);
       free(X);
