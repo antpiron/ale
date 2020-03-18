@@ -745,6 +745,12 @@ stats_p_adjust_fwer_bonf(size_t n,  const double p[n], double padj[n])
 
 
 // http://www.biostathandbook.com/multiplecomparisons.html
+// R p.adjust:
+//   }, BH = {
+//        i <- lp:1L
+//        o <- order(p, decreasing = TRUE)
+//        ro <- order(o)
+//        pmin(1, cummin(n/i * p[o]))[ro] }
 int
 stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n])
 {
