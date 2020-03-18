@@ -749,6 +749,7 @@ int
 stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n])
 {
   size_t *index = malloc(sizeof(size_t) * n);
+  double min_val = 1.0d;
   double last_val = -1;
   size_t last_pos = n-1;
 
@@ -766,14 +767,14 @@ stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n])
 
       // in case of equality 0.5 0.1 0.1 ranking is pessimistic 3 2 2
       if (last_val != current_val)
-	{
-	  last_val = current_val;
-	  last_pos = i;
-	}
+      	{
+      	  last_val = current_val;
+      	  last_pos = i;
+      	}
 
-       double correction =  current_val * (double ) n / (double) ( last_pos + 1 );
-       padj[index[i]] = (correction > 1.0d)? 1.0d : correction;
-     }
+      double correction =  current_val * (double ) n / (double) ( last_pos + 1 );
+      min_val = padj[index[i]] = (correction > min_val)? min_val : correction;
+    }
    
   free(index);
   return 0;

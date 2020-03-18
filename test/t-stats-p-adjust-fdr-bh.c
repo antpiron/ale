@@ -48,5 +48,19 @@ main(int argc, char *argv[argc])
     }
 
   
+  double exp_val[] = {0.001, 0.0055, 0.007, 0.00775, 0.0082, 0.0085, 0.008714286, 0.008875, 0.009, 0.0091};
+  int n = sizeof(exp_val) / sizeof(double);
+  p[0] = 0.0001;
+  for (int i = 1 ; i < n ; i++)
+    p[i] = p[i-1] + 0.001;
+
+  res = stats_p_adjust_fdr_bh(n, p, padj);
+  ERROR_UNDEF_FATAL_FMT(res < 0, "FAIL: stats_p_adjust_fdr_bh()  res = %d != 0\n", res);
+
+  for (int i = 0 ; i < n && exp_val[i] >= 0 ; i++)
+    {
+      ERROR_UNDEF_FATAL_FMT(fabs(padj[i] - exp_val[i]) > eps, "FAIL: stats_p_adjust_fdr_bh()  padj[%d] = %f != \n", i, padj[i]);
+    }
+  
   return EXIT_SUCCESS;
 }
