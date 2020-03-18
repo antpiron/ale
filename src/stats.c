@@ -765,7 +765,7 @@ stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n])
     {
       double current_val = p[index[i]];
 
-      // in case of equality 0.5 0.1 0.1 ranking is pessimistic 3 2 2
+      // in case of equality (0.5 0.1 0.1) ranking is pessimistic (3 2 2)
       if (last_val != current_val)
       	{
       	  last_val = current_val;
