@@ -12,7 +12,7 @@ main(int argc, char *argv[argc])
   double *x = malloc(sizeof(double) * LEN);
   double *y = malloc(sizeof(double) * LEN);
   double res, exp, delta, pvalue;
-  double eps = 0.0001;
+  double eps = 0.000001, pval_eps = 0.001;
   int ret;
 
   for (int i = 0 ; i < LEN ; i++)
@@ -37,7 +37,7 @@ main(int argc, char *argv[argc])
 			res, exp, delta);
   exp = 0.0;
   delta = fabs(exp - pvalue);
-  ERROR_UNDEF_FATAL_FMT(delta >= eps,
+  ERROR_UNDEF_FATAL_FMT(delta >= pval_eps,
 			"FAIL 3: stats_pearson_corr().pval == %f != 0\n", pvalue);
   
   for (long i = 0 ; i < LEN ; i++)
@@ -50,11 +50,11 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(-1 == ret, "FAIL 4: stats_stats_pearson_corr() == %d != 0\n", ret);
   exp = 0.0;
   delta = fabs(exp - res);
-  ERROR_UNDEF_FATAL_FMT(pvalue < 0.01 && delta >= eps,
+  ERROR_UNDEF_FATAL_FMT(pvalue < pval_eps && delta >= eps,
 			"FAIL 5: stats_pearson_corr() == %f != %f. pval = %f\n",
 			res, exp, pvalue);
-  ERROR_UNDEF_FATAL_FMT(pvalue < 0.01,
-			"FAIL 6: stats_pearson_corr().pval == %f < 0.05\n", pvalue);
+  ERROR_UNDEF_FATAL_FMT(pvalue < pval_eps,
+			"FAIL 6: stats_pearson_corr().pval == %f < 0.01\n", pvalue);
   
   free(x);
   free(y);
