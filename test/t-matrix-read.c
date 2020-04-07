@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "ale/error.h"
 #include "ale/matrix.h"
@@ -35,14 +36,15 @@ int
 main(int argc, char *argv[argc])
 {
   struct matrix mat;
-  FILE *file = create_file(3, 3,
-			   (double[3][3])
-			   {{ 1.0, 2.0, 3.0},
-			      { 1.0, 2.0, 3.0},
-				{ 1.0, 2.0, 3.0}});
+  const size_t n = 3, m = 3;
+  double exp[3][3] =  {{ 1.0, 2.0, 3.0},
+		       { 1.0, 2.0, 3.0},
+		       { 1.0, 2.0, 3.0}};
+  double eps = 0.000000000001;
+  FILE *file = create_file(m, n, exp);
   int ret;
   
-  matrix_init_size(&mat, 16);
+  matrix_init_size(&mat, 6);
 
   ret = matrix_read_full(&mat, file,
 			 &(struct matrix_parameters)
@@ -52,7 +54,15 @@ main(int argc, char *argv[argc])
 			    } );
   ERROR_FATAL_FMT(0 != ret, "FATAL: %d != ret\n",  ret);
   ERROR_FATAL_FMT(3 != mat.m || 3 != mat.n, "FATAL: [%zu, %zu] != [3, 3]\n",  mat.m, mat.n);
+  for (size_t i = 0 ; i < m ; i++)
+    for (size_t j = 0 ; j < n ; j++)
+      {
+	double (*out)[m][n] = (void*) mat.data;
+	double diff = fabs((*out)[i][j] - exp[i][j]);
+	ERROR_FATAL_FMT(diff > eps, "FATAL: mat[%zu, %zu] = %f != %f\n",  i, j, (*out)[i][j], exp[i][j]);
+      }
 
+  
   
   matrix_destroy(&mat);
 
