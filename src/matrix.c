@@ -35,18 +35,21 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
 {
   struct string str;
   size_t nrows = 0, ncols = 0, nlines = 0;
- 
+  
   string_init(&str);
   
-  for ( ; 0 != feof(file) ; nlines++ )
+  for ( ; 0 == feof(file) ; nlines++ )
     {
       int ret = string_readline(&str, file);
+      if (-1 == ret && feof(file))
+	break;
       ERROR_GOTO(-1 == ret, ERROR);
       char *current = str.str;
       size_t count = 0;
-    
-      string_chomp(&str);
+
       
+      string_chomp(&str);
+        
       if (0 == str.len)
 	{
 	  ERROR_CUSTOM_GOTO(0 == (MATRIX_FSKIPEMPTY & params->flags), MATRIX_EEMPTY, ERROR);
@@ -113,6 +116,7 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
   return 0;
 
  ERROR:
+  printf("ERROR!!!\n");
   string_destroy(&str);
   return -1;
 }
