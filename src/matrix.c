@@ -116,7 +116,6 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
   return 0;
 
  ERROR:
-  printf("ERROR!!!\n");
   string_destroy(&str);
   return -1;
 }
