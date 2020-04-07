@@ -53,7 +53,10 @@ main(int argc, char *argv[argc])
 			    .flags = MATRIX_FHEADER | MATRIX_FROWNAMES | MATRIX_FRHEADER
 			    } );
   ERROR_FATAL_FMT(0 != ret, "FATAL: %d != ret\n",  ret);
-  ERROR_FATAL_FMT(3 != mat.m || 3 != mat.n, "FATAL: [%zu, %zu] != [3, 3]\n",  mat.m, mat.n);
+  ERROR_FATAL_FMT(m != mat.m || n != mat.n, "FATAL: [%zu, %zu] != [3, 3]\n",  mat.m, mat.n);
+  ERROR_FATAL_FMT(mat.alloc_size_double < m*n, "FATAL: alloc_size_double = %zu < %zu\n",
+		  mat.alloc_size_double, mat.m * mat.n);
+
   for (size_t i = 0 ; i < m ; i++)
     for (size_t j = 0 ; j < n ; j++)
       {
