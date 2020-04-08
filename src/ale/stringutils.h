@@ -30,6 +30,7 @@ static inline void string_resize(struct string *dst, size_t len);
 int string_set(struct string *dst, const char *str);
 int string_append(struct string *dst, struct string *src);
 int string_append_c(struct string *dst, const char *src);
+static inline int string_append_c_raw(struct string *dst, const char *src, size_t len);
 static inline int string_append_char(struct string *dst, const char src);
 static inline ssize_t string_readline(struct string *dst, FILE *file);
 static int string_chomp(struct string *dst);
@@ -51,6 +52,21 @@ string_append_char(struct string *dst, const char src)
    dst->str[dst->len] = src;
    dst->str[len] = '\0';
    dst->len = len;
+
+   return 0;
+}
+
+static inline
+int
+string_append_c_raw(struct string *dst, const char *src, size_t len)
+{
+   size_t newlen = dst->len + len;
+   
+   string_resize(dst, newlen+1);
+   
+   memcpy(dst->str + dst->len, src, len);
+   dst->str[newlen] = '\0';
+   dst->len = newlen;
 
    return 0;
 }

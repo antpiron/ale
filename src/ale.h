@@ -16,5 +16,7 @@
 #include <ale/algebra.h>
 #include <ale/stats.h>
 #include <ale/process.h>
+#include <ale/index.h>
+#include <ale/matrix.h>
 
 #endif

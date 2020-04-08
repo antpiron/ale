@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include "ale/error.h"
 #include "ale/stringutils.h"
@@ -26,6 +27,19 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(str1.str, "Hello Plop!"), "FATAL: %s != 'Hello Plop!'\n", str1.str);
   ERROR_UNDEF_FATAL_FMT(str1.len != 11, "FATAL: %zu != 11'\n", str1.len);
 
+  string_set(&str1, "aaaa\n\r\n");
+  string_chomp(&str1);
+  ERROR_UNDEF_FATAL_FMT(0 != strcmp(str1.str, "aaaa"),
+			"FATAL: %s != 'aaaa'\n", str1.str);
+
+  string_truncate(&str1);
+  string_append_c_raw(&str1, "a", 2);
+  string_append_c_raw(&str1, "b", 2);
+  ERROR_UNDEF_FATAL_FMT(4 != str1.len, "FATAL: string_append_c_raw() len = %zu != 4\n", str1.len);
+  ERROR_UNDEF_FATAL_FMT(0 != memcmp(str1.str, "a\0b\0", 5),
+			"FATAL: string_append_c_raw() str1 = %*"SCNu8" != %*"SCNu8"\n",
+			str1.len, str1.str, 5, "a\0b\0");
+  
   string_destroy(&str1);
   string_destroy(&str2);
 
@@ -43,6 +57,7 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(strp2->str, "Hello Plop!a"), "FATAL: %s != 'Hello Plop!a'\n", strp2->str);
 
   FILE *file = fopen("t-vla-string.c","r");
+  ERROR_ERRNO_FATAL(NULL == file, "FATAL: fopen(t-vla-string.c)\n");
   string_set(strp2, "");
   int ret = string_readline(strp2, file);
   ERROR_FATAL_FMT(-1 == ret, "FATAL: string_readline() = %d'\n", ret);
@@ -55,11 +70,9 @@ main(int argc, char *argv[argc])
   
   fclose(file);
 
-  string_set(&str1, "aaaa\n\r\n");
-  string_chomp(&str1);
-  ERROR_UNDEF_FATAL_FMT(0 != strcmp(str1.str, "aaaa"),
-			"FATAL: %s != 'aaaa'\n", str1.str);
-
+  string_free(strp1);
+  string_free(strp2);
+  
   
   return EXIT_SUCCESS;
 }

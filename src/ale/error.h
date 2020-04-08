@@ -96,7 +96,7 @@ struct error_st* error_get_errno();
       if (ERR_ERRNO == error.type)					\
 	{								\
 	  const size_t buflen = 1024;					\
-	  char buf[buflen];						\
+	  char buf[buflen+1];						\
 	  buf[buflen] = 0;						\
 	  strerror_r(error.errnum, buf, buflen);			\
 	  fprintf(stderr, "%s\n", buf);					\
