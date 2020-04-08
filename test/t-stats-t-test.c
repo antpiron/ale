@@ -9,11 +9,11 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (60000)
+#define LEN (100000)
   double *x = malloc(sizeof(double) * LEN);
   double res, exp, delta;
   struct stats_t_test data;
-  double eps = 0.001;
+  double eps = 0.0000001;
 
   for (int i = 0 ; i < LEN ; i++)
     x[i] = stats_student_rand(LEN-1);
