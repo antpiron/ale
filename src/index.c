@@ -4,14 +4,14 @@
 void
 index_init(struct index *index)
 {
-  string_init(&index->strings);
+  mem_init(&index->pool);
   index->max = -1;
 }
 
 void
 index_destroy(struct index *index)
 {
-  string_destroy(&index->strings);
+  mem_destroy(&index->pool);
 }
 
 int

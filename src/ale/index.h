@@ -2,6 +2,7 @@
 #define __INDEX_H
 
 #include <ale/stringutils.h>
+#include <ale/memory.h>
 #include <ale/vector.h>
 #include <ale/hash.h>
 
@@ -9,7 +10,7 @@
 struct index
 {
   ssize_t max;
-  struct string strings; 
+  struct mem_pool pool; 
 };
 
 void index_init(struct index *index);
