@@ -29,3 +29,21 @@ index_set(struct index *index, const struct string *key, size_t i)
   
   return ret;
 }
+
+ssize_t
+index_get(struct index *index, const char *key)
+{
+  size_t i;
+  int ret = hash_chars_size_t_get(&index->stoi, (char*) key, &i);
+
+  if (0 == ret)
+    return -1;
+  
+  return i;
+}
+
+char*
+index_rget(struct index *index, size_t i)
+{
+  return vector_chars_get(&index->itos, i);
+}
