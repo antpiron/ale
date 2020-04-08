@@ -27,6 +27,7 @@ void mem_block_destroy(struct mem_block *block);
 struct mem_block *mem_block_new(size_t size);
 void mem_block_free(struct mem_block *block);
 
+void mem_init(struct mem_pool *pool);
 void mem_init_size(struct mem_pool *pool, size_t size);
 void mem_destroy(struct mem_pool *pool);
 

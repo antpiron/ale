@@ -39,6 +39,12 @@ mem_init_size(struct mem_pool *pool, size_t size)
 }
 
 void
+mem_init(struct mem_pool *pool)
+{
+  mem_init_size(pool, MEM_DEFAULT_BLOCK_SIZE);
+}
+
+void
 mem_destroy(struct mem_pool *pool)
 {
   sl_destroy_full(&pool->stack,
