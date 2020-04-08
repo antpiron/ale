@@ -28,6 +28,23 @@ equal_func_int(int a, int b)
 }
 
 static inline size_t
+hash_func_chars(char *buf, const uint8_t *key)
+{
+  uint64_t hashed;
+  size_t len = strlen(buf);
+
+  siphash((uint8_t *) &hashed, (uint8_t*) buf, (uint64_t) len, key);
+  
+  return (size_t) hashed;
+}
+
+static inline int
+equal_func_chars(char *a, char *b)
+{
+  return 0 == strcmp(a, b);
+}
+
+static inline size_t
 hash_func_string(struct string *buf, const uint8_t *key)
 {
   uint64_t hashed;
@@ -166,7 +183,7 @@ equal_func_string(struct string *a, struct string *b)
   hash_##name##_find_bucket(struct hash_##name *hash, keytype key)	\
   {									\
     size_t index = hash_##name##_hash(hash, key);			\
-    size_t first_index = index;						\
+    ssize_t first_index = index;					\
     size_t increment = 0;						\
     size_t i = 0;							\
     do									\
@@ -208,7 +225,7 @@ equal_func_string(struct string *a, struct string *b)
 		    valuetype value, valuetype *oldvalue)		\
   {									\
     size_t index = hash_##name##_hash(hash, key);			\
-    size_t first_index = index;						\
+    ssize_t first_index = index;					\
     ssize_t delete_index = -1;						\
     size_t increment = 0;						\
     size_t i = 0;							\
