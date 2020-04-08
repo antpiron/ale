@@ -29,10 +29,14 @@ main(int argc, char *argv[argc])
        node ; node = sl_next(node) )
     {
       struct mem_block* block = node->data;
+      ERROR_UNDEF_FATAL_FMT(block->usage > block->alloc_size,
+			    "FAIL: usage = %zu > %zu = alloc_size\n", block->usage, block->alloc_size );  
       sum += block->usage;
     }
   size_t exp =  ALLOC_SIZE * NUM_ITER;
-  ERROR_UNDEF_FATAL_FMT(exp != sum, "FAIL: mem_malloc() usage = %zu != %z\n", sum, exp );  
+  ERROR_UNDEF_FATAL_FMT(exp != sum, "FAIL: mem_malloc() usage = %zu != %zu\n", sum, exp );  
+
+  
   
   mem_destroy(&pool);
   

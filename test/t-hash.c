@@ -7,12 +7,14 @@
 
 HASH_INIT(int, int , int, equal_func_int, hash_func_int)
 HASH_INIT(string, struct string*, struct string*, equal_func_string, hash_func_string)
+HASH_INIT(chars, char*, int, equal_func_chars, hash_func_chars)
 
 int
 main(int argc, char *argv[argc])
 {
   struct hash_int hash;
   struct hash_string shash;
+  struct hash_chars chars_hash;
   struct string *skey, *skey_ret;
   struct string *sval, *sval_ret;
   int ret, val, key;
@@ -92,6 +94,18 @@ main(int argc, char *argv[argc])
 
   hash_string_destroy(&shash);
   string_free(skey);
+
+  hash_chars_init(&chars_hash);
+  
+  ret = hash_chars_set(&chars_hash, "Plop!", 1, NULL);
+  ERROR_UNDEF_FATAL_FMT(0 != ret, "FATAL: hash_chars_set(1) returned %d\n", ret);
+
+  ret = hash_chars_get(&chars_hash, "Plop!", &val);
+  ERROR_UNDEF_FATAL_FMT(1 != ret, "FATAL: hash_chars_get(1) returned %d\n", ret);
+  ERROR_UNDEF_FATAL_FMT(1 != val, "FATAL: hash_chars_get('key') val = %d != 1\n", val);
+
+  hash_chars_destroy(&chars_hash);
+
   
   return EXIT_SUCCESS;
 }
