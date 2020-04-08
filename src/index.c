@@ -26,6 +26,9 @@ index_set(struct index *index, const struct string *key, size_t i)
 
   vector_chars_set(&index->itos, i, str);
   int ret = hash_chars_size_t_set(&index->stoi, str, i, NULL);
+
+  if ((ssize_t) i > index->max)
+    index->max = i;
   
   return ret;
 }
