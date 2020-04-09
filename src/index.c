@@ -39,9 +39,7 @@ index_get(struct index *index, const char *key)
 {
   size_t i;
   int ret = hash_chars_size_t_get(&index->stoi, (char*) key, &i);
-
-  if (0 == ret)
-    return -1;
+  ERROR_UNDEF_RET(0 == ret, -1);
   
   return i;
 }

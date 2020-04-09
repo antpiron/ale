@@ -57,6 +57,21 @@ main(int argc, char *argv[argc])
   ERROR_FATAL_FMT(mat.alloc_size_double < m*n, "FATAL: alloc_size_double = %zu < %zu\n",
 		  mat.alloc_size_double, mat.m * mat.n);
 
+  ssize_t index = index_get(&mat.colnames, "col0");
+  ERROR_FATAL(-1 == index, "FATAL: index_get(col0) -1 == index\n");
+  ERROR_UNDEF_FATAL_FMT(0 != index, "FATAL: index_get(col0) %zd != index\n",  index);
+
+  index = index_get(&mat.colnames, "col2");
+  ERROR_FATAL(-1 == index, "FATAL: index_get(col2) -1 == index\n");
+  ERROR_UNDEF_FATAL_FMT(2 != index, "FATAL: index_get(col2) %zd != index\n",  index);
+
+  index = index_get(&mat.colnames, "col3");
+  ERROR_UNDEF_FATAL(-1 != index, "FATAL: index_get(col2) -1 == index\n");
+
+  index = index_get(&mat.rownames, "row2");
+  ERROR_FATAL(-1 == index, "FATAL: index_get(row2) -1 == index\n");
+  ERROR_UNDEF_FATAL_FMT(2 != index, "FATAL: index_get(row2) %zd != index\n",  index);
+
   for (size_t i = 0 ; i < m ; i++)
     for (size_t j = 0 ; j < n ; j++)
       {
