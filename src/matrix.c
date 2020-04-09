@@ -70,18 +70,27 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
 	{
 	  // ncols = 0;
 	  
-	  for (char *ptr = current ; *current ; current++ )
-	    if ( params->sep == *current )
-	      {
-		*current = '\0';
-		index_set(&mat->colnames, ptr, ncols);
-		ptr = current + 1;
-		ncols++;
-	      }
-
 	  if ( 0 != (MATRIX_FROWNAMES & params->flags) &&
-	       0 !=  (MATRIX_FHEADERONELESS & params->flags) )
-	    ncols++;
+	       0 ==  (MATRIX_FHEADERONELESS & params->flags) )
+	    {
+	      for ( ; *current && params->sep != *current ; current++ );
+	      if (params->sep == *current)
+		current++;
+	    }
+
+	  while (*current)
+	    {
+	      char *ptr = current;
+	      for ( ; *current && params->sep != *current ; current++ );
+	      if ( params->sep == *current )
+		{
+		  *current = '\0';
+		  current++;
+		}
+	      index_set(&mat->colnames, ptr, ncols);
+	      ptr = current;
+	      ncols++;
+	    }
 
 	  continue;
 	}
