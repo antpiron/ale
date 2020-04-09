@@ -19,14 +19,21 @@ matrix_init_size(struct matrix *mat, size_t size)
       ERROR_UNDEF_FATAL(NULL == mat->data,
                         "matrix_init_size() unable to allocate memory!\n");
     }
-
+  
+  mat->alloc_size_step = MATRIX_DEFAULT_SIZE;
   mat->alloc_size_double = size;
+
+  index_init(&mat->rownames);
+  index_init(&mat->colnames);
+  
   return 0;
 }
 
 void
 matrix_destroy(struct matrix *mat)
 {
+  index_destroy(&mat->rownames);
+  index_destroy(&mat->colnames);
   free(mat->data);
 }
 
@@ -61,15 +68,20 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
 
       if ( 0 != (MATRIX_FHEADER & params->flags) && 0 == ncols )
 	{
-	  ncols = 1;
+	  // ncols = 0;
 	  
-	  for ( ; *current ; current++ )
+	  for (char *ptr = current ; *current ; current++ )
 	    if ( params->sep == *current )
-	      ncols++;
+	      {
+		*current = '\0';
+		index_set(&mat->colnames, ptr, ncols);
+		ptr = current + 1;
+		ncols++;
+	      }
 
 	  if ( 0 != (MATRIX_FROWNAMES & params->flags) &&
-	       0 ==  (MATRIX_FRHEADER & params->flags) )
-	    ncols--;
+	       0 !=  (MATRIX_FHEADERONELESS & params->flags) )
+	    ncols++;
 
 	  continue;
 	}
@@ -79,7 +91,11 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
 	  for ( ; *current && params->sep != *current ; current++ ) ;
 
 	  if (*current)
-	    current++;
+	    {
+	      *current = '\0';
+	      current++;
+	    }
+	  index_set(&mat->rownames, str.str, nrows);
 	}
 
       for ( count = 0 ; *current ; current++, count++ )
@@ -100,7 +116,7 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
       if ( count != ncols )
 	{
 	  ERROR_CUSTOM_MSG_FMT(1, MATRIX_ECOLS,
-			       "Invalid number of columns line %zu: %zu != %zu\n",
+			       "Invalid number of columns at line %zu: %zu != %zu\n",
 			       nlines, count, ncols);
 	  ERROR_CUSTOM_GOTO(1, MATRIX_ECOLS, ERROR);
 	}

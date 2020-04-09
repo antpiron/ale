@@ -7,14 +7,18 @@
 #include <stdio.h>
 
 #include <ale/error.h>
+#include <ale/index.h>
 
-#define MATRIX_DEFAULT_SIZE (256)
+#define MATRIX_DEFAULT_SIZE (1lu << 8)
+#define MATRIX_MAX_SIZE (1lu << 24)
 
 struct matrix
 {
   size_t m, n;
-  size_t alloc_size_double;
-  uint32_t flags;
+  size_t alloc_size_double, alloc_size_step;
+  // uint32_t flags;
+  struct index rownames;
+  struct index colnames;
   double *data;
 };
 
@@ -41,7 +45,7 @@ enum {
       MATRIX_FHEADER = 1,
       MATRIX_FROWNAMES = 1 << 1,
       MATRIX_FFILL = 1 << 2,
-      MATRIX_FRHEADER = 1 << 3,     
+      MATRIX_FHEADERONELESS = 1 << 3,     
       MATRIX_FSKIPEMPTY = 1 << 4
 };
 
@@ -56,7 +60,11 @@ matrix_resize(struct matrix *mat, size_t size)
 {
   if (size > mat->alloc_size_double)
     {
-      size_t new_size = ((size + MATRIX_DEFAULT_SIZE) / MATRIX_DEFAULT_SIZE) * MATRIX_DEFAULT_SIZE;
+      size_t new_size = ((size + mat->alloc_size_step) / mat->alloc_size_step) * mat->alloc_size_step;
+      size_t alloc_size_step = mat->alloc_size_step << 1;
+
+      if (alloc_size_step <= mat->alloc_size_step)
+	mat->alloc_size_step = alloc_size_step;
 
       if (mat->alloc_size_double > 0)
         mat->data = realloc(mat->data, new_size * sizeof(double));

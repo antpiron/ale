@@ -50,7 +50,7 @@ main(int argc, char *argv[argc])
 			 &(struct matrix_parameters)
 			 {
 			   .sep = '\t', .comment = '#',
-			    .flags = MATRIX_FHEADER | MATRIX_FROWNAMES | MATRIX_FRHEADER
+			    .flags = MATRIX_FHEADER | MATRIX_FROWNAMES | MATRIX_FHEADERONELESS
 			    } );
   ERROR_FATAL_FMT(0 != ret, "FATAL: %d != ret\n",  ret);
   ERROR_FATAL_FMT(m != mat.m || n != mat.n, "FATAL: [%zu, %zu] != [3, 3]\n",  mat.m, mat.n);
