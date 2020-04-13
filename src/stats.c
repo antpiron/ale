@@ -7,6 +7,8 @@
 #include "ale/portability.h"
 #include "ale/math.h"
 
+#define STATS_EPS (1e-20)
+
 double
 stats_mean(size_t n, const double x[n])
 {
@@ -500,7 +502,6 @@ stats_binom_F(long k, long n, double p)
 {
   long mode = (long)(n*p);
   double sum = 0;
-  double eps = 1e-9;
 
   if (k <= mode)
     {
@@ -508,7 +509,7 @@ stats_binom_F(long k, long n, double p)
       double pk = stats_binom_f(k, n, p);
  
       sum = pk;
-      for (long i = k ; i > 0 && pk > eps ; i--)
+      for (long i = k ; i > 0 && pk > STATS_EPS ; i--)
 	{
 	  pk *= (double)(i*cons) / (double)(n - i + 1);
 	  sum += pk;
@@ -519,7 +520,7 @@ stats_binom_F(long k, long n, double p)
       double cons = p / (1-p);
       double pk = stats_binom_f(k+1, n, p);
       sum = pk;
-      for (long i = k+1 ; i < n && pk > eps ; i++)
+      for (long i = k+1 ; i < n && pk > STATS_EPS ; i++)
 	{
 	  pk *= (double)((n-i)*cons) / (double)(i + 1);
 	  sum += pk;
@@ -545,13 +546,12 @@ stats_poisson_F(long k, double lambda)
 {
   long mode = (long) floor(lambda);
   double sum = 0;
-  double eps = 1e-9;
 
   if (k <= mode)
     {
       double pk = stats_poisson_f(k, lambda);
       sum = pk;
-      for (long i = k ; i > 0 && pk > eps ; i--)
+      for (long i = k ; i > 0 && pk > STATS_EPS ; i--)
 	{
 	  pk *= i / lambda;
 	  sum += pk;
@@ -561,7 +561,7 @@ stats_poisson_F(long k, double lambda)
     {
       double pk = stats_poisson_f(k+1, lambda);
       sum = pk;
-      for (long i = k+1 ; pk > eps ; i++)
+      for (long i = k+1 ; pk > STATS_EPS ; i++)
 	{
 	  pk *= lambda / (double)(i + 1);
 	  sum += pk;
@@ -570,6 +570,96 @@ stats_poisson_F(long k, double lambda)
     }
 
   return sum;
+}
+
+// Inverse transform sampling
+// Ok for small lambda
+// O(lambda)
+inline
+unsigned long
+stats_poisson_rand_its(double lambda)
+{
+  unsigned long res = 0;
+  double p = exp(-lambda);
+  double sump = p;
+  double unif = stats_unif_std_rand();
+  
+  while (unif > sump)
+    {
+      res++;
+      p = p * lambda / res;
+      sump += p;
+    }
+
+  return res;
+}
+
+// The transformed rejection method for generating Poisson random variables
+// W.Hörmann
+// https://doi.org/10.1016/0167-6687(93)90997-4
+// The Transformed Rejection Method For Generating Random Variables, An Alternative To The Ratio Of Uniforms Method
+// Wolfgang Hörmann and Gerhard Derflinger
+// DOI: 10.1080/03610919408813203
+inline
+unsigned long
+stats_poisson_rand_ptrd(double lambda)
+{
+  double logkfact[10];
+  const double smu = sqrt(lambda);
+  const double b = 0.931 + 2.53 * smu;
+  const double a = -0.059 + 0.2483 * b;
+  const double inv_alpha =  1 / (1.1239 + 1.1328 / (b - 3.4));
+  const double vr = 0.9277 - 3.6224 / (b-2);
+  const double log_sqrt_2pi = log(sqrt(2*M_PI));
+
+  logkfact[0] = logkfact[1] = 0.0d;
+  for (int i = 2 ; i < 10 ; i++)
+    logkfact[i] = logkfact[i-1] + log(i);
+
+  while (1)
+    {
+      double U;
+      double V = stats_unif_std_rand();
+      
+      if (V <= 0.86 * vr)
+	{
+	  U = V / vr  - 0.43;
+	  return (unsigned long) floor( (2.0 * a / (0.5 - fabs(U)) + b) * U + lambda + 0.445);
+	}
+      
+      if ( V >= vr)
+	U = stats_unif_std_rand() - 0.5;
+      else
+	{
+	  U = V / vr - 0.93;
+	  U = copysign(1.0,U) * 0.5 - U;
+	  V = stats_unif_rand(0, vr);
+	}
+      
+      double us = 0.5 - fabs(U);
+
+      if (us < 0.013 && V > us)
+	continue;
+
+      double k = floor(( (2*a / us +b) * U + lambda + 0.445 ));
+      V = V * inv_alpha / (1/(us*us) + b);
+      if ( k >= 10 &&
+	   log(V*smu) <= (k+0.5) * log(lambda/k) - lambda - log_sqrt_2pi +k - (1.0d/12 - 1/(360*k*k))/k )
+	return (unsigned long) k;
+      
+      if ( 0 <= k && k <= 9 &&
+	   log(V) <= k * log(lambda) - lambda - logkfact[(size_t) k] )
+	return (unsigned long) k;
+    }
+}
+
+unsigned long
+stats_poisson_rand(double lambda)
+{
+  if (lambda > 30)
+    return stats_poisson_rand_ptrd(lambda);
+  
+  return stats_poisson_rand_its(lambda);
 }
 
 double

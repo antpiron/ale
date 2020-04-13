@@ -43,6 +43,9 @@ double stats_binom_F(long k, long n, double p);
 
 double stats_poisson_f(long k, double lambda);
 double stats_poisson_F(long k, double lambda);
+unsigned long stats_poisson_rand_its(double lambda);
+unsigned long stats_poisson_rand_ptrd(double lambda);
+unsigned long stats_poisson_rand(double lambda);
 
 double stats_hyper_f(long k, long K, long n, long N);
 double stats_hyper_F(long k, long K, long n, long N);
