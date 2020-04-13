@@ -7,7 +7,7 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (100000)
+#define LEN (400000)
   double *x = malloc(LEN * sizeof(double));
   double lambda = 10;
   double eps = 0.01;
@@ -18,7 +18,7 @@ main(int argc, char *argv[argc])
       x[i] = stats_poisson_rand_its(lambda);
     }
   res = stats_mean(LEN, x);
-  delta = fabs(lambda - res) / lambda;
+  delta = fabs(lambda - res) / sqrt(lambda);
   ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: mean(stats_poisson_rand_its()) == %f != %f\n", res, lambda);
 
   res = stats_var(LEN, x);

@@ -595,7 +595,7 @@ stats_poisson_rand_its(double lambda)
 }
 
 
-// From The Computer Generation of Poisson Random Variables -- A. C. Atkinson
+// From "The Computer Generation of Poisson Random Variables" -- A. C. Atkinson
 // and for constant c https://www.johndcook.com/blog/2010/06/14/generating-poisson-random-values/
 inline
 unsigned long
