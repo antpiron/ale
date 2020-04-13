@@ -594,70 +594,46 @@ stats_poisson_rand_its(double lambda)
   return res;
 }
 
-// The transformed rejection method for generating Poisson random variables
-// W.Hörmann
-// https://doi.org/10.1016/0167-6687(93)90997-4
-// The Transformed Rejection Method For Generating Random Variables, An Alternative To The Ratio Of Uniforms Method
-// Wolfgang Hörmann and Gerhard Derflinger
-// DOI: 10.1080/03610919408813203
+
+// From The Computer Generation of Poisson Random Variables -- A. C. Atkinson
+// and for constant c https://www.johndcook.com/blog/2010/06/14/generating-poisson-random-values/
 inline
 unsigned long
-stats_poisson_rand_ptrd(double lambda)
+stats_poisson_rand_pa(double lambda)
 {
-  double logkfact[10];
-  const double smu = sqrt(lambda);
-  const double b = 0.931 + 2.53 * smu;
-  const double a = -0.059 + 0.2483 * b;
-  const double inv_alpha =  1 / (1.1239 + 1.1328 / (b - 3.4));
-  const double vr = 0.9277 - 3.6224 / (b-2);
-  const double log_sqrt_2pi = log(sqrt(2*M_PI));
-
-  logkfact[0] = logkfact[1] = 0.0d;
-  for (int i = 2 ; i < 10 ; i++)
-    logkfact[i] = logkfact[i-1] + log(i);
-
+  const double c = 0.767 - 3.36 / lambda;
+  const double beta = M_PI / sqrt(3 * lambda);
+  const double alpha = beta * lambda;
+  const double k = log(c) - lambda - log(beta);
+  const double llambda = log(lambda);
+  
   while (1)
     {
-      double U;
-      double V = stats_unif_std_rand();
-      
-      if (V <= 0.86 * vr)
-	{
-	  U = V / vr  - 0.43;
-	  return (unsigned long) floor( (2.0 * a / (0.5 - fabs(U)) + b) * U + lambda + 0.445);
-	}
-      
-      if ( V >= vr)
-	U = stats_unif_std_rand() - 0.5;
-      else
-	{
-	  U = V / vr - 0.93;
-	  U = copysign(1.0,U) * 0.5 - U;
-	  V = stats_unif_rand(0, vr);
-	}
-      
-      double us = 0.5 - fabs(U);
+      // generate logistic variate
+      double u1 = stats_unif_std_rand();
+      double x = (alpha - log( (1 - u1) / u1 ) ) / beta;
 
-      if (us < 0.013 && V > us)
+      if ( x < -0.5d )
 	continue;
 
-      double k = floor(( (2*a / us +b) * U + lambda + 0.445 ));
-      V = V * inv_alpha / (1/(us*us) + b);
-      if ( k >= 10 &&
-	   log(V*smu) <= (k+0.5) * log(lambda/k) - lambda - log_sqrt_2pi +k - (1.0d/12 - 1/(360*k*k))/k )
-	return (unsigned long) k;
-      
-      if ( 0 <= k && k <= 9 &&
-	   log(V) <= k * log(lambda) - lambda - logkfact[(size_t) k] )
-	return (unsigned long) k;
+      double n = x + 0.5;
+      double u2 = stats_unif_std_rand();
+
+      double alpha_beta_x = alpha - beta * x;
+      double sq =  1 + exp(alpha_beta_x);
+      sq *= sq;
+	
+      if ( alpha_beta_x + log( u2 / sq ) <= k + n * llambda - ale_lgamma(n+1) )
+	return n;
     }
+  
 }
 
 unsigned long
 stats_poisson_rand(double lambda)
 {
   if (lambda > 30)
-    return stats_poisson_rand_ptrd(lambda);
+    return stats_poisson_rand_pa(lambda);
   
   return stats_poisson_rand_its(lambda);
 }
