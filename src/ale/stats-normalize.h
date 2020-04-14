@@ -10,4 +10,7 @@ int stats_normalize_samples_poisson(size_t m, size_t n, size_t r,
 				    const double mat[m][n], size_t ref[r], double beta[n]);
 
 
+void stats_normalize_samples(size_t m, size_t n, double dst[m][n],
+		     const double src[m][n], const double beta[n]);
+
 #endif

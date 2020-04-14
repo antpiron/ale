@@ -13,7 +13,7 @@ main(int argc, char *argv[argc])
   double (*mat)[M][N] = malloc(N*M * sizeof(double));
   double *beta = malloc(N * sizeof(double));
   size_t ref[M] = {0, 1, 2};
-  double eps = 0.05;
+  double eps = 0.0001;
   double res, delta;
 
   for (int i = 0 ; i < M ; i++)
@@ -22,7 +22,7 @@ main(int argc, char *argv[argc])
   for (int i = 0 ; i < M ; i++)
     for (int j = 1 ; j < N ; j++)
     {
-      (*mat)[i][j] =  (*mat)[i][0] + stats_norm_std_rand();
+      (*mat)[i][j] =  (*mat)[i][0] * (j+1)  ;
     }
 
   stats_normalize_samples_ls(M, N, M, *mat, ref, beta);
@@ -30,9 +30,11 @@ main(int argc, char *argv[argc])
     for (int j = 0 ; j < N ; j++)
       {
 	double exp =  stats_mean(N, (*mat)[i] );
-	double delta = fabs((*mat)[i][j] - exp) / exp;
-	ERROR_UNDEF_FATAL_FMT(delta > eps, "FAIL: stats_normalize_samples_ls() %f != %f = expected (delta = %f)\n",
-			      (*mat)[i][j], exp, delta); 
+	double corrected = beta[j] * (*mat)[i][j];
+	double delta = fabs(corrected - exp) / exp;
+	ERROR_UNDEF_FATAL_FMT(delta > eps,
+			      "FAIL: stats_normalize_samples_ls() mat[%d,%d] = %f != %f = expected (delta = %f)\n",
+			      i, j, corrected, exp, delta); 
       }
 
   free(mat);
