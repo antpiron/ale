@@ -112,8 +112,11 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
 	  errno = 0;
 	  double val = strtod(current, &current);
 	  ERROR_ERRNO_GOTO(0 != errno, ERROR);
-	  ERROR_CUSTOM_GOTO(params->sep != *current &&
-			    '\0' != *current, MATRIX_ECHAR, ERROR);
+	  int is_error = params->sep != *current && '\0' != *current;
+	  ERROR_CUSTOM_MSG_FMT(is_error, MATRIX_ECHAR,
+			       "Invalid number of columns at line %zu: sep = %d\n",
+			       nlines, *current);
+	  ERROR_CUSTOM_GOTO(is_error, MATRIX_ECHAR, ERROR);
 
 	  matrix_resize(mat, mat->alloc_size_double+1);
 	  mat->data[nrows * ncols + count] = val;
