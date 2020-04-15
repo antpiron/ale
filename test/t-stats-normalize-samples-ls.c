@@ -25,7 +25,7 @@ main(int argc, char *argv[argc])
       (*mat)[i][j] =  (*mat)[i][0] * (j+1)  ;
     }
 
-  stats_normalize_samples_ls(M, N, M, *mat, ref, beta);
+  stats_normalize_samples_ls(M, N, M, *mat, ref, beta, STATS_WEIGHT_MEAN);
   for (int i = 0 ; i < M ; i++)
     for (int j = 0 ; j < N ; j++)
       {
