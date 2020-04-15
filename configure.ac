@@ -90,9 +90,20 @@ if test "x$ac_cv_func_getrandom" != xyes; then
    fi
 fi
 
+AC_CHECK_FUNCS([strcasestr])
+
+STRCASESTR_FUNC=""
+if test "x$ac_cv_func_strcasestr" != xyes; then
+   STRCASESTR_FUNC="char* portability_strcasestr(const char *haystack, const char *needle);
+#define strcasestr portability_strcasestr"
+else
+   STRCASESTR_FUNC="char* strcasestr(const char *haystack, const char *needle);"
+fi
+
 AC_SUBST(RANDOM_FUNC)
 AC_SUBST(RANDOM_HEADER)
 AC_SUBST(FADVISE_FUNC)
+AC_SUBST(STRCASESTR_FUNC)
 
 AC_OPENMP
 
@@ -114,6 +125,7 @@ AC_TYPE_UINT64_T
 
 # Checks for library functions.
 AC_FUNC_STRERROR_R
+
 
 # Checks for pthread.
 AC_SEARCH_LIBS([pthread_create], [pthread],,[AC_MSG_ERROR([

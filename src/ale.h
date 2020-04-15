@@ -12,6 +12,7 @@
 #include <ale/sl_list.h>
 #include <ale/hash.h>
 #include <ale/stats.h>
+#include <ale/stats-normalize.h>
 #include <ale/math.h>
 #include <ale/algebra.h>
 #include <ale/process.h>

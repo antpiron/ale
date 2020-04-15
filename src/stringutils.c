@@ -2,6 +2,8 @@
 # include <config.h>
 #endif
 
+#include "ale/portability.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -152,3 +154,23 @@ string_append_c(struct string *dst, const char *src)
 }
 
 
+char*
+string_split(struct string *dst, const char *src, const char *sep, unsigned int options)
+{
+  char *sep_pos = NULL;
+  
+  string_truncate(dst);
+  if ('\0' == src[0])
+    return NULL;
+  
+  sep_pos = (options & STRING_ICASE) ? strcasestr(src, sep) : strstr(src, sep);
+  if (NULL == sep_pos)
+    {
+      string_append_c(dst, src);
+      return (char*) src + dst->len;
+    }
+
+  string_append_c_raw(dst, src, sep_pos - src); 
+
+  return (char*) sep_pos + strlen(sep);
+}

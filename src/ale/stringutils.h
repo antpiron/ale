@@ -17,6 +17,12 @@ struct string
   size_t alloc_size;
 };
 
+enum {
+      STRING_ICASE = 1
+};
+
+#define STRING_CONST(STR) &(struct string){.str = STR, .len = strlen(STR),  .alloc_size = 0}
+
 int string_init(struct string *string);
 int string_init_size(struct string *string, size_t size);
 void string_destroy(struct string *string);
@@ -35,6 +41,7 @@ static inline int string_append_char(struct string *dst, const char src);
 static inline ssize_t string_readline(struct string *dst, FILE *file);
 static int string_chomp(struct string *dst);
 static int string_truncate(struct string *str);
+char* string_split(struct string *dst, const char *src, const char *sep, unsigned int options);
 
 
 // ======

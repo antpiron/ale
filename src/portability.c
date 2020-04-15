@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "ale/portability.h"
 #include "ale/error.h"
@@ -140,3 +141,26 @@ portability_getrandom_syscall(void *buf, size_t buflen, unsigned int flags)
   return syscall(SYS_getrandom, buf, buflen, flags);
 }
 #endif
+
+char*
+portability_strcasestr(const char *haystack, const char *needle)
+{
+  char *result = NULL;
+  // TODO: use Knuth–Morris–Pratt algorithm
+  for (char *h = (char*) haystack ; *h ; h++)
+    {
+      char *n = (char*) needle;
+      for (char *hh = (char*) h ; *n && *hh ; n++, hh++)
+	if ( tolower(*hh) != tolower(*n) )
+	  break;
+      
+      if ('\0' == *n)
+	{
+	  result = h;
+	  break;
+	}
+    }
+
+  return result;
+}
+
