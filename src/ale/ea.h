@@ -43,28 +43,33 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
     free(ea->fitness_index);						\
     free(ea->fitness);							\
   }									\
-									\
+  									\
   static void								\
   ea_next_generation(struct ea_##name *ea)				\
   {									\
     double *cumul_fitness = malloc(ea->pop_min_size *size_of(double));	\
-									\
-									\
+    									\
+  									\
     cumul_fitness[0] = ea->fitness[ea->fitness_index[0]];		\
     for (size_t i = 1 ; i < ea->pop_min_size ; i++)			\
       cumul_fitness[i] = cumul_fitness[i-1] +				\
 	ea->fitness[ ea->fitness_index[i] ];				\
-									\
+    									\
     for (size_t i = ea->pop_min_size ; i < ea->pop_max_size ; i++)	\
-      {									\
-	size_t index1 = (size_t) stats_unif_rand(0, ea->pop_min_size);	\
-	size_t index2 = (size_t) stats_unif_rand(0, ea->pop_min_size);	\
-									\
-      }									\
+    {									\
+      size_t index1 = stats_categorical_rand(ea->pop_min_size,		\
+					     cumul_fitness);		\
+      size_t index2 = stats_categorical_rand(ea->pop_min_size,		\
+					     cumul_fitness);		\
+      mate_func(ea->population[ea->fitness_index[i]]			\
+		ea->population[ea->fitness_index[index1]],		\
+		ea->population[ea->fitness_index[index1]]);		\
+      									\
+    }									\
     free(cumul_fitness);						\
     sort_q_indirect(ea->fitness_index, ea->fitness,			\
 		    ea->pop_max_size, sizeof(double),			\
 		    sort_compar_double_decreasing, NULL);		\
-  }									\
-							   
+  }
+
 #endif
