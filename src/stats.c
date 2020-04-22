@@ -195,6 +195,28 @@ stats_unif_F(double x, double min, double max)
   return (x - min) / (max - min);
 }
 
+size_t
+stats_categorical_rand(size_t n, double cumul_p[n])
+{
+  double u = stats_unif_std_rand();
+  ssize_t min = 0;
+  ssize_t max = n-1;
+
+  while (min != max)
+    {
+      ssize_t mid = (min + max + 1) / 2;
+      
+      if (cumul_p[mid-1] > u)
+	min = mid;
+      if (cumul_p[mid] > u)
+	max = mid;
+
+      printf("%f %zu %zu %zu\n", u, min, mid, max);
+    }
+
+  return min;
+}
+
 double
 stats_norm_std_rand()
 {

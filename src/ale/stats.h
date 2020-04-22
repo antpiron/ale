@@ -20,6 +20,8 @@ double stats_unif_rand(double min, double max);
 double stats_unif_std_F(double x);
 double stats_unif_F(double x, double min, double max);
 
+size_t stats_categorical_rand(size_t n, double cumul_p[n]);
+
 double stats_norm_std_rand();
 double stats_norm_rand(double mu, double sig);
 double stats_norm_std_F(double x);

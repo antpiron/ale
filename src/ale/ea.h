@@ -33,7 +33,7 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
     for (size_t i = 0 ; i < pop_max_size ; i++)				\
       ea->fitness[i] = fitness_func(initial_pop[i]);			\
     sort_q_indirect(ea->fitness_index, ea->fitness,			\
-		    sizeof(double), ea->pop_max_size,			\
+		    ea->pop_max_size, sizeof(double), 			\
 		    sort_compar_double_decreasing, NULL);		\
   }									\
 									\
@@ -63,7 +63,7 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
       }									\
     free(cumul_fitness);						\
     sort_q_indirect(ea->fitness_index, ea->fitness,			\
-		    sizeof(double), ea->pop_max_size,			\
+		    ea->pop_max_size, sizeof(double),			\
 		    sort_compar_double_decreasing, NULL);		\
   }									\
 							   
