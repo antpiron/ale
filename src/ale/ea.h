@@ -62,11 +62,12 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
 					     cumul_fitness);		\
       size_t index2 = stats_categorical_rand(ea->pop_min_size,		\
 					     cumul_fitness);		\
-      mate_func(&ea->population[ea->fitness_index[i]],			\
+      size_t dst = ea->fitness_index[i];				\
+      mate_func(&ea->population[dst],					\
 		ea->population[ea->fitness_index[index1]],		\
 		ea->population[ea->fitness_index[index1]]);		\
-      mutate_func(&ea->population[ea->fitness_index[i]]);		\
-      									\
+      mutate_func(&ea->population[dst]);				\
+      ea->fitness[dst] = fitness_func(ea->population[dst]);		\
     }									\
     free(cumul_fitness);						\
     sort_q_indirect(ea->fitness_index, ea->fitness,			\
