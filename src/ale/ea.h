@@ -54,16 +54,18 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
     for (size_t i = 1 ; i < ea->pop_min_size ; i++)			\
       cumul_fitness[i] = cumul_fitness[i-1] +				\
 	ea->fitness[ ea->fitness_index[i] ];				\
-    									\
+    for (size_t i = 0 ; i < ea->pop_min_size ; i++)			\
+      cumul_fitness[i] /= cumul_fitness[ea->pop_min_size-1];		\
     for (size_t i = ea->pop_min_size ; i < ea->pop_max_size ; i++)	\
     {									\
       size_t index1 = stats_categorical_rand(ea->pop_min_size,		\
 					     cumul_fitness);		\
       size_t index2 = stats_categorical_rand(ea->pop_min_size,		\
 					     cumul_fitness);		\
-      mate_func(ea->population[ea->fitness_index[i]],			\
+      mate_func(&ea->population[ea->fitness_index[i]],			\
 		ea->population[ea->fitness_index[index1]],		\
 		ea->population[ea->fitness_index[index1]]);		\
+      mutate_func(&ea->population[ea->fitness_index[i]]);		\
       									\
     }									\
     free(cumul_fitness);						\
