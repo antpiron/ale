@@ -16,7 +16,7 @@ sort_compar_double(const void *p1, const void *p2, void *arg)
 {
   const double *a = p1;
   const double *b = p2;
-  // disable unsed parameter warning
+  // disable unused parameter warning
   (void)(arg);
 
   if (*a < *b)
