@@ -5,7 +5,7 @@
 #include <ale/stats.h>
 #include <stdlib.h>
 #include <math.h>
-
+#include <ale/sort.h>
 
 int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
 
@@ -32,8 +32,9 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
     ea->population = &initial_pop;					\
     for (size_t i = 0 ; i < pop_max_size ; i++)				\
       ea->fitness[i] = fitness_func(initial_pop[i]);			\
-    qsort_r(ea->fitness_index, ea->pop_max_size, sizeof(size_t),	\
-	    ea_indirect_compar_double, (void*) ea->fitness);		\
+    sort_q_indirect(ea->fitness_index, ea->fitness,			\
+		    sizeof(double), ea->pop_max_size,			\
+		    sort_compar_double_decreasing, NULL);		\
   }									\
 									\
   static inline void							\
@@ -61,8 +62,9 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
 									\
       }									\
     free(cumul_fitness);						\
-    qsort_r(ea->fitness_index, ea->pop_max_size, sizeof(size_t),	\
-	    ea_indirect_compar_double, (void*) ea->fitness);		\
+    sort_q_indirect(ea->fitness_index, ea->fitness,			\
+		    sizeof(double), ea->pop_max_size,			\
+		    sort_compar_double_decreasing, NULL);		\
   }									\
 							   
 #endif

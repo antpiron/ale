@@ -21,7 +21,7 @@ main(int argc, char *argv[argc])
   for (ssize_t i = 0 ; i < SIZE ; i++)
     tosort[i] = (i-SIZE/2)*(i-SIZE/2);
 
-  sort_q_indirect(index, tosort, sizeof(double), SIZE, sort_compar_double, NULL);
+  sort_q_indirect(index, tosort, SIZE, sizeof(double), sort_compar_double, NULL);
 
 
   for (ssize_t i = 0 ; i < SIZE ; i++)
@@ -38,7 +38,7 @@ main(int argc, char *argv[argc])
 			    "FAIL: %f > %f", a, b);
     }
 
-  sort_q_indirect(index, tosort, sizeof(double), SIZE, sort_compar_double_decreasing, NULL);
+  sort_q_indirect(index, tosort, SIZE, sizeof(double), sort_compar_double_decreasing, NULL);
 
 
   for (ssize_t i = 0 ; i < SIZE ; i++)

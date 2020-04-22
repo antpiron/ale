@@ -2,10 +2,11 @@
 #include <stdlib.h>
 
 #include "ale/sort.h"
+#include <stdio.h>
 
 struct indirect_closure
 {
-  size_t nmemb;
+  size_t size;
   void *base;
   void *arg;
   int (*compar)(const void *, const void *, void *);
@@ -40,8 +41,7 @@ indirect_compar(const void *p1, const void *p2, void *arg)
   struct indirect_closure *closure = arg;
   const size_t *a = p1;
   const size_t *b = p2;
-  const char (*base)[closure->nmemb] = closure->base;
-
+  const char (*base)[closure->size] = closure->base;
 
   return closure->compar(base + *a , base + *b, closure->arg);
 }
@@ -51,12 +51,12 @@ sort_q_indirect(size_t *index, void *base, size_t nmemb, size_t size,
 		int (*compar)(const void *, const void *, void *),
 		void *arg)
 {
-  struct indirect_closure closure = {.nmemb = nmemb, .base = base, .arg = arg, .compar = compar};
+  struct indirect_closure closure = {.size = size, .base = base, .arg = arg, .compar = compar};
   
-  for (size_t i = 0 ; i < size ; i++)
+  for (size_t i = 0 ; i < nmemb ; i++)
     index[i] = i;
   
-  qsort_r(index, size, sizeof(index[0]),
+  qsort_r(index, nmemb, sizeof(size_t),
           indirect_compar, (void*) &closure);
 
 }
