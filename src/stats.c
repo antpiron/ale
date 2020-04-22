@@ -201,18 +201,19 @@ stats_categorical_rand(size_t n, double cumul_p[n])
   double u = stats_unif_std_rand();
   ssize_t min = 0;
   ssize_t max = n-1;
+  const ssize_t iter = 5;
 
-  while (min != max)
+  while (min < max-iter)
     {
-      ssize_t mid = (min + max + 1) / 2;
-      
-      if (cumul_p[mid-1] > u)
-	min = mid;
-      if (cumul_p[mid] > u)
-	max = mid;
+      ssize_t mid = (min + max) / 2;
 
-      printf("%f %zu %zu %zu\n", u, min, mid, max);
+      if (cumul_p[mid] <= u)
+	min = mid;
+      else // if (cumul_p[mid] > u)
+	max = mid;
     }
+
+  for ( ; cumul_p[min] <= u ; min++) ;
 
   return min;
 }
