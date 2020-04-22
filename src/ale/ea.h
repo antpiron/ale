@@ -61,7 +61,7 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
 					     cumul_fitness);		\
       size_t index2 = stats_categorical_rand(ea->pop_min_size,		\
 					     cumul_fitness);		\
-      mate_func(ea->population[ea->fitness_index[i]]			\
+      mate_func(ea->population[ea->fitness_index[i]],			\
 		ea->population[ea->fitness_index[index1]],		\
 		ea->population[ea->fitness_index[index1]]);		\
       									\
