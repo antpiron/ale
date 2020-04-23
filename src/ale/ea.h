@@ -9,7 +9,7 @@
 
 int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
 
-#define EA_INIT(name,matetype,mate_func,mutate_func,fitness_func)	\
+#define EA_INIT(name,matetype,mate_func,mutate_func,fitness_func,clstype) \
   struct ea_##name							\
   {                                                                     \
     size_t pop_min_size;						\
@@ -23,15 +23,15 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
   static inline void                                                    \
   ea_##name##_init(struct ea_##name *ea,				\
 		   size_t pop_min_size, size_t pop_max_size,		\
-		   matetype initial_pop[pop_max_size])			\
+		   matetype initial_pop[pop_max_size], clstype cls)	\
   {                                                                     \
     ea->pop_min_size = pop_min_size;					\
     ea->pop_max_size = pop_max_size;					\
     ea->fitness_index = malloc(pop_max_size * sizeof(size_t));		\
     ea->fitness = malloc(pop_max_size * sizeof(double));		\
-    ea->population = &initial_pop;					\
+    ea->population = initial_pop;					\
     for (size_t i = 0 ; i < pop_max_size ; i++)				\
-      ea->fitness[i] = fitness_func(initial_pop[i]);			\
+      ea->fitness[i] = fitness_func(initial_pop[i], cls);		\
     sort_q_indirect(ea->fitness_index, ea->fitness,			\
 		    ea->pop_max_size, sizeof(double), 			\
 		    sort_compar_double_decreasing, NULL);		\
@@ -45,9 +45,9 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
   }									\
   									\
   static void								\
-  ea_next_generation(struct ea_##name *ea)				\
+  ea_##name##_next_generation(struct ea_##name *ea, clstype cls)	\
   {									\
-    double *cumul_fitness = malloc(ea->pop_min_size *size_of(double));	\
+    double *cumul_fitness = malloc(ea->pop_min_size *sizeof(double));	\
     									\
   									\
     cumul_fitness[0] = ea->fitness[ea->fitness_index[0]];		\
@@ -65,9 +65,9 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
       size_t dst = ea->fitness_index[i];				\
       mate_func(&ea->population[dst],					\
 		ea->population[ea->fitness_index[index1]],		\
-		ea->population[ea->fitness_index[index1]]);		\
-      mutate_func(&ea->population[dst]);				\
-      ea->fitness[dst] = fitness_func(ea->population[dst]);		\
+		ea->population[ea->fitness_index[index1]], cls);	\
+      mutate_func(&ea->population[dst], cls);				\
+      ea->fitness[dst] = fitness_func(ea->population[dst], cls);	\
     }									\
     free(cumul_fitness);						\
     sort_q_indirect(ea->fitness_index, ea->fitness,			\
