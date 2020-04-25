@@ -11,6 +11,7 @@ double stats_diff_mean(size_t n, const double x[n], const double y[n]);
 double stats_diff_var(size_t n, const double x[n], const double y[n]);
 double stats_diff_sd(size_t n, const double x[n], const double y[n]);
 double stats_cov(size_t n, const double x[n], const double y[n]);
+void stats_shuffle(size_t n, double vec[n]);
 int stats_pearson_corr(size_t n, const double x[n], const double y[n],
 		       double *rho, double *pvalue);
 void stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n]);

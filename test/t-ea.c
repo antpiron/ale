@@ -46,7 +46,7 @@ check_fitness(struct ea_optim ea)
       size_t index = ea.fitness_index[i];
       ERROR_UNDEF_FATAL_FMT(ea.fitness[index] > ea.fitness[last_index],
 			    "FAIL: fitness is not sorted %f > %f\n",
-			    ea.fitness[index] > ea.fitness[last_index]);
+			    ea.fitness[index], ea.fitness[last_index]);
       last_index = index;
     }
 }

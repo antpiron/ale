@@ -35,6 +35,18 @@ stats_var(size_t n, const double x[n])
   return s / (n - 1);
 }
 
+void
+stats_shuffle(size_t n, double vec[n])
+{
+  for (size_t i = 0 ; i < n ; i++)
+    {
+      size_t index = (size_t) stats_unif_rand(0, n);
+      double tmp = vec[i];
+      vec[i] = vec[index];
+      vec[index] = tmp;
+    }
+}
+
 double
 stats_sd(size_t n, const double x[n])
 {

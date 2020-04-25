@@ -29,6 +29,23 @@ sort_compar_double(const void *p1, const void *p2, void *arg)
   return 0;
 }
 
+inline int
+sort_compar_size_t(const void *p1, const void *p2, void *arg)
+{
+  const size_t *a = p1;
+  const size_t *b = p2;
+  // disable unused parameter warning
+  (void)(arg);
+
+  if (*a < *b)
+    return -1;
+  
+  if (*a > *b)
+    return  1;
+  
+  return 0;
+}
+
 int
 sort_compar_double_decreasing(const void *p1, const void *p2, void *arg)
 {
