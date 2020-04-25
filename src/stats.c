@@ -36,15 +36,18 @@ stats_var(size_t n, const double x[n])
 }
 
 void
-stats_shuffle(size_t n, double vec[n])
+stats_shuffle(void *vec, size_t nmemb, size_t size)
 {
-  for (size_t i = 0 ; i < n ; i++)
+  char (*v)[size] = vec;
+  char *tmp = malloc(size);
+  for (size_t i = 0 ; i < nmemb ; i++)
     {
-      size_t index = (size_t) stats_unif_rand(0, n);
-      double tmp = vec[i];
-      vec[i] = vec[index];
-      vec[index] = tmp;
+      size_t index = (size_t) stats_unif_rand(0, nmemb);
+      memcpy(tmp, v+i, size);
+      memcpy(v+i, v+index, size);
+      memcpy(v+index, tmp, size);
     }
+  free(tmp);
 }
 
 double

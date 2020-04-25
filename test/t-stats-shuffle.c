@@ -20,7 +20,7 @@ main(int argc, char *argv[argc])
   for (size_t i = 0 ; i < LEN ; i++)
     x[i] = i;
 
-  stats_shuffle(LEN, x);
+  stats_shuffle(x, LEN, sizeof(double));
   count = 0;
   for (size_t i = 0 ; i < LEN ; i++)
     count += (x[i] == i);
