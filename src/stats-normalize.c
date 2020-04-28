@@ -75,7 +75,7 @@ int stats_normalize_samples_poisson(size_t m, size_t n, size_t r,
       for (size_t i = 0 ; i < r ; i++)
 	{
 	  double x = mat[ref[i]][s];
-	  ERROR_UNDEF_MSG_FMT(0 == denom,
+	  ERROR_UNDEF_MSG_FMT(0 == x,
 			      "WARNING in stats_normalize_samples_poisson():"
 			      "unable to compute beta[%zu] mat[%zu, %zu] == 0\n",
 			      s, i, s);
