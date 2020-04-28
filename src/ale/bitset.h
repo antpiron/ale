@@ -61,7 +61,7 @@ bitset_resize_n(struct bitset *bs, size_t n)
 static inline void
 bitset_reset(struct bitset *bs)
 {
-  for (size_t i = 0 ; i < bs->alloc_size ; i++)
+  for (size_t i = 0 ; i < (bs->n + 63) / 64 ; i++)
     bs->buf[i] = 0ull;
 }
 
