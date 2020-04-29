@@ -12,29 +12,6 @@
 #define MATRIX_DEFAULT_SIZE (1lu << 8)
 #define MATRIX_MAX_SIZE (1lu << 24)
 
-struct matrix
-{
-  size_t m, n;
-  size_t alloc_size_double, alloc_size_step;
-  // uint32_t flags;
-  struct index rownames;
-  struct index colnames;
-  double *data;
-};
-
-int matrix_init(struct matrix *mat);
-int matrix_init_size(struct matrix *mat, size_t size);
-void matrix_destroy(struct matrix *mat);
-
-
-struct matrix_parameters
-{
-  char sep;
-  char comment;
-  uint32_t flags;
-};
-
-
 enum {
       MATRIX_ECHAR = 1,
       MATRIX_ECOLS,
@@ -49,7 +26,30 @@ enum {
       MATRIX_FSKIPEMPTY = 1 << 4
 };
 
+struct matrix_parameters
+{
+  char sep;
+  char comment;
+  uint32_t flags;
+};
+
+struct matrix
+{
+  size_t m, n;
+  size_t alloc_size_double, alloc_size_step;
+  // uint32_t flags;
+  struct index rownames;
+  struct index colnames;
+  double *data;
+};
+
+int matrix_init(struct matrix *mat);
+int matrix_init_size(struct matrix *mat, size_t size);
+void matrix_destroy(struct matrix *mat);
 int matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *params);
+int matrix_filter_rows(struct matrix *dst, struct matrix *src,
+		       int (*filter)(size_t n, double row[n], void *cls),
+		       void *cls);
 
 // ===================
 // INTERNAL USAGE ONLY

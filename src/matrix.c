@@ -148,4 +148,37 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
   return -1;
 }
 
+int
+matrix_filter_rows(struct matrix *dst, struct matrix *src,
+		   int (*filter)(size_t n, double row[n], void *cls),
+		   void *cls)
+{
+  size_t m = 0;
+  size_t n = src->n;
+
+  for (size_t i = 0 ; i < src->n ; i++)
+    {
+      char *colname = index_rget(&src->colnames, i);
+      if (NULL != colname)
+	index_set(&dst->colnames, colname, i);
+    }
+
+  for (size_t i = 0 ; i < src->m ; i++)
+    {
+      if ( filter(n, &src->data[i * n], cls) )
+	{
+	  char *rowname;
+	  matrix_resize(dst, (m+1) * n);
+	  memcpy(&src->data[m * n], &src->data[i * n], n*sizeof(double) );
+	  rowname = index_rget(&src->rownames, i);
+	  if ( NULL != rowname )
+	    index_set(&dst->rownames, rowname, m);
+	  m++;
+	}
+    }
+  dst->m = m;
+  dst->n = n;
+  
+  return 0;
+}
 

@@ -47,5 +47,7 @@ index_get(struct index *index, const char *key)
 char*
 index_rget(struct index *index, size_t i)
 {
+  if ((ssize_t) i > index->max)
+    return NULL;
   return vector_chars_get(&index->itos, i);
 }
