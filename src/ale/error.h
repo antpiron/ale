@@ -112,6 +112,19 @@ struct error_st* error_get_errno();
     }									\
   while (0)
   
+#define ERROR_MSG_FMT(test,fmt,...)		\
+  do						\
+    {						\
+      if (test)					\
+	{					\
+	  ERROR_PRINTF(fmt, __VA_ARGS__);	\
+	}					\
+    }						\
+  while (0)
+
+
+#define ERROR_MSG(test,str) ERROR_MSG_FMT((test),"%s",(str))
+
 #define ERROR_TYPE_MSG_FMT(test,typ,err,fmt,...)	\
   do							\
     {							\
