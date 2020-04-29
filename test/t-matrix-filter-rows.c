@@ -76,6 +76,13 @@ main(int argc, char *argv[argc])
   rowname = index_rget(&dst.rownames, 1);
   ERROR_UNDEF_FATAL(NULL == rowname, "FAIL: index_rget(1) = NULL\n");
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(rowname,"row2"), "FAIL: index_rget(1) = %s != 'row2'\n", rowname);
+
+  ssize_t index = index_get(&dst.rownames, "row1");
+  ERROR_UNDEF_FATAL_FMT(-1 != index, "FAIL: index_get(row1) = %z != -1\n", index);
+  index = index_get(&dst.rownames, "row0");
+  ERROR_UNDEF_FATAL_FMT(0 != index, "FAIL: index_get(row0) = %z != -1\n", index);
+  index = index_get(&dst.rownames, "row2");
+  ERROR_UNDEF_FATAL_FMT(1 != index, "FAIL: index_get(row2) = %z != -1\n", index);
   
   matrix_destroy(&dst);
   matrix_destroy(&src);
