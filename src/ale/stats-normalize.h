@@ -6,6 +6,12 @@
 
 
 enum {
+      NORMALIZE_EDIVZERO = 1,
+      NORMALIZE
+      
+};
+
+enum {
       STATS_WEIGHT_MEAN = 0,
       STATS_WEIGHT_VARIANCE = 1
 };
