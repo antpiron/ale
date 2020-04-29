@@ -7,6 +7,7 @@
 #include <sys/resource.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <stdatomic.h>
 
 #include "ale/portability.h"
 #include "ale/error.h"
@@ -107,10 +108,11 @@ portability_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
   // TODO: make it thread safe
   uint8_t *ubuf = buf;
-  static uint64_t counter = 0;
+  static _Atomic uint64_t counter = 0;
   uint8_t sip[SIP_HASHLEN];
   static uint8_t key[SIP_KEYLEN] = {0};
-  
+
+  // should be done only one time (lock?)
   if (0 == counter)
     gen_key(key);
 
