@@ -19,7 +19,7 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
       for (size_t i = 0 ; i < r ; i++)
 	{
 	  double var = stats_var(n, mat[ref[i]]);
-	  ERROR_CUSTOM_GOTO(0 == var, NORMALIZE_EDIVZERO, ERROR_LS);
+	  ERROR_CUSTOM_GOTO(0 == var, NORMALIZE_EVARZERO, ERROR_LS);
 	  w[i] = 1.0d / var;
 	}
     }
@@ -28,7 +28,7 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
       for (size_t i = 0 ; i < r ; i++)
 	{
 	  double mean = stats_mean(n, mat[ref[i]]);
-	  ERROR_CUSTOM_GOTO(0 == mean, NORMALIZE_EDIVZERO, ERROR_LS);
+	  ERROR_CUSTOM_GOTO(0 == mean, NORMALIZE_EMEANZERO, ERROR_LS);
 	  w[i] = 1.0d / mean;
 	}
     }

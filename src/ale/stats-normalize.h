@@ -7,8 +7,8 @@
 
 enum {
       NORMALIZE_EDIVZERO = 1,
-      NORMALIZE
-      
+      NORMALIZE_EVARZERO,
+      NORMALIZE_EMEANZERO      
 };
 
 enum {

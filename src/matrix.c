@@ -169,7 +169,7 @@ matrix_filter_rows(struct matrix *dst, struct matrix *src,
 	{
 	  char *rowname;
 	  matrix_resize(dst, (m+1) * n);
-	  memcpy(&src->data[m * n], &src->data[i * n], n*sizeof(double) );
+	  memcpy(&dst->data[m * n], &src->data[i * n], n*sizeof(double) );
 	  rowname = index_rget(&src->rownames, i);
 	  if ( NULL != rowname )
 	    index_set(&dst->rownames, rowname, m);

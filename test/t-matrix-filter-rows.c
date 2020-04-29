@@ -83,6 +83,18 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(0 != index, "FAIL: index_get(row0) = %z != -1\n", index);
   index = index_get(&dst.rownames, "row2");
   ERROR_UNDEF_FATAL_FMT(1 != index, "FAIL: index_get(row2) = %z != -1\n", index);
+
+  for (size_t i = 0 ; i  < n ; i++)
+    {
+      double x = dst.data[0*n + i];
+      ERROR_UNDEF_FATAL_FMT(x != mat[0][i], "FAIL: dst[0][%zu] = %f != %f = mat[0][%zu]", i, x, mat[0][i], i);
+    }
+  
+  for (size_t i = 0 ; i  < n ; i++)
+    {
+      double x = dst.data[1*n + i];
+      ERROR_UNDEF_FATAL_FMT(x != mat[2][i], "FAIL: dst[1][%zu] = %f != %f = mat[2][%zu]", i, x, mat[2][i], i);
+    }
   
   matrix_destroy(&dst);
   matrix_destroy(&src);
