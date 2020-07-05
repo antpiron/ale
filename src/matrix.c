@@ -182,3 +182,62 @@ matrix_filter_rows(struct matrix *dst, struct matrix *src,
   return 0;
 }
 
+static void
+print_index(FILE *file, struct index *names, size_t i)
+{
+  char *str = index_rget(names, i);
+  if (NULL == str)
+    fprintf(file, "%zu", i);
+  else
+    fprintf(file, "%s", str);
+}
+
+
+ssize_t
+matrix_fprint(FILE *file, struct matrix *mat, struct matrix_parameters *params)
+{
+  ERROR_CUSTOM_RET(0 == mat->n, 2, -1);
+  ERROR_CUSTOM_RET(0 == mat->m, 1, -1);
+  
+  if ( 0 != (MATRIX_FHEADER & params->flags) )
+    {
+      size_t j = 0;
+       
+      if ( 0 != (MATRIX_FROWNAMES & params->flags) )
+	fprintf(file, "%c", params->sep);
+      
+      while (1)
+	{
+	  print_index(file, &mat->colnames, j);
+
+	  if ( ++j  >= mat->n )
+	    break;
+	  
+	  fprintf(file, "%c", params->sep);
+	}
+      fprintf(file, "\n");
+    }
+  for (size_t i = 0 ; i  < mat->m ; i++)
+    {
+      size_t j = 0;
+      
+      if ( 0 != (MATRIX_FROWNAMES & params->flags) )
+	{
+	  print_index(file, &mat->rownames, i);
+	  fprintf(file, "%c", params->sep);
+	}
+      
+      while (1)
+	{
+	  fprintf(file, "%f", mat->data[i*mat->n + j] );
+	  
+	  if ( ++j >= mat->n)
+	    break;
+	  
+	  fprintf(file, "%c", params->sep);
+	}
+      fprintf(file, "\n");
+    }
+
+  return 0;
+}

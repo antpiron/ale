@@ -31,7 +31,9 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
     ea->fitness = malloc(pop_max_size * sizeof(double));		\
     ea->population = initial_pop;					\
     for (size_t i = 0 ; i < pop_max_size ; i++)				\
-      ea->fitness[i] = fitness_func(initial_pop[i], cls);		\
+      {									\
+	ea->fitness[i] = fitness_func(initial_pop[i], cls);		\
+      }									\
     sort_q_indirect(ea->fitness_index, ea->fitness,			\
 		    ea->pop_max_size, sizeof(double), 			\
 		    sort_compar_double_decreasing, NULL);		\
