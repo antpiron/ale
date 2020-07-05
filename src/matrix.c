@@ -194,10 +194,11 @@ print_index(FILE *file, struct index *names, size_t i)
 
 
 ssize_t
-matrix_fprint(FILE *file, struct matrix *mat, struct matrix_parameters *params)
+matrix_fprint_c(FILE *file, size_t m, size_t n, double *mat, struct index *rownames,
+		struct index *colnames, struct matrix_parameters *params)
 {
-  ERROR_CUSTOM_RET(0 == mat->n, 2, -1);
-  ERROR_CUSTOM_RET(0 == mat->m, 1, -1);
+  ERROR_CUSTOM_RET(0 == n, 2, -1);
+  ERROR_CUSTOM_RET(0 == m, 1, -1);
   
   if ( 0 != (MATRIX_FHEADER & params->flags) )
     {
@@ -208,30 +209,30 @@ matrix_fprint(FILE *file, struct matrix *mat, struct matrix_parameters *params)
       
       while (1)
 	{
-	  print_index(file, &mat->colnames, j);
+	  print_index(file, colnames, j);
 
-	  if ( ++j  >= mat->n )
+	  if ( ++j  >= n )
 	    break;
 	  
 	  fprintf(file, "%c", params->sep);
 	}
       fprintf(file, "\n");
     }
-  for (size_t i = 0 ; i  < mat->m ; i++)
+  for (size_t i = 0 ; i  < m ; i++)
     {
       size_t j = 0;
       
       if ( 0 != (MATRIX_FROWNAMES & params->flags) )
 	{
-	  print_index(file, &mat->rownames, i);
+	  print_index(file, rownames, i);
 	  fprintf(file, "%c", params->sep);
 	}
       
       while (1)
 	{
-	  fprintf(file, "%f", mat->data[i*mat->n + j] );
+	  fprintf(file, "%f", mat[i*n + j] );
 	  
-	  if ( ++j >= mat->n)
+	  if ( ++j >= n)
 	    break;
 	  
 	  fprintf(file, "%c", params->sep);
@@ -240,4 +241,11 @@ matrix_fprint(FILE *file, struct matrix *mat, struct matrix_parameters *params)
     }
 
   return 0;
+}
+
+ssize_t
+matrix_fprint(FILE *file, struct matrix *mat, struct matrix_parameters *params)
+{
+
+  return matrix_fprint_c(file, mat->m, mat->n, mat->data, &mat->rownames, &mat->colnames, params);
 }

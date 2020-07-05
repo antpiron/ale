@@ -50,6 +50,8 @@ int matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *p
 int matrix_filter_rows(struct matrix *dst, struct matrix *src,
 		       int (*filter)(size_t n, double row[n], void *cls),
 		       void *cls);
+ssize_t matrix_fprint_c(FILE *file, size_t m, size_t n, double *mat, struct index *rownames,
+			struct index *colnames, struct matrix_parameters *params);
 ssize_t matrix_fprint(FILE *file, struct matrix *mat, struct matrix_parameters *params);
 
 // ===================
