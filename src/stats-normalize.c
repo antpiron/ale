@@ -13,6 +13,10 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
 {
   double *w = malloc( r * sizeof(double) );
   int ret = -1;
+  double *mu = malloc( r * sizeof(double) );
+    
+  for (size_t i = 0 ; i < r ; i++)
+    mu[i] = stats_mean(n, mat[ref[i]]);
 
   if ( STATS_WEIGHT_VARIANCE & options )
     {
@@ -21,15 +25,15 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
 	  double var = stats_var(n, mat[ref[i]]);
 	  ERROR_CUSTOM_GOTO(0 == var, NORMALIZE_EVARZERO, ERROR_LS);
 	  w[i] = 1.0d / var;
+	  // printf("ref[%zu] = %zu ; var = %f\n", i, ref[i], var);
 	}
     }
   else
     {
       for (size_t i = 0 ; i < r ; i++)
 	{
-	  double mean = stats_mean(n, mat[ref[i]]);
-	  ERROR_CUSTOM_GOTO(0 == mean, NORMALIZE_EMEANZERO, ERROR_LS);
-	  w[i] = 1.0d / mean;
+	  ERROR_CUSTOM_GOTO(0 == mu[i], NORMALIZE_EMEANZERO, ERROR_LS);
+	  w[i] = 1.0d / mu[i];
 	}
     }
 
@@ -41,7 +45,7 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
       for (size_t i = 0 ; i < r ; i++)
 	{
 	  double x =  mat[ref[i]][s];
-	  num += x;
+	  num +=  w[i] * x * mu[i];
 	  denom += w[i] * x* x ;
 	}
       
@@ -54,6 +58,7 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
   
  ERROR_LS:
   free(w);
+  free(mu);
 
   return ret;
 }
