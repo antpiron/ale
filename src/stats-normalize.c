@@ -12,8 +12,8 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
 			   unsigned int options)
 {
   double *w = malloc( r * sizeof(double) );
-  int ret = -1;
   double *mu = malloc( r * sizeof(double) );
+  int ret = -1;
     
   for (size_t i = 0 ; i < r ; i++)
     mu[i] = stats_mean(n, mat[ref[i]]);
@@ -46,7 +46,7 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
 	{
 	  double x =  mat[ref[i]][s];
 	  num +=  w[i] * x * mu[i];
-	  denom += w[i] * x* x ;
+	  denom += w[i] * x * x ;
 	}
       
       ERROR_CUSTOM_GOTO(0 == denom, NORMALIZE_EDIVZERO, ERROR_LS);
