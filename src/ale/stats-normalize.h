@@ -1,5 +1,5 @@
-#ifndef __NORMALIZE_H
-#define __NORMALIZE_H
+#ifndef __ALE_STATS_NORMALIZE_H
+#define __ALE_STATS_NORMALIZE_H
 
 #include <stddef.h>
 #include <inttypes.h>
