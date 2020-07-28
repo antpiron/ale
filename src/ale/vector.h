@@ -53,7 +53,7 @@ static inline void							\
   }									\
   									\
   static inline type							\
-  vector_##name##_get(struct vector_##name *vector, size_t pos)		\
+  vector_##name##_get(const struct vector_##name *vector, size_t pos)	\
   {									\
     return vector->data[pos];						\
   }

@@ -47,7 +47,7 @@ int matrix_init(struct matrix *mat);
 int matrix_init_size(struct matrix *mat, size_t size);
 void matrix_destroy(struct matrix *mat);
 int matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *params);
-int matrix_filter_rows(struct matrix *dst, struct matrix *src,
+int matrix_filter_rows(struct matrix *dst, const struct matrix *src,
 		       int (*filter)(size_t n, double row[n], void *cls),
 		       void *cls);
 ssize_t matrix_fprint_c(FILE *file, size_t m, size_t n, double *mat, struct index *rownames,

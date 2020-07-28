@@ -84,13 +84,13 @@ equal_func_string(struct string *a, struct string *b)
   };									\
 									\
   static inline size_t							\
-  hash_##name##_hash(struct hash_##name *hash, keytype buf)		\
+  hash_##name##_hash(const struct hash_##name *hash, keytype buf)	\
   {									\
     return hash_func(buf, hash->keys[0]) % hash->size;			\
   }									\
 									\
   static inline size_t							\
-  hash_##name##_hash_increment(struct hash_##name *hash, keytype buf)	\
+  hash_##name##_hash_increment(const struct hash_##name *hash, keytype buf) \
   {									\
     size_t ret = hash_func(buf, hash->keys[1]) %			\
       (hash->size / HASH_MAX_COL);					\
@@ -180,7 +180,7 @@ equal_func_string(struct string *a, struct string *b)
   }									\
 									\
   static inline ssize_t							\
-  hash_##name##_find_bucket(struct hash_##name *hash, keytype key)	\
+  hash_##name##_find_bucket(const struct hash_##name *hash, keytype key) \
   {									\
     size_t index = hash_##name##_hash(hash, key);			\
     ssize_t first_index = index;					\
@@ -208,7 +208,7 @@ equal_func_string(struct string *a, struct string *b)
   }									\
 									\
   static inline int							\
-  hash_##name##_get(struct hash_##name *hash, keytype key, valuetype *value) \
+  hash_##name##_get(const struct hash_##name *hash, keytype key, valuetype *value) \
   {									\
     ssize_t index = hash_##name##_find_bucket(hash, key);		\
     if ( 0 <= index)							\

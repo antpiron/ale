@@ -35,7 +35,7 @@ index_set(struct index *index, const char *key, size_t i)
 }
 
 ssize_t
-index_get(struct index *index, const char *key)
+index_get(const struct index *index, const char *key)
 {
   size_t i;
   int ret = hash_chars_size_t_get(&index->stoi, (char*) key, &i);
@@ -45,7 +45,7 @@ index_get(struct index *index, const char *key)
 }
 
 char*
-index_rget(struct index *index, size_t i)
+index_rget(const struct index *index, size_t i)
 {
   if ((ssize_t) i > index->max)
     return NULL;

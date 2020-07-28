@@ -149,7 +149,7 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
 }
 
 int
-matrix_filter_rows(struct matrix *dst, struct matrix *src,
+matrix_filter_rows(struct matrix *dst, const struct matrix *src,
 		   int (*filter)(size_t n, double row[n], void *cls),
 		   void *cls)
 {
