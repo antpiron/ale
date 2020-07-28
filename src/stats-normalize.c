@@ -7,7 +7,7 @@
 #include <math.h>
 
 int
-stats_normalize_samples_ls(size_t m, size_t n, size_t r,
+stats_normalize_beta_ls(size_t m, size_t n, size_t r,
 			   const double mat[m][n], const size_t ref[r], double beta[n],
 			   unsigned int options)
 {
@@ -18,7 +18,7 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
   for (size_t i = 0 ; i < r ; i++)
     mu[i] = stats_mean(n, mat[ref[i]]);
 
-  if ( STATS_WEIGHT_VARIANCE & options )
+  if ( STATS_LS_VARIANCE == options )
     {
       for (size_t i = 0 ; i < r ; i++)
 	{
@@ -28,7 +28,7 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
 	  // printf("ref[%zu] = %zu ; var = %f\n", i, ref[i], var);
 	}
     }
-  else
+  else if ( STATS_LS_MEAN == options )
     {
       for (size_t i = 0 ; i < r ; i++)
 	{
@@ -36,6 +36,8 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
 	  w[i] = 1.0d / mu[i];
 	}
     }
+  else
+    ERROR_CUSTOM_GOTO(1, NORMALIZE_INVALID_MODE, ERROR_LS);
 
   // TODO: switch order of loop for cache
   for (size_t s = 0 ; s < n ; s++)
@@ -63,8 +65,8 @@ stats_normalize_samples_ls(size_t m, size_t n, size_t r,
   return ret;
 }
 
-int stats_normalize_samples_poisson(size_t m, size_t n, size_t r,
-				    const double mat[m][n], const size_t ref[r], double beta[n])
+int stats_normalize_beta_poisson(size_t m, size_t n, size_t r,
+				 const double mat[m][n], const size_t ref[r], double beta[n])
 {
   double *mumu = malloc( r * sizeof(double) );
   int ret = -1;
@@ -96,6 +98,20 @@ int stats_normalize_samples_poisson(size_t m, size_t n, size_t r,
   free(mumu);
   
   return ret;
+}
+
+int
+stats_normalize_beta(size_t m, size_t n, size_t r,
+		     const double mat[m][n], const size_t ref[r], double beta[n],
+		     unsigned int mode)
+{
+  if (STATS_LS_MEAN == mode || STATS_LS_VARIANCE == mode)
+    return stats_normalize_beta_ls(m, n, r, mat, ref, beta, mode);
+  else if (STATS_POISSON == mode)
+    return stats_normalize_beta_poisson(m, n, r, mat, ref, beta);
+
+  ERROR_CUSTOM_RET(1, NORMALIZE_INVALID_MODE, -1);
+  return 0;
 }
 
 void

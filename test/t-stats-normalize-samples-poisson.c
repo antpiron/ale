@@ -25,7 +25,7 @@ main(int argc, char *argv[argc])
       (*mat)[i][j] =  (*mat)[i][0] * (j+1);
     }
 
-  stats_normalize_samples_poisson(M, N, M, *mat, ref, beta);
+  stats_normalize_beta_poisson(M, N, M, *mat, ref, beta);
   for (int i = 0 ; i < M ; i++)
     for (int j = 0 ; j < N ; j++)
       {
@@ -33,7 +33,7 @@ main(int argc, char *argv[argc])
 	double corrected = beta[j] * (*mat)[i][j];
 	double delta = fabs(corrected - exp) / corrected;
 	ERROR_UNDEF_FATAL_FMT(delta > eps,
-			      "FAIL: stats_normalize_samples_poisson() mat[%d,%d] = %f != %f = expected (delta = %f)\n",
+			      "FAIL: stats_normalize_beta_poisson() mat[%d,%d] = %f != %f = expected (delta = %f)\n",
 			      i, j, corrected, exp, delta); 
 
       }
