@@ -100,6 +100,7 @@ int stats_normalize_beta_poisson(size_t m, size_t n, size_t r,
   return ret;
 }
 
+// TODO: add test
 int
 stats_normalize_beta(size_t m, size_t n, size_t r,
 		     const double mat[m][n], const size_t ref[r], double beta[n],
@@ -114,6 +115,7 @@ stats_normalize_beta(size_t m, size_t n, size_t r,
   return 0;
 }
 
+// TODO: add test
 void
 stats_normalize_samples(size_t m, size_t n, double dst[m][n],
 			const double src[m][n], const double beta[n])
