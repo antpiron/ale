@@ -36,7 +36,40 @@ mem_init_size(struct mem_pool *pool, size_t size)
 {
   pool->block_size = size;
   sl_init(&pool->stack);
+  sl_init(&pool->stack_callback);
 }
+
+void
+mem_callback_init(struct mem_callback *callback, void *ptr, void (*destroy)(void *ptr))
+{
+  callback->ptr = ptr;
+  callback->destroy = destroy;
+}
+
+void
+mem_callback_destroy(struct mem_callback *callback)
+{
+  callback->destroy(callback->ptr);
+}
+
+
+
+struct mem_callback *
+mem_callback_new(void *ptr, void (*destroy)(void *ptr))
+{
+  struct mem_callback *callback = malloc(sizeof(struct mem_callback));
+  mem_callback_init(callback, ptr, destroy);
+
+  return callback;
+}
+  
+void
+mem_callback_free(struct mem_callback *callback)
+{
+  mem_callback_destroy(callback);
+  free(callback);
+}
+
 
 void
 mem_init(struct mem_pool *pool)
@@ -49,6 +82,8 @@ mem_destroy(struct mem_pool *pool)
 {
   sl_destroy_full(&pool->stack,
 		  (void (*)( void * )) mem_block_free);
+  sl_destroy_full(&pool->stack_callback,
+		  (void (*)( void * )) mem_callback_free);
 }
 
 
@@ -70,4 +105,11 @@ mem_malloc(struct mem_pool *pool, size_t size)
   block->usage += size;
   
   return ptr;
+}
+
+void
+mem_callback(struct mem_pool *pool, void *ptr, void (*destroy)(void *ptr))
+{
+   struct mem_callback *callback = mem_callback_new(ptr, destroy);
+   sl_push(&pool->stack_callback, callback);
 }

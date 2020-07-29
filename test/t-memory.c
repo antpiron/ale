@@ -7,11 +7,21 @@
 
 #define ALLOC_SIZE ((1ul << 10) + 1)
 #define NUM_ITER (1ul << 8)
+#define ARRAY_LEN (1ul << 8)
+
+void
+destroy(void *ptr)
+{
+  int *intp = ptr;
+
+  *intp = 1;
+}
 
 int
 main(int argc, char *argv[argc])
 {
   struct mem_pool pool;
+  int array[ARRAY_LEN] = {0};
 
   mem_init(&pool);
   ERROR_UNDEF_FATAL(MEM_DEFAULT_BLOCK_SIZE != pool.block_size, "FAIL: mem_init()\n" );
@@ -36,9 +46,17 @@ main(int argc, char *argv[argc])
   size_t exp =  ALLOC_SIZE * NUM_ITER;
   ERROR_UNDEF_FATAL_FMT(exp != sum, "FAIL: mem_malloc() usage = %zu != %zu\n", sum, exp );  
 
+  for (int i = 0 ; i < ARRAY_LEN ; i++)
+    {
+      mem_callback(&pool, array + i, destroy);
+    }
   
   
   mem_destroy(&pool);
+
+  for (int i = 0 ; i < ARRAY_LEN ; i++)
+    ERROR_UNDEF_FATAL_FMT(1 != array[i], "FAIL: mem_destroy() 1 !=  %d = array[%d]\n", array[i], i);
+
   
   return EXIT_SUCCESS;
 }
