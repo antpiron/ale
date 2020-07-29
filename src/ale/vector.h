@@ -20,7 +20,7 @@
   static inline int							\
   vector_##name##_init_size(struct vector_##name *vector, size_t size)	\
   {									\
-    vector->data = malloc(sizeof(type) * size);			\
+    vector->data = malloc(sizeof(type) * size);				\
     ERROR_UNDEF_FATAL(NULL == vector->data,				\
   		      "Unable to allocate memory in vector_init()\n");	\
     									\
@@ -32,8 +32,16 @@
   {									\
     return vector_##name##_init_size(vector, (initsize));		\
   }									\
+  static inline int							\
+  vector_##name##_init_copy(struct vector_##name *dest,			\
+			    const struct vector_##name *src)		\
+  {									\
+    ERROR_RET(0 != vector_##name##_init_size(dest, src->size), -1);	\
+    memcpy(dest->data, src->data, sizeof(type) * dest->size);		\
+    return 0;								\
+  }									\
 									\
-static inline void							\
+  static inline void							\
   vector_##name##_destroy(struct vector_##name *vector)			\
   {									\
     free(vector->data);							\
@@ -56,6 +64,19 @@ static inline void							\
   vector_##name##_get(const struct vector_##name *vector, size_t pos)	\
   {									\
     return vector->data[pos];						\
+  }									\
+  									\
+  static inline void							\
+  vector_##name##_copy(struct vector_##name *dest, const struct vector_##name *src) \
+  {									\
+    if (src->size > dest->size)						\
+      {									\
+	dest->data = realloc(dest->data, sizeof(type) * src->size);	\
+	ERROR_UNDEF_FATAL(NULL == dest->data,				\
+			  "Unable to allocate memory in vector_init()\n"); \
+	dest->size = src->size;						\
+      }									\
+    memcpy(dest->data, src->data, sizeof(type) * dest->size);		\
   }
 
 #endif
