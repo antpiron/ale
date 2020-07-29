@@ -354,6 +354,11 @@ Equivalent to @code{VECTOR_INIT_FULL(name,type,VECTOR_DEFAULT_SIZE)}.
 Initialize the structure. Return 0 on success. May kill the current process if unable to allocate memory.
 @end deftypefn
 
+@deftypefn {C Function} {static inline int} @
+                        vector_##name##_init_copy (struct vector_##name *@var{dest}, const struct vector_##name *@var{src})
+Initialize a copy the structure from @var{src}. Return 0 on success. May kill the current process if unable to allocate memory.
+@end deftypefn
+
 @deftypefn {C Function} {static inline void} @
                         vector_##name##_destroy (struct vector_##name *@var{vector})
 Destroy the structure.
