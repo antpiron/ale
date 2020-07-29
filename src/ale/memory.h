@@ -7,6 +7,8 @@
 
 #define MEM_DEFAULT_BLOCK_SIZE (1l << 16)
 
+typedef void (*mem_callback_func_t)(void *);
+
 struct mem_block
 {
   size_t alloc_size;
