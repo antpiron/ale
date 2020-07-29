@@ -45,7 +45,7 @@ main(int argc, char *argv[argc])
     }
   vector_int_destroy(&vector_dup);
 
-  vector_int_init(&vector_dup);
+  vector_int_init_size(&vector_dup, 1);
   vector_int_copy(&vector_dup, &vector);
   ERROR_UNDEF_FATAL_FMT(vector_dup.size < vector.size,
 			"FATAL: vector_int_init_copy() size = %zu > %zu = dup_size\n",
