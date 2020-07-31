@@ -374,10 +374,15 @@ householder_proj_QX(size_t m, size_t n, size_t p, double V[n][m], double X[m][p]
 int
 alg_QR_householder(size_t m, size_t n, double A[m][n], double V[n][m])
 {
-  double (*vA)[n] = malloc(sizeof(*vA));
+  int ret = 0;
+  double (*vA)[n];
 
   if (m < n)
-    goto ERROR;
+    return -1;
+
+  vA = malloc(sizeof(*vA));
+  if ( NULL == vA)
+    return -1;
   
  // https://math.dartmouth.edu/~m116w17/Householder.pdf
 
@@ -397,17 +402,17 @@ alg_QR_householder(size_t m, size_t n, double A[m][n], double V[n][m])
       // ||v||
       norm = sqrt(V[k][0]*V[k][0] + ss);
       if (0 == norm)
-        goto ERROR;
+        {
+	  ret = -1;
+	  break;
+	}
       alg_div_v_c(mv, V[k], norm, V[k]);
 
       // A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n
       householder_proj(m, n, k, V[k], A, *vA);
     }
 
-
-  return 0;
-
- ERROR:
   free(vA);
-  return -1;
+
+  return ret;
 }

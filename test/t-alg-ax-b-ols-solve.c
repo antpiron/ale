@@ -11,7 +11,8 @@ main(int argc, char *argv[argc])
 {
   const size_t m = 8, n = 3, p = 3;;
   double A[m][n],  X[n][p], B[m][p];
-  double A_copy[m][n], B_copy[m][p];
+  double A_copy[m][n];
+  double B_copy[m][p];
   double delta;
   int ret;
   const double eps = 0.0000001;
