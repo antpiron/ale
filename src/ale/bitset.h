@@ -24,6 +24,26 @@ bitset_init(struct bitset *bs, size_t n)
   return 0;
 }
 
+static inline void
+bitset_setrange_no_resize(struct bitset *bs, size_t index, size_t len)
+{
+  size_t i1 = index / 64u;
+  size_t m1 = index % 64u;
+  size_t index2 = index + len - 1u;
+  size_t i2 = index2 / 64u;
+  size_t m2 = index2 % 64u;
+
+  if (i1 == i2)
+    bs->buf[i1] |= ~( (1ull << m1) - 1ull ) & (~0ull >> (63-m2) );
+  else
+    {
+      bs->buf[i1] |= ~( (1ull << m1) - 1ull );
+      for (size_t i = i1+1 ; i < i2 ; i++)
+	bs->buf[i] = ~0ull;
+      bs->buf[i2] |= ~0ull >> (63-m2);      
+    }
+}
+
 static inline int
 bitset_resize(struct bitset *bs, size_t n)
 {
@@ -36,13 +56,14 @@ bitset_resize(struct bitset *bs, size_t n)
       ptr = realloc(bs->buf, realloc_size * sizeof(uint64_t));
       ERROR_ERRNO_RET( NULL == ptr, -1);
       bs->buf = ptr;
-      for (size_t i = bs->alloc_size ; i < realloc_size ; i++)
-	bs->buf[i] = 0ull;
       bs->alloc_size = realloc_size;
     }
 
   if ( n > bs->n)
-    bs->n = n;
+    {
+      bitset_setrange_no_resize(bs, bs->n, n - bs->n);
+      bs->n = n;
+    }
 
   return 0;
 }
@@ -102,8 +123,8 @@ bitset_xor(struct bitset *dst, struct bitset *a, struct bitset *b)
   size_t s = b->n;
   if (a->n < s)
     s = a->n;
-  if (dst->n < s)
-    s = dst->n;
+  // if (dst->n < s)
+  //  s = dst->n;
 
   bitset_resize(dst, s);
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
@@ -116,8 +137,8 @@ bitset_and(struct bitset *dst, struct bitset *a, struct bitset *b)
   size_t s = b->n;
   if (a->n < s)
     s = a->n;
-  if (dst->n < s)
-    s = dst->n;
+  // if (dst->n < s)
+  //  s = dst->n;
 
   bitset_resize(dst, s);
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
@@ -130,8 +151,8 @@ bitset_or(struct bitset *dst, struct bitset *a, struct bitset *b)
   size_t s = b->n;
   if (a->n < s)
     s = a->n;
-  if (dst->n < s)
-    s = dst->n;
+  // if (dst->n < s)
+  //  s = dst->n;
 
   bitset_resize(dst, s);
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
@@ -162,22 +183,8 @@ bitset_ones(struct bitset *bs)
 static inline void
 bitset_setrange(struct bitset *bs, size_t index, size_t len)
 {
-  size_t i1 = index / 64u;
-  size_t m1 = index % 64u;
-  size_t index2 = index + len - 1u;
-  size_t i2 = index2 / 64u;
-  size_t m2 = index2 % 64u;
-
   bitset_resize(bs, index + len);
-  if (i1 == i2)
-    bs->buf[i1] |= ~( (1ull << m1) - 1ull ) & (~0ull >> (63-m2) );
-  else
-    {
-      bs->buf[i1] |= ~( (1ull << m1) - 1ull );
-      for (size_t i = i1+1 ; i < i2 ; i++)
-	bs->buf[i] = ~0ull;
-      bs->buf[i2] |= ~0ull >> (63-m2);      
-    }
+  bitset_setrange_no_resize(bs, index, len);
 }
 
 static inline void
