@@ -25,7 +25,7 @@ bitset_init(struct bitset *bs, size_t n)
 }
 
 static inline void
-bitset_setrange_no_resize(struct bitset *bs, size_t index, size_t len)
+bitset_setrange_no_grow(struct bitset *bs, size_t index, size_t len)
 {
   size_t i1 = index / 64u;
   size_t m1 = index % 64u;
@@ -44,26 +44,48 @@ bitset_setrange_no_resize(struct bitset *bs, size_t index, size_t len)
     }
 }
 
-static inline int
-bitset_resize(struct bitset *bs, size_t n)
+static inline void
+bitset_unsetrange_no_grow(struct bitset *bs, size_t index, size_t len)
 {
-  size_t realloc_size = (n + 63) / 64;
-  
-  if (realloc_size > bs->alloc_size)
-    {
-      void *ptr;
-      realloc_size += bs->alloc_size;
-      ptr = realloc(bs->buf, realloc_size * sizeof(uint64_t));
-      ERROR_ERRNO_RET( NULL == ptr, -1);
-      bs->buf = ptr;
-      bs->alloc_size = realloc_size;
-    }
+  size_t i1 = index / 64u;
+  size_t m1 = index % 64u;
+  size_t index2 = index + len - 1u;
+  size_t i2 = index2 / 64u;
+  size_t m2 = index2 % 64u;
 
+  if (i1 == i2)
+    bs->buf[i1] &= ((1ull << m1) - 1ull) | ~(~0ull >> (63-m2));
+  else
+    {
+      bs->buf[i1] &=  (1ull << m1) - 1ull ;
+      for (size_t i = i1+1 ; i < i2 ; i++)
+	bs->buf[i] = 0ull;
+      bs->buf[i2] &= ~(~0ull >> (63-m2));      
+    }
+}
+
+static inline int
+bitset_grow(struct bitset *bs, size_t n)
+{
   if ( n > bs->n)
     {
-      bitset_setrange_no_resize(bs, bs->n, n - bs->n);
+      size_t realloc_size = (n + 63) / 64;
+  
+      if (realloc_size > bs->alloc_size)
+	{
+	  void *ptr;
+	  realloc_size += bs->alloc_size;
+	  ptr = realloc(bs->buf, realloc_size * sizeof(uint64_t));
+	  ERROR_ERRNO_RET( NULL == ptr, -1);
+	  bs->buf = ptr;
+
+	  // Zeroes only if realloc
+	  memset(bs->buf + bs->alloc_size, 0, sizeof(uint64_t) * (realloc_size - bs->alloc_size));
+	  bs->alloc_size = realloc_size;
+	}
+
       bs->n = n;
-    }
+   }
 
   return 0;
 }
@@ -71,8 +93,18 @@ bitset_resize(struct bitset *bs, size_t n)
 static inline int
 bitset_resize_n(struct bitset *bs, size_t n)
 {
-  int ret = bitset_resize(bs, n);
-  ERROR_RET(0 != ret, ret);
+  int ret;
+
+  if ( n < bs->n )
+    {
+      // cleanup already allocated bits
+      bitset_unsetrange_no_grow(bs, n, bs->n - n);
+    }
+  else
+    {
+      ret = bitset_grow(bs, n);
+      ERROR_RET(0 != ret, ret);
+    }
   
   bs->n = n;
 
@@ -89,14 +121,14 @@ bitset_reset(struct bitset *bs)
 static inline void
 bitset_set(struct bitset *bs, size_t index)
 {
-  bitset_resize(bs, index+1);
+  bitset_grow(bs, index+1);
   bs->buf[index / 64] |= 1ull << (index % 64);
 }
 
 static inline void
 bitset_unset(struct bitset *bs, size_t index)
 {
-  bitset_resize(bs, index+1);
+  bitset_grow(bs, index+1);
   bs->buf[index / 64] &= ~(1ull << (index % 64));
 }
 
@@ -126,7 +158,7 @@ bitset_xor(struct bitset *dst, struct bitset *a, struct bitset *b)
   // if (dst->n < s)
   //  s = dst->n;
 
-  bitset_resize(dst, s);
+  bitset_grow(dst, s);
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
     dst->buf[i] = a->buf[i] ^ b->buf[i];
 }
@@ -140,7 +172,7 @@ bitset_and(struct bitset *dst, struct bitset *a, struct bitset *b)
   // if (dst->n < s)
   //  s = dst->n;
 
-  bitset_resize(dst, s);
+  bitset_grow(dst, s);
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
     dst->buf[i] = a->buf[i] & b->buf[i];
 }
@@ -154,7 +186,7 @@ bitset_or(struct bitset *dst, struct bitset *a, struct bitset *b)
   // if (dst->n < s)
   //  s = dst->n;
 
-  bitset_resize(dst, s);
+  bitset_grow(dst, s);
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
     dst->buf[i] = a->buf[i] | b->buf[i];
 }
@@ -179,12 +211,20 @@ bitset_ones(struct bitset *bs)
   
   return c;
 }
-  
+
+
 static inline void
 bitset_setrange(struct bitset *bs, size_t index, size_t len)
 {
-  bitset_resize(bs, index + len);
-  bitset_setrange_no_resize(bs, index, len);
+  bitset_grow(bs, index + len);
+  bitset_setrange_no_grow(bs, index, len);
+}
+
+static inline void
+bitset_unsetrange(struct bitset *bs, size_t index, size_t len)
+{
+  bitset_grow(bs, index + len);
+  bitset_unsetrange_no_grow(bs, index, len);
 }
 
 static inline void

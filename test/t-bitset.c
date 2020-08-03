@@ -37,9 +37,18 @@ main(int argc, char *argv[argc])
   for (int i = 1 ; i < (NBRBIT + 63) / 64 ; i++)
     ERROR_FATAL_FMT(bs.buf[i], "FAIL: bitset_setrange() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
 
-  bitset_setrange(&bs, 73,553);
+  bitset_setrange(&bs, 73, 553);
   for (int i = 73 ; i < 73+553 ; i++)
     ERROR_FATAL_FMT(! bitset_isset(&bs, i), "FAIL: setrange() isset(%d) != 1", i);
+  
+  
+  bitset_set(&bs, 73+553);
+  bitset_set(&bs, 72);
+  bitset_unsetrange(&bs, 73,553);
+  for (int i = 73 ; i < 73+553 ; i++)
+    ERROR_FATAL_FMT(bitset_isset(&bs, i), "FAIL: unsetrange() isset(%d) != 0\n", i);
+  ERROR_FATAL_FMT(! bitset_isset(&bs, 73+553), "FAIL: unsetrange() isset(%d) != 1\n", 73+553);
+  ERROR_FATAL_FMT(! bitset_isset(&bs, 72), "FAIL: unsetrange() isset(%d) != 1\n", 72);
 
   bitset_reset(&bs);
   for (int i = 0 ; i <  (NBRBIT + 63) / 64 ; i++)
