@@ -725,7 +725,7 @@ stats_hyper_F(long k, long K, long n, long N)
       res = 1 -res;
     }
   
-  return res;
+  return (res > 1.0)?1.0:res;
 }
 
   
