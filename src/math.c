@@ -1,33 +1,6 @@
 #include <stddef.h>
 #include "ale/math.h"
 
-#define EPS (1E-15)
-#define TINY_DOUBLE (1E-30)
-
-double
-ale_gamma(double x)
-{
-  return tgamma(x);
-}
-
-double
-ale_lgamma(double x)
-{
-  return lgamma(x);
-}
-
-double
-ale_beta(double a, double b)
-{
-  return exp(ale_lbeta(a, b));
-}
-
-double
-ale_lbeta(double a, double b)
-{
-  return ale_lgamma(a) + ale_lgamma(b) - ale_lgamma(a + b);
-}
-
 
 // Regularized Incomplete Lower gamma function
 // IG(x;a) in http://www.stat.tamu.edu/~jnewton/604/chap3.pdf
@@ -45,7 +18,7 @@ ale_rilgamma_serie(double x, double a)
       delta *=  x / ai;
       sum += delta;
     }
-  while (fabs(delta) >= fabs(sum) * EPS);
+  while (fabs(delta) >= fabs(sum) * ALE_EPS);
     
   return sum * exp(-x + a*log(x) - lgamma);
 }
@@ -54,7 +27,7 @@ ale_rilgamma_serie(double x, double a)
 /* ale_rilgamma_cont_frac(double x, double a) */
 /* { */
 /*   double b = x + 1.0 - a; */
-/*   double c = 1.0 / TINY_DOUBLE; */
+/*   double c = 1.0 / ALE_TINY_DOUBLE; */
 /*   double d = 1.0 / b; */
 /*   double f = d; */
 /*   double delta; */
@@ -66,19 +39,19 @@ ale_rilgamma_serie(double x, double a)
 /*       double ai = -i * (i - a); */
 /*       b += 2.0; */
 /*       d = ai * d + b; */
-/*       if (fabs(d) < TINY_DOUBLE) */
-/* 	d = TINY_DOUBLE; */
+/*       if (fabs(d) < ALE_TINY_DOUBLE) */
+/* 	d = ALE_TINY_DOUBLE; */
       
 /*       c = b + ai/c; */
-/*       if (fabs(c) < TINY_DOUBLE) */
-/* 	c = TINY_DOUBLE; */
+/*       if (fabs(c) < ALE_TINY_DOUBLE) */
+/* 	c = ALE_TINY_DOUBLE; */
       
 /*       d = 1.0/d; */
 /*       delta = d*c; */
 /*       f *= delta; */
 /*       i++; */
 /*     } */
-/*   while (fabs(delta - 1.0) > EPS); */
+/*   while (fabs(delta - 1.0) > ALE_EPS); */
   
 /*   return 1 - exp(-x + a*log(x) - lgamma) * f; */
 /* } */
@@ -123,18 +96,18 @@ ale_ibeta(double x, double a, double b)
   while(1)
     {
       d = 1.0 + frac_cont * d;
-      if (fabs(d) < TINY_DOUBLE)
-	d = TINY_DOUBLE;
+      if (fabs(d) < ALE_TINY_DOUBLE)
+	d = ALE_TINY_DOUBLE;
       d = 1.0 / d;
       
       c = 1.0 + frac_cont / c;
-      if (fabs(c) < TINY_DOUBLE)
-	c = TINY_DOUBLE;
+      if (fabs(c) < ALE_TINY_DOUBLE)
+	c = ALE_TINY_DOUBLE;
        
       double delta = c*d;
       f *= delta;
 
-      if (fabs(1.0 - delta) < EPS)
+      if (fabs(1.0 - delta) < ALE_EPS)
 	break;
       
       if (++i >= 5000)
