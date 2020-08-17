@@ -7,7 +7,7 @@
 #include "ale/portability.h"
 #include "ale/math.h"
 
-#define STATS_EPS (1e-20)
+#define STATS_EPS (1e-200)
 
 double
 stats_mean(size_t n, const double x[n])

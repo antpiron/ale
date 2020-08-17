@@ -7,7 +7,7 @@
 int
 main(int argc, char *argv[argc])
 {
-  double eps = 0.00001, res, delta;
+  double eps = 0.000001, res, delta;
 
   res = stats_hyper_F(5, 5, 5, 10);
   ERROR_UNDEF_FATAL(isnan(res), "FAIL: stats_hyper_F(5, 5, 5, 10) == NaN\n");
