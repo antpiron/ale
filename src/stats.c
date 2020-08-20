@@ -695,31 +695,72 @@ stats_hyper_f(long k, long K, long n, long N)
   return exp(cb1 + cb2 - cb3);
 }
 
+/* double */
+/* stats_hyper_F(long k, long K, long n, long N) */
+/* { */
+/*   long mode = (n + 1) * (K + 1) / (N + 2); */
+/*   double res = 0; */
+/*   long upper = (n < K)? n : K; */
+/*   long lower = K-N+n; */
+  
+/*   if (lower < 0) */
+/*     lower = 0; */
+
+/*   double fk = stats_hyper_f(k, K, n, N); */
+/*   if ( k <= mode ) */
+/*     { */
+/*       for (long i = k ; i >= lower ; i--) */
+/* 	{ */
+/* 	  res += fk; */
+/* 	  fk *= (double)(i * (N-K-n+i)) / (double) ((n-i+1) * (K-i+1) ); */
+/* 	} */
+/*     } */
+/*   else */
+/*     { */
+/*       for (long i = k ; i <= upper  ; i++) */
+/* 	{ */
+/* 	  fk *=  (double)((n-i)*(K-i)) /  (double) ((i+1) * (N-K-n+i+1) ); */
+/* 	  res += fk; */
+/* 	} */
+/*       res = 1 -res; */
+/*     } */
+  
+/*   return (res > 1.0)?1.0:res; */
+/* } */
+
 double
 stats_hyper_F(long k, long K, long n, long N)
 {
-  long mode = (n + 1) * (K + 1) / (N + 2);
-  double res = 0;
   long upper = (n < K)? n : K;
   long lower = K-N+n;
-  
   if (lower < 0)
     lower = 0;
 
+  if ( k > upper )
+    return 1.0d;
+  
+  if ( k < lower )
+    return 0.0d;
+  
+
+  long mode = (n + 1) * (K + 1) / (N + 2);
+  double res = 0;
   double fk = stats_hyper_f(k, K, n, N);
   if ( k <= mode )
     {
-      for (long i = k ; i >= lower ; i--)
+      for (long i = k ; i >= lower && fk > STATS_EPS ; i--)
 	{
+	  double id = (double) i;
 	  res += fk;
-	  fk *= (double)(i * (N-K-n+i)) / (double) ((n-i+1) * (K-i+1) );
+	  fk *= (id * (N-K-n+id)) / (n-id+1) / (K-id+1);
 	}
     }
   else
     {
-      for (long i = k ; i <= upper  ; i++)
+      for (long i = k ; i <= upper  && fk > STATS_EPS ; i++)
 	{
-	  fk *=  (double)((n-i)*(K-i)) /  (double) ((i+1) * (N-K-n+i+1) );
+	  double id = (double) i;
+	  fk *=  (n-id) * (K-id) /  (id+1) / (N-K-n+id+1) ;
 	  res += fk;
 	}
       res = 1 -res;
