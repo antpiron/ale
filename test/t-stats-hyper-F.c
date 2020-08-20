@@ -46,6 +46,12 @@ main(int argc, char *argv[argc])
   delta = fabs(exp - res);
   ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_hyper_F(2, 5, 5, 10) == %.20f != %.20f\n", res, exp);
 
+  res = stats_hyper_F(10000000, 5, 1, 10000000);
+  ERROR_UNDEF_FATAL(isnan(res), "FAIL: stats_hyper_F(10000000, 5, 1, 10000000) == NaN\n");
+  delta = fabs(exp - res);
+  eps = 1.0d;
+  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_hyper_F(10000000, 5, 1, 10000000) == %.20f != %.20f\n", res, exp);
+
   res = stats_hyper_F(0, 5, 1, 10000000);
   ERROR_UNDEF_FATAL(isnan(res), "FAIL: stats_hyper_F(0, 5, 1, 10000000) == NaN\n");
   exp = 0.9999995d;
