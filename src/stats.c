@@ -676,6 +676,16 @@ stats_poisson_rand(double lambda)
   return stats_poisson_rand_its(lambda);
 }
 
+static inline double
+stats_hyper_f_lgamma(long k, long K, long n, long N)
+{ 
+  double cb1 = ale_lgamma(K+1) -  ale_lgamma(k+1) - ale_lgamma(K-k+1);
+  double cb2 = ale_lgamma(N-K+1) -  ale_lgamma(n-k+1) - ale_lgamma(N-K-n+k+1);
+  double cb3 = ale_lgamma(N+1) -  ale_lgamma(n+1) - ale_lgamma(N-n+1);
+
+  return exp(cb1 + cb2 - cb3);
+}
+
 double
 stats_hyper_f(long k, long K, long n, long N)
 {
@@ -687,12 +697,8 @@ stats_hyper_f(long k, long K, long n, long N)
 
   if (k > upper || k < lower)
     return 0;
-  
-  double cb1 = ale_lgamma(K+1) -  ale_lgamma(k+1) - ale_lgamma(K-k+1);
-  double cb2 = ale_lgamma(N-K+1) -  ale_lgamma(n-k+1) - ale_lgamma(N-K-n+k+1);
-  double cb3 = ale_lgamma(N+1) -  ale_lgamma(n+1) - ale_lgamma(N-n+1);
 
-  return exp(cb1 + cb2 - cb3);
+  return stats_hyper_f_lgamma(k,K,n,N);
 }
 
 /* double */
