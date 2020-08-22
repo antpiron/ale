@@ -8,7 +8,7 @@
 int
 main(int argc, char *argv[argc])
 {
-  double eps = 1e-14, res, delta;
+  double eps = 1e-9, res, delta;
   double exp;
 
 
@@ -44,7 +44,8 @@ main(int argc, char *argv[argc])
       res += stats_hyper_f(k, 5, 5, 10);
     }
   ERROR_UNDEF_FATAL(isnan(res), "FAIL: sum(stats_hyper_f(k, 5, 5, 10)) == NaN\n");
-  ERROR_UNDEF_FATAL_FMT(0 != ale_doublecmp(exp, res, eps), "FAIL: sum(stats_hyper_f(k, 5, 5, 10)) == %.20f != 1\n", res);
+  ERROR_UNDEF_FATAL_FMT(0 != ale_doublecmp(1.0d, res, eps),
+			"FAIL: sum(stats_hyper_f(k, 5, 5, 10)) == %.20f != 1\n", res);
 
   return EXIT_SUCCESS;
 }
