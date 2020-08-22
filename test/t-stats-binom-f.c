@@ -7,8 +7,8 @@
 int
 main(int argc, char *argv[argc])
 {
-  double eps = 0.000001, res, delta;
-
+  double eps = 1e-14, res, delta;
+  double exp;
 
   
   res = stats_binom_f(-1, 1, 0.5);
@@ -31,6 +31,14 @@ main(int argc, char *argv[argc])
   delta = fabs(0.5 - res);
   ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_binom_f(1, 2, 0.5) == %f != 0.5\n", res);
 
+  res = stats_binom_f(250, 500, 0.5);
+  ERROR_UNDEF_FATAL(isnan(res), "FAIL: stats_binom_f(250, 500, 0.5) == NaN\n");
+  exp = 3.56646455533490697176191019934776704758405685424805e-02d;
+  delta = fabs(exp - res);
+  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_binom_f(250, 500, 0.5) == %.30f != %.30f\n", res, exp);
+
+  
+  
   res = 0;
   for (long k = 0 ; k < 11 ; k++)
     {
@@ -38,7 +46,7 @@ main(int argc, char *argv[argc])
     }
   ERROR_UNDEF_FATAL(isnan(res), "FAIL: sum(stats_binom_f(k, 10, 0.5)) == NaN\n");
   delta = fabs(1 - res);
-  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: sum(stats_binom_f(k, 10, 0.5)) == %f != 1\n", res);
+  ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: sum(stats_binom_f(k, 10, 0.5)) == %.30f != 1\n", res);
 
   return EXIT_SUCCESS;
 }

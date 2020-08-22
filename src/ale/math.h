@@ -25,7 +25,9 @@ int
 ale_doublecmp(double a, double b, double eps)
 {
   double diff = a - b;
-  if ( fabs(diff) <= eps )
+  double max = (fabs(a) >= fabs(b)) ? fabs(a) : fabs(b);
+  
+  if ( fabs(diff) <= max*eps )
     return 0;
 
   if ( diff < 0.0 )

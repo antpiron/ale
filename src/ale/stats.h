@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define STATS_LOWER (0)
+#define STATS_UPPER (1)
+
 double stats_mean(size_t n, const double x[n]);
 double stats_var(size_t n, const double x[n]);
 double stats_sd(size_t n, const double x[n]);
@@ -51,6 +54,7 @@ unsigned long stats_poisson_rand_pa(double lambda);
 unsigned long stats_poisson_rand(double lambda);
 
 double stats_hyper_f(long k, long K, long n, long N);
+double stats_hyper_tail(long k, long K, long n, long N, int upper);
 double stats_hyper_F(long k, long K, long n, long N);
 
 

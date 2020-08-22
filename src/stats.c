@@ -216,7 +216,7 @@ stats_categorical_rand(size_t n, double cumul_p[n])
   double u = stats_unif_std_rand();
   ssize_t min = 0;
   ssize_t max = n-1;
-  const ssize_t iter = 5;
+  const ssize_t iter = 32;
 
   while (min < max-iter)
     {
@@ -527,12 +527,83 @@ t_test(size_t n, double m, double s, double mu, int H0,
   return pvalue;
 }
 
-double
-stats_binom_f(long k, long n, double p)
+static inline double
+stats_binom_f_lgamma(long k, long n, double p)
 {
   double lres = ale_lgamma(n+1) - ale_lgamma(k+1) - ale_lgamma(n-k+1) + k * log(p) + (n-k) * log(1-p);
   
   return exp(lres);
+}
+
+
+// Fast and Accurate Computation of Binomial Probabilities. Catherine Loader.
+// see https://www.r-project.org/doc/reports/CLoader-dbinom-2002.pdf
+static inline double
+stats_d0(double num, double denom)
+{
+  double eps = num / denom;
+  return eps * log(eps) + 1 - eps;
+}
+
+static inline double
+stats_npd0(double x, double np)
+{
+  double x_np = x - np;
+  double xnp = x + np;
+  double v = x_np / xnp;
+  double vv = v*v;
+  double sum, prod;
+
+  if ( fabs(x_np) < 0.1 * xnp )
+    {
+      prod = sum = vv*v / 3.0d;
+      for (int i = 2 ; i < 1000 ; i++)
+	{
+	  prod *= vv / (2*i);
+	  sum += prod;
+	}
+
+      return v * x_np + 2 * x * sum;
+    }
+  
+  
+  return x * log(x/np) + x_np;
+}
+
+static inline double
+stats_stirling_error(double n)
+{
+  double sq = n*n;
+  return (1.0d/12.0d - (1.0d/360.0d - (1.0d/1260.0d) / sq ) / sq  ) / n;
+}
+
+static inline double
+stats_binom_f_saddle_point(long k, long n, double p)
+{
+  if ( 0 == k )
+    return exp(n*log(1-p));
+  if ( n == k )
+    return exp(n*log(p));
+  
+  double q = 1 - p;
+  double np = n * p;
+  double nq = n * q;
+  double d = stats_npd0(k, np) + stats_npd0(n-k, nq);
+  double stirling_err = stats_stirling_error(n) - stats_stirling_error(k) - stats_stirling_error(n-k);
+  double lroot = 0.5d * ( log(2.0d*M_PI) + log(k) + log1p(- (double) k / (double) n) );
+  
+  return exp(stirling_err - lroot - d);
+}
+
+double
+stats_binom_f(long k, long n, double p)
+{
+  if (k < 0 || k > n) return 0.0d;
+
+  if ( n < 30 )
+    return stats_binom_f_lgamma(k, n,  p);
+  
+  return stats_binom_f_saddle_point(k, n,  p);
 }
 
 double
@@ -686,6 +757,17 @@ stats_hyper_f_lgamma(long k, long K, long n, long N)
   return exp(cb1 + cb2 - cb3);
 }
 
+static inline double
+stats_hyper_f_binom(long k, long K, long n, long N)
+{
+  double p = (double) n / (double) N;
+  double b1 = stats_binom_f(k, K, p);
+  double b2 = stats_binom_f(n - k, N - K, p);
+  double b3 = stats_binom_f(n, N, p);
+
+  return b1 * b2 / b3;
+}
+
 double
 stats_hyper_f(long k, long K, long n, long N)
 {
@@ -696,9 +778,10 @@ stats_hyper_f(long k, long K, long n, long N)
     lower = 0;
 
   if (k > upper || k < lower)
-    return 0;
+    return 0.0d;
 
-  return stats_hyper_f_lgamma(k,K,n,N);
+  return stats_hyper_f_binom(k,K,n,N);
+  // return stats_hyper_f_lgamma(k,K,n,N);
 }
 
 /* double */
@@ -734,45 +817,77 @@ stats_hyper_f(long k, long K, long n, long N)
 /*   return (res > 1.0)?1.0:res; */
 /* } */
 
-double
-stats_hyper_F(long k, long K, long n, long N)
+static double
+stats_hyper_upper(long k, long K, long n, long N)
 {
   long upper = (n < K)? n : K;
   long lower = K-N+n;
-  if (lower < 0)
-    lower = 0;
+  double res = 0, fk;
+
+  if ( k > upper )
+    return 0.0d;
+
+  if ( k <  lower)
+    return 1.0d;
+
+  fk = res = stats_hyper_f(k, K, n, N);
+  for (long i = k ; i <= upper ; i++)
+    {
+      double id = (double) i;
+      fk *=  (n-id) * (K-id) /  (id+1) / (N-K-n+id+1) ;
+      res += fk;
+    }
+
+  return res;
+}
+
+static double
+stats_hyper_lower(long k, long K, long n, long N)
+{
+  long upper = (n < K)? n : K;
+  long lower = K-N+n;
+  double res = 0, fk;
 
   if ( k > upper )
     return 1.0d;
-  
-  if ( k < lower )
-    return 0.0d;
-  
 
-  long mode = (n + 1) * (K + 1) / (N + 2);
-  double res = 0;
-  double fk = stats_hyper_f(k, K, n, N);
-  if ( k <= mode )
+  if ( k <  lower)
+    return 0.0d;
+
+  fk = res = stats_hyper_f(k, K, n, N);
+  for (long i = k  ; i > lower  ; i--)
     {
-      for (long i = k ; i >= lower && fk > STATS_EPS ; i--)
-	{
-	  double id = (double) i;
-	  res += fk;
-	  fk *= (id * (N-K-n+id)) / (n-id+1) / (K-id+1);
-	}
-    }
-  else
-    {
-      for (long i = k ; i <= upper  && fk > STATS_EPS ; i++)
-	{
-	  double id = (double) i;
-	  fk *=  (n-id) * (K-id) /  (id+1) / (N-K-n+id+1) ;
-	  res += fk;
-	}
-      res = 1 -res;
+      double id = (double) i;
+      fk *= (id * (N-K-n+id)) / (n-id+1) / (K-id+1);
+      res += fk;
     }
   
-  return (res > 1.0)?1.0:res;
+  return res;
+}
+
+double
+stats_hyper_tail(long k, long K, long n, long N, int upper)
+{
+  long mode = (n + 1) * (K + 1) / (N + 2);
+
+  if (upper)
+    {
+      if ( k <= mode )
+	return 1 - stats_hyper_lower(k-1, K, n, N);
+
+      return stats_hyper_upper(k, K, n, N);
+    }
+
+  if ( k <= mode )
+    return stats_hyper_lower(k, K, n, N);
+  
+  return 1 - stats_hyper_upper(k+1, K, n, N);
+}
+  
+double
+stats_hyper_F(long k, long K, long n, long N)
+{  
+  return stats_hyper_tail(k, K, n, N, STATS_LOWER);
 }
 
   

@@ -67,7 +67,7 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
       size_t dst = ea->fitness_index[i];				\
       mate_func(&ea->population[dst],					\
 		ea->population[ea->fitness_index[index1]],		\
-		ea->population[ea->fitness_index[index1]], cls);	\
+		ea->population[ea->fitness_index[index2]], cls);	\
       mutate_func(&ea->population[dst], cls);				\
       ea->fitness[dst] = fitness_func(ea->population[dst], cls);	\
     }									\
