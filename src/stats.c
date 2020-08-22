@@ -556,10 +556,12 @@ stats_npd0(double x, double np)
 
   if ( fabs(x_np) < 0.1 * xnp )
     {
+      double last_sum = -1;
       prod = sum = vv*v / 3.0d;
-      for (int i = 2 ; i < 1000 ; i++)
+      for (int i = 2 ; i < 1024 && last_sum != sum ; i++)
 	{
 	  prod *= vv / (2*i);
+	  last_sum = sum;
 	  sum += prod;
 	}
 
