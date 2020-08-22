@@ -538,12 +538,12 @@ stats_binom_f_lgamma(long k, long n, double p)
 
 // Fast and Accurate Computation of Binomial Probabilities. Catherine Loader.
 // see https://www.r-project.org/doc/reports/CLoader-dbinom-2002.pdf
-static inline double
-stats_d0(double num, double denom)
-{
-  double eps = num / denom;
-  return eps * log(eps) + 1 - eps;
-}
+/* static inline double */
+/* stats_d0(double num, double denom) */
+/* { */
+/*   double eps = num / denom; */
+/*   return eps * log(eps) + 1 - eps; */
+/* } */
 
 static inline double
 stats_npd0(double x, double np)
@@ -551,11 +551,11 @@ stats_npd0(double x, double np)
   double x_np = x - np;
   double xnp = x + np;
   double v = x_np / xnp;
-  double vv = v*v;
   double sum, prod;
 
   if ( fabs(x_np) < 0.1 * xnp )
     {
+      double vv = v*v;
       double last_sum = -1;
       prod = sum = vv*v / 3.0d;
       for (int i = 2 ; i < 1024 && last_sum != sum ; i++)
