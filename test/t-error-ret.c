@@ -69,15 +69,15 @@ int
 main(int argc, char *argv[argc])
 {
 
-  TEST(-1 != test_error_undef_ret() || error.type != ERR_UNDEF, "FAIL: ERROR_UNDEF_RET()");
-  TEST(-1 != test_error_errno_ret() || error.type != ERR_ERRNO || errno != EACCES || error.errnum != EACCES, 
+  TEST(-1 != test_error_undef_ret() || ale_error.type != ERR_UNDEF, "FAIL: ERROR_UNDEF_RET()");
+  TEST(-1 != test_error_errno_ret() || ale_error.type != ERR_ERRNO || errno != EACCES || ale_error.errnum != EACCES, 
        "FAIL: ERROR_ERRNO_RET()");
-  TEST(-1 != test_error_gai_ret() || error.type != ERR_GAI, "FAIL: ERROR_GAI_RET()");
-  TEST(-1 != test_error_ferror_ret() || error.type != ERR_FERROR, "FAIL: ERROR_FERROR_RET()");
-  TEST(-1 != test_error_custom_ret() || error.type != ERR_CUSTOM || error.errnum != 123 , 
+  TEST(-1 != test_error_gai_ret() || ale_error.type != ERR_GAI, "FAIL: ERROR_GAI_RET()");
+  TEST(-1 != test_error_ferror_ret() || ale_error.type != ERR_FERROR, "FAIL: ERROR_FERROR_RET()");
+  TEST(-1 != test_error_custom_ret() || ale_error.type != ERR_CUSTOM || ale_error.errnum != 123 , 
        "FAIL: ERROR_CUSTOM_RET()");
 
-  TEST(-1 != test_error_ret() || error.type != ERR_ERRNO || errno != EACCES || error.errnum != EACCES, 
+  TEST(-1 != test_error_ret() || ale_error.type != ERR_ERRNO || errno != EACCES || ale_error.errnum != EACCES, 
        "FAIL: ERROR_RET()");
 
   return EXIT_SUCCESS;

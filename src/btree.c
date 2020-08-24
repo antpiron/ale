@@ -133,9 +133,9 @@ bt_split_leaf_child(struct btree *bt, struct btnode *node, int index)
 
   ERROR_RET(NULL == (right_node = bt_split_right_leaf(bt, child, m)), -1);
   
-  error.type = ERR_SUCCESS;
+  ale_error.type = ERR_SUCCESS;
   key = bt->f.dupkey(child->key[m-1]);
-  ERROR_RET(ERR_SUCCESS != error.type, (bt_freenode(right_node), -1));
+  ERROR_RET(ERR_SUCCESS != ale_error.type, (bt_freenode(right_node), -1));
 
   bt_internal_node_insert(node, index, key, right_node);
 
@@ -247,9 +247,9 @@ bt_balance_left_leaf_child(struct btree *bt, struct btnode *node, int index)
     }
 
   // NULL maybe a valid value (intptr_t key = 0, ...)
-  error.type = ERR_SUCCESS;
+  ale_error.type = ERR_SUCCESS;
   key = bt->f.dupkey(lnode->key[lorder - 1]);
-  ERROR_RET(ERR_SUCCESS != error.type, -1);
+  ERROR_RET(ERR_SUCCESS != ale_error.type, -1);
 
   // Destructive at the end
   bt->f.freekey(node->key[index]);
@@ -270,9 +270,9 @@ bt_balance_right_leaf_child(struct btree *bt, struct btnode *node, int index)
   int lorder = lnode->order;
   int rorder = rnode->order;
 
-  error.type = ERR_SUCCESS;
+  ale_error.type = ERR_SUCCESS;
   key = bt->f.dupkey(lnode->key[lorder - shiftby - 1]);
-  ERROR_RET(ERR_SUCCESS != error.type, -1);
+  ERROR_RET(ERR_SUCCESS != ale_error.type, -1);
 
   for (int i = rorder - 1 ;  i >= 0 ; i--)
     {

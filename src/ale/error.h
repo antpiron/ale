@@ -23,7 +23,7 @@ struct error_st {
 
 struct error_st* error_get_errno();
 
-#define error (*error_get_errno())
+#define ale_error (*error_get_errno())
 
 #define ERROR_RET(test,val)			\
   do						\
@@ -57,8 +57,8 @@ struct error_st* error_get_errno();
     {						\
       if (test)					\
 	{					\
-	  error.type = (typ);			\
-	  error.errnum = (err);			\
+	  ale_error.type = (typ);			\
+	  ale_error.errnum = (err);			\
 	  return (val);				\
 	}					\
     }						\
@@ -75,8 +75,8 @@ struct error_st* error_get_errno();
     {						\
       if (test)					\
 	{					\
-	  error.type = (typ);			\
-	  error.errnum = (err);			\
+	  ale_error.type = (typ);			\
+	  ale_error.errnum = (err);			\
 	  goto label;				\
 	}					\
     }						\
@@ -93,22 +93,22 @@ struct error_st* error_get_errno();
   do									\
     {									\
       fprintf(stderr, fmt, __VA_ARGS__);				\
-      if (ERR_ERRNO == error.type)					\
+      if (ERR_ERRNO == ale_error.type)					\
 	{								\
 	  const size_t buflen = 1024;					\
 	  char buf[buflen+1];						\
 	  buf[buflen] = 0;						\
-	  strerror_r(error.errnum, buf, buflen);			\
+	  strerror_r(ale_error.errnum, buf, buflen);			\
 	  fprintf(stderr, "%s\n", buf);					\
 	}								\
-      else if (ERR_FERROR == error.type)				\
+      else if (ERR_FERROR == ale_error.type)				\
 	fprintf(stderr, "%s\n", "file error\n");			\
-      else if (ERR_GAI == error.type)					\
+      else if (ERR_GAI == ale_error.type)					\
 	fprintf(stderr, "%s\n", "gai error\n");				\
-      else if (ERR_UNDEF == error.type)					\
+      else if (ERR_UNDEF == ale_error.type)					\
 	fprintf(stderr, "%s\n", "undefined error\n");			\
-      else if (ERR_CUSTOM == error.type)				\
-	fprintf(stderr, "Custom error %d\n", error.errnum);		\
+      else if (ERR_CUSTOM == ale_error.type)				\
+	fprintf(stderr, "Custom error %d\n", ale_error.errnum);		\
     }									\
   while (0)
   
@@ -130,8 +130,8 @@ struct error_st* error_get_errno();
     {							\
       if (test)						\
 	{						\
-	  error.type = (typ);				\
-	  error.errnum = (err);				\
+	  ale_error.type = (typ);				\
+	  ale_error.errnum = (err);				\
 	  ERROR_PRINTF(fmt, __VA_ARGS__);		\
 	}						\
     }							\
@@ -171,8 +171,8 @@ struct error_st* error_get_errno();
     {							\
       if (test)						\
 	{						\
-	  error.type = (typ);				\
-	  error.errnum = (err);				\
+	  ale_error.type = (typ);				\
+	  ale_error.errnum = (err);				\
 	  ERROR_FATAL_FMT(1,fmt, __VA_ARGS__);		\
 	}						\
     }							\
@@ -196,20 +196,20 @@ struct error_st* error_get_errno();
   do									\
     {									\
       int lev = (level);						\
-      if (ERR_ERRNO == error.type)					\
+      if (ERR_ERRNO == ale_error.type)					\
 	{								\
 	  char buf[4096] = "";						\
 	  strerror_r(errno, buf, 4096);					\
 	  syslog(lev, fmt": %s", __VA_ARGS__, buf);			\
 	}								\
-      else if (ERR_FERROR == error.type)				\
+      else if (ERR_FERROR == ale_error.type)				\
 	syslog(lev, fmt"%s\n", __VA_ARGS__, "file error\n");		\
-      else if (ERR_GAI == error.type)					\
+      else if (ERR_GAI == ale_error.type)					\
 	syslog(lev, fmt"%s\n", __VA_ARGS__, "gai error\n");		\
-      else if (ERR_UNDEF == error.type)					\
+      else if (ERR_UNDEF == ale_error.type)					\
 	syslog(lev, fmt"%s\n", __VA_ARGS__, "undefined error\n");	\
-      else if (ERR_CUSTOM == error.type)				\
-	syslog(lev, fmt"%s %d\n", __VA_ARGS__, "custom error\n", error.errnum);	\
+      else if (ERR_CUSTOM == ale_error.type)				\
+	syslog(lev, fmt"%s %d\n", __VA_ARGS__, "custom error\n", ale_error.errnum);	\
     }									\
   while (0)
 
