@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
-#include <sys/timeb.h>
+#include <time.h>
 
 #include "ale/error.h"
 #include "ale/algebra.h"
@@ -16,7 +16,7 @@ main(int argc, char *argv[argc])
   double delta;
   int ret;
   double diff, rate;
-  struct timeb st, et;
+  struct timespec st, et;
   const double eps = 0.0000001;
 
   printf("%s:\n", argv[0]);
@@ -41,13 +41,13 @@ main(int argc, char *argv[argc])
 	      (*B)[i][j] += (j+1) * (*A)[i][k];
 	  }
       
-      ftime(&st);
+      clock_gettime(CLOCK_MONOTONIC, &st);
       
       ret = alg_AX_B_OLS_solve(m, n, p, *A, *B, *X);
       ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve() ret = %d\n != 0", ret);
       
-      ftime(&et);
-      diff = (et.time - st.time) + (et.millitm - st.millitm) / 1000.0;
+      clock_gettime(CLOCK_MONOTONIC, &et);
+      diff = (et.tv_sec - st.tv_sec) + (et.tv_nsec - st.tv_nsec) / 1e9d;
   
       printf("Solved A[%7zu, %3zu] X[%7zu, %3zu] = B[%7zu, %3zu] in %6.3f seconds\n", m, n, n, p, m, p, diff);
 

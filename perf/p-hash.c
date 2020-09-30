@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <sys/timeb.h>
+#include <time.h>
 
 #include "ale/error.h"
 #include "ale/hash.h"
@@ -14,37 +14,37 @@ main(int argc, char *argv[argc])
   struct hash_int hash;
   int ret, val, key;
   double diff, rate;
-  struct timeb st, et;
+  struct timespec st, et;
 
   printf("%s: ", argv[0]);
   
   hash_int_init_size(&hash, MAX_INSERT << 1);
   
-  ftime(&st);
+  clock_gettime(CLOCK_MONOTONIC, &st);
   for (int i = 0 ; i < MAX_INSERT ; i++)
     {
       ERROR_UNDEF_FATAL_FMT(0 != (ret = hash_int_set(&hash, i, i, &val)), "FATAL: hash_int_set(%d) returned %d\n", i, ret);
     }
-  ftime(&et);
-  diff = (et.time - st.time) + (et.millitm - st.millitm) / 1000.0;
+  clock_gettime(CLOCK_MONOTONIC, &et);
+  diff = (et.tv_sec - st.tv_sec) + (et.tv_nsec - st.tv_nsec) / 1e9d;
   rate = MAX_INSERT / (diff * 1000 * 1000);
         
   printf("\nSet %12.2F MKeys/sec",rate);
 
   
-  ftime(&st);
+  clock_gettime(CLOCK_MONOTONIC, &st);
   for (int i = 0 ; i < MAX_INSERT ; i++)
     {
       ERROR_UNDEF_FATAL_FMT(1 != (ret = hash_int_get(&hash, i, &val)), "FATAL: hash_int_get(%d) returned %d\n", i, ret);
       ERROR_UNDEF_FATAL_FMT(i != val, "FATAL: hash_int_get(%d) value == %d != %d\n", i, val, i);
     }
-  ftime(&et);
-  diff = (et.time - st.time) + (et.millitm - st.millitm) / 1000.0;
+  clock_gettime(CLOCK_MONOTONIC, &et);
+  diff = (et.tv_sec - st.tv_sec) + (et.tv_nsec - st.tv_nsec) / 1e9d;
   rate = MAX_INSERT / (diff * 1000 * 1000);
         
-  printf("\nGet %12.2F MKeys/sec",rate);
+  printf("\nGet %12.2F MKeys/sec", rate);
   
-  ftime(&st);
+  clock_gettime(CLOCK_MONOTONIC ,&st);
   for (int i = 0 ; i < MAX_INSERT ; i++)
     {
       ret = hash_int_delete(&hash, i, &key, &val);
@@ -52,8 +52,8 @@ main(int argc, char *argv[argc])
       ERROR_UNDEF_FATAL_FMT(i != key, "FATAL: hash_int_delete(%d) key == %d != %d\n", i, key, i);
       ERROR_UNDEF_FATAL_FMT(i != val, "FATAL: hash_int_delete(%d) value == %d != %d\n", i, val, i);
     }
-  ftime(&et);
-  diff = (et.time - st.time) + (et.millitm - st.millitm) / 1000.0;
+  clock_gettime(CLOCK_MONOTONIC, &et);
+  diff = (et.tv_sec - st.tv_sec) + (et.tv_nsec - st.tv_nsec) / 1e9d;
   rate = MAX_INSERT / (diff * 1000 * 1000);
         
   printf("\nDel %12.2F MKeys/sec",rate);
