@@ -528,11 +528,15 @@ t_test(size_t n, double m, double s, double mu, int H0,
 }
 
 static inline double
+stats_binom_lf_lgamma(long k, long n, double p)
+{
+  return ale_lgamma(n+1) - ale_lgamma(k+1) - ale_lgamma(n-k+1) + k * log(p) + (n-k) * log(1-p);
+}
+
+static inline double
 stats_binom_f_lgamma(long k, long n, double p)
 {
-  double lres = ale_lgamma(n+1) - ale_lgamma(k+1) - ale_lgamma(n-k+1) + k * log(p) + (n-k) * log(1-p);
-  
-  return exp(lres);
+  return exp(stats_binom_lf_lgamma(k, n, p));
 }
 
 
@@ -580,12 +584,12 @@ stats_stirling_error(double n)
 }
 
 static inline double
-stats_binom_f_saddle_point(long k, long n, double p)
+stats_binom_lf_saddle_point(long k, long n, double p)
 {
   if ( 0 == k )
-    return exp(n*log(1-p));
+    return n*log(1-p);
   if ( n == k )
-    return exp(n*log(p));
+    return n*log(p);
   
   double q = 1 - p;
   double np = n * p;
@@ -594,7 +598,14 @@ stats_binom_f_saddle_point(long k, long n, double p)
   double stirling_err = stats_stirling_error(n) - stats_stirling_error(k) - stats_stirling_error(n-k);
   double lroot = 0.5d * ( log(2.0d*M_PI) + log(k) + log1p(- (double) k / (double) n) );
   
-  return exp(stirling_err - lroot - d);
+  return stirling_err - lroot - d;
+}
+
+static inline double
+stats_binom_f_saddle_point(long k, long n, double p)
+{
+
+  return exp(stats_binom_lf_saddle_point(k, n, p));
 }
 
 double

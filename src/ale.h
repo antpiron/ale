@@ -20,5 +20,6 @@
 #include <ale/matrix.h>
 #include <ale/memory.h>
 #include <ale/skiplist.h>
+#include <ale/sort.h>
 
 #endif
