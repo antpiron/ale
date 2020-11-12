@@ -3,11 +3,12 @@
 
 #include "ale/error.h"
 #include "ale/stats.h"
+#include "ale/math.h"
 
 int
 main(int argc, char *argv[argc])
 {
-  double eps = 1e-14, res, delta;
+  double eps = 1e-14, res, res1, res2, delta;
   double exp;
 
   res = stats_hyper_F(5, 5, 5, 10);
@@ -65,5 +66,14 @@ main(int argc, char *argv[argc])
   eps = 1e-7;
   ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_hyper_F(0, 5, 1, 10000000) == %.20f != %.20f\n", res, exp);
 
+  res1 = stats_hyper_F(0, 5, 2, 1000);
+  res2 = stats_hyper_F(0, 2, 5, 1000);
+  eps = 1e-7;
+  ERROR_UNDEF_FATAL_FMT(0 != ale_doublecmp(res1, res2, eps),
+			"FAIL: stats_hyper_F(0, 5, 2, 1000) == %.20f != %.20f = stats_hyper_F(0, 2, 5, 1000)\n",
+			res1, res2);
+  
+  
+  
   return EXIT_SUCCESS;
 }

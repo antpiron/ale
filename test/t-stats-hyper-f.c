@@ -8,7 +8,7 @@
 int
 main(int argc, char *argv[argc])
 {
-  double eps = 1e-9, res, delta;
+  double eps = 1e-9, res, res1, res2, delta;
   double exp;
 
 
@@ -47,5 +47,10 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(0 != ale_doublecmp(1.0d, res, eps),
 			"FAIL: sum(stats_hyper_f(k, 5, 5, 10)) == %.20f != 1\n", res);
 
+  res1 = stats_hyper_f(1, 50, 2, 1000);
+  res2 = stats_hyper_f(1, 2, 50, 1000);
+  ERROR_UNDEF_FATAL_FMT(0 != ale_doublecmp(res1, res2, eps),
+			"FAIL: stats_hyper_f(1, 50, 2, 1000) == %.20f != %.20f == stats_hyper_f(1, 2, 50, 1000)\n",
+			res1, res2);
   return EXIT_SUCCESS;
 }

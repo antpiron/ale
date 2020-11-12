@@ -793,8 +793,9 @@ stats_hyper_f(long k, long K, long n, long N)
   if (k > upper || k < lower)
     return 0.0d;
 
-  return stats_hyper_f_binom(k,K,n,N);
-  // return stats_hyper_f_lgamma(k,K,n,N);
+  // TODO: stats_hyper_f_binom seems inaccurate 
+  // return stats_hyper_f_binom(k,K,n,N); 
+  return stats_hyper_f_lgamma(k,K,n,N);
 }
 
 static double
@@ -817,7 +818,6 @@ stats_hyper_upper(long k, long K, long n, long N)
       fk *=  (n-id) * (K-id) /  (id+1) / (N-K-n+id+1) ;
       res += fk;
     }
-
   return res;
 }
 
@@ -834,6 +834,8 @@ stats_hyper_lower(long k, long K, long n, long N)
   if ( k <  lower)
     return 0.0d;
 
+  lower = lower < 0?0:lower;
+
   fk = res = stats_hyper_f(k, K, n, N);
   for (long i = k  ; i > lower  ; i--)
     {
@@ -841,6 +843,7 @@ stats_hyper_lower(long k, long K, long n, long N)
       fk *= (id * (N-K-n+id)) / (n-id+1) / (K-id+1);
       res += fk;
     }
+
   
   return res;
 }
@@ -850,7 +853,7 @@ stats_hyper_tail(long k, long K, long n, long N, int upper)
 {
   long mode = (n + 1) * (K + 1) / (N + 2);
 
-  if (upper)
+  if (STATS_UPPER == upper)
     {
       if ( k <= mode )
 	return 1 - stats_hyper_lower(k-1, K, n, N);
