@@ -11,6 +11,7 @@ static inline int ale_doublecmp(double a, double b, double eps);
 
 static inline double ale_gamma(double x);
 static inline double ale_lgamma(double x);
+static inline long double ale_lgammal(long double x);
 static inline double ale_beta(double a, double b);
 static inline double ale_lbeta(double a, double b);
 
@@ -48,6 +49,13 @@ double
 ale_lgamma(double x)
 {
   return lgamma(x);
+}
+
+static inline
+long double
+ale_lgammal(long double x)
+{
+  return lgammal(x);
 }
 
 static inline

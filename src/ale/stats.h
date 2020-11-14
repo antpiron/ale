@@ -57,6 +57,10 @@ double stats_hyper_f(long k, long K, long n, long N);
 double stats_hyper_tail(long k, long K, long n, long N, int upper);
 double stats_hyper_F(long k, long K, long n, long N);
 
+long double stats_hyper_fl(long k, long K, long n, long N);
+long double stats_hyper_taill(long k, long K, long n, long N, int upper);
+long double stats_hyper_Fl(long k, long K, long n, long N);
+
 
 struct stats_t_test {
   double pvalue, df, t;
