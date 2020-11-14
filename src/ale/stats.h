@@ -53,13 +53,13 @@ unsigned long stats_poisson_rand_its(double lambda);
 unsigned long stats_poisson_rand_pa(double lambda);
 unsigned long stats_poisson_rand(double lambda);
 
-double stats_hyper_f(long k, long K, long n, long N);
-double stats_hyper_tail(long k, long K, long n, long N, int upper);
-double stats_hyper_F(long k, long K, long n, long N);
+#define STATS_GENERIC_HEADERS(SUFFIX,TYPE)				\
+  TYPE stats_hyper_f##SUFFIX(long k, long K, long n, long N);		\
+  TYPE stats_hyper_tail##SUFFIX(long k, long K, long n, long N, int upper); \
+  TYPE stats_hyper_F##SUFFIX(long k, long K, long n, long N); 
 
-long double stats_hyper_fl(long k, long K, long n, long N);
-long double stats_hyper_taill(long k, long K, long n, long N, int upper);
-long double stats_hyper_Fl(long k, long K, long n, long N);
+STATS_GENERIC_HEADERS(,double)
+STATS_GENERIC_HEADERS(l,long double)
 
 
 struct stats_t_test {
