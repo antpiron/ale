@@ -22,7 +22,7 @@
   {									\
     TYPE cb1 = ale_lgamma##SUFFIX(K+1) -				\
       ale_lgamma##SUFFIX(k+1) - ale_lgamma##SUFFIX(K-k+1);		\
-    TYPE cb2 = ale_lgamma(N-K+1) -					\
+    TYPE cb2 = ale_lgamma##SUFFIX(N-K+1) -				\
       ale_lgamma##SUFFIX(n-k+1) - ale_lgamma##SUFFIX(N-K-n+k+1);	\
     TYPE cb3 = ale_lgamma##SUFFIX(N+1) -				\
       ale_lgamma##SUFFIX(n+1) - ale_lgamma##SUFFIX(N-n+1);		\
