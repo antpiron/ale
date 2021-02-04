@@ -84,7 +84,25 @@ main(int argc, char *argv[argc])
 		  "FAIL: bitset_set() alloc_size = %zu != %d",  bs.alloc_size, 65);
   ERROR_FATAL(! bitset_isset(&bs, NBRBIT + 10), "FAIL: bitset_set() isset(2052) != 1");
 
+  bitset_reset(&bs);
+  bitset_reset(&a);
   
+  bitset_set(&a, 1201);
+
+  bitset_cpy(&bs, &a);
+  ERROR_FATAL_FMT(a.n != bs.n, "FAIL: bitset_cpy() a.n = %zu != %zu = bs.n", a.n, bs.n);
+  for (int i = 0 ; i < (a.n + 63) / 64 ; i++)
+    ERROR_FATAL_FMT(a.buf[i] != bs.buf[i], "FAIL: bitset_cpy() a.buf[%zu] = %" PRId64 " != %" PRId64 " = bs.buf[%zu]\n", i, a.buf[i], bs.buf[i], i);
+
+
+  bitset_reset(&bs);
+  bitset_reset(&a);
+  bitset_set(&a, 1201);
+  bitset_not(&bs, &a);
+  for (int i = 0 ; i < (a.n + 63) / 64 ; i++)
+    ERROR_FATAL_FMT(a.buf[i] != ~ bs.buf[i], "FAIL: bitset_cpy() a.buf[%zu] = %" PRId64 " != ~ %" PRId64 " = bs.buf[%zu]\n", i, a.buf[i], bs.buf[i], i);
+
+ 
   bitset_destroy(&bs);
 
   return EXIT_SUCCESS;

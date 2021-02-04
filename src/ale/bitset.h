@@ -118,6 +118,24 @@ bitset_reset(struct bitset *bs)
     bs->buf[i] = 0ull;
 }
 
+static inline int
+bitset_cpy(struct bitset *dst, struct bitset *src)
+{
+  size_t s = src->n;
+
+  bitset_grow(dst, s);
+
+  size_t cpy_size = (s + 63) / 64;
+  memcpy(dst->buf, src->buf,  cpy_size * sizeof(uint64_t));
+  // Zeroes the rest
+  size_t zero_size = dst->alloc_size - cpy_size;
+  if ( zero_size > 0 )
+    memset(dst->buf + cpy_size, 0, sizeof(uint64_t) * zero_size);
+  dst->n = s;
+    
+  return 0;
+}
+
 static inline void
 bitset_set(struct bitset *bs, size_t index)
 {
@@ -189,6 +207,19 @@ bitset_or(struct bitset *dst, struct bitset *a, struct bitset *b)
   bitset_grow(dst, s);
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
     dst->buf[i] = a->buf[i] | b->buf[i];
+}
+
+static inline void
+bitset_not(struct bitset *dst, struct bitset *a)
+{
+  size_t s = a->n;
+  size_t s64 = s / 64u;
+  size_t slast = s % 64u;
+  
+  bitset_grow(dst, s);
+
+  for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
+    dst->buf[i] = ~ a->buf[i];
 }
 
 static inline size_t
