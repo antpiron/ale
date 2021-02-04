@@ -70,8 +70,6 @@ main(int argc, char *argv[argc])
     ERROR_FATAL_FMT(bs.buf[i], "FAIL:  bitset_xor() bs.buf[%d] = %"PRIx64" != 0\n", i, bs.buf[i]);
   ERROR_FATAL(0 == bitset_isempty(&bs), "FAIL: bitset_isempty() do not say empty\n");
   
-  bitset_destroy(&a);
-  bitset_destroy(&b);
 
   bitset_reset(&bs);
   bitset_setrange(&bs, 73,553);
@@ -104,6 +102,8 @@ main(int argc, char *argv[argc])
 
  
   bitset_destroy(&bs);
+  bitset_destroy(&a);
+  bitset_destroy(&b);
 
   return EXIT_SUCCESS;
 }
