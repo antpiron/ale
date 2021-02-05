@@ -97,9 +97,18 @@ main(int argc, char *argv[argc])
   bitset_reset(&a);
   bitset_set(&a, 1201);
   bitset_not(&bs, &a);
-  for (int i = 0 ; i < (a.n + 63) / 64 ; i++)
-    ERROR_FATAL_FMT(a.buf[i] != ~ bs.buf[i], "FAIL: bitset_cpy() a.buf[%zu] = %" PRId64 " != ~ %" PRId64 " = bs.buf[%zu]\n", i, a.buf[i], bs.buf[i], i);
-
+  for (int i = 0 ; i < (a.n + 63) / 64 - 1 ; i++)
+    {
+      ERROR_FATAL_FMT(a.buf[i] != ~ bs.buf[i],
+		      "FAIL: bitset_not() a.buf[%zu] = %" PRIx64 " != ~ %" PRIx64 " = bs.buf[%zu] = %" PRIx64 "\n", i,
+		      a.buf[i], bs.buf[i],i, ~ bs.buf[i]);
+    }
+  size_t last = (a.n-1) / 64;
+  uint64_t exp = (~ bs.buf[last]) & ( ( 1ull << ( (a.n-1) % 64 + 1) ) - 1);
+  ERROR_FATAL_FMT(a.buf[last] != exp,
+		  "FAIL: bitset_not() a.buf[%zu] = %" PRIx64 " !=  %" PRIx64 " = bs.buf[%zu]\n",
+		  last,  a.buf[last], exp, last);
+  
   
   bitset_reset(&bs);
   bitset_set(&bs, 1201);

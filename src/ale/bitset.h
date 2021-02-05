@@ -237,13 +237,16 @@ static inline void
 bitset_not(struct bitset *dst, struct bitset *a)
 {
   size_t s = a->n;
-  size_t s64 = s / 64u;
-  size_t slast = s % 64u;
+  size_t s64 = (s-1) / 64 ;
+  size_t slast = (s-1) % 64;
   
   bitset_grow(dst, s);
 
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
     dst->buf[i] = ~ a->buf[i];
+
+  if ( slast > 0)
+    dst->buf[s64] &=  (1ull << (slast + 1)) - 1;
 }
 
 static inline size_t
