@@ -100,7 +100,24 @@ main(int argc, char *argv[argc])
   for (int i = 0 ; i < (a.n + 63) / 64 ; i++)
     ERROR_FATAL_FMT(a.buf[i] != ~ bs.buf[i], "FAIL: bitset_cpy() a.buf[%zu] = %" PRId64 " != ~ %" PRId64 " = bs.buf[%zu]\n", i, a.buf[i], bs.buf[i], i);
 
- 
+  
+  bitset_reset(&bs);
+  bitset_set(&bs, 1201);
+  bitset_set(&bs, 1202);
+  bitset_setrange(&bs, 62, 10);
+  ssize_t value = -1;
+  ones = 0;
+  while (1)
+    {
+      ssize_t old_value = value;
+      value = bitset_iterate(&bs, value);
+      if (value < 0)
+	break;
+      ERROR_FATAL_FMT(! ( ( value >= 62 && value < 72) || 1201 == value || 1202 == value ), "FAIL: bitset_iterate(%zd) = %zd\n", old_value, value);
+      ones++;
+    }
+  ERROR_FATAL_FMT(12 != ones, "FAIL: bitset_iterate() ones = %zu != 12\n", ones);
+    
   bitset_destroy(&bs);
   bitset_destroy(&a);
   bitset_destroy(&b);

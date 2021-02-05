@@ -167,6 +167,30 @@ bitset_isempty(struct bitset *bs)
   return !ret;
 }
 
+static inline ssize_t
+bitset_iterate(struct bitset *bs, ssize_t lastpos)
+{
+  ssize_t startpos = lastpos + 1;
+
+  for (size_t i = startpos ; i < bs->n ; i += 64)
+    {
+      ssize_t startpos64 = i / 64;
+      size_t mod = i % 64;
+      uint64_t mask = ~ ( (1ull << mod) - 1ull );
+      uint64_t cur = bs->buf[startpos64] & mask;
+
+      if ( 0 != cur )
+	{
+	  ssize_t pos;
+
+	  for ( pos = 0 ; ! ( 1ull & cur)  ; cur >>= 1, pos++ )
+	    ;
+	  return startpos64 * 64 + pos;
+	}
+    }
+  return -1;
+}
+
 static inline void
 bitset_xor(struct bitset *dst, struct bitset *a, struct bitset *b)
 {
