@@ -92,10 +92,16 @@ main(int argc, char *argv[argc])
   for (int i = 0 ; i < (a.n + 63) / 64 ; i++)
     ERROR_FATAL_FMT(a.buf[i] != bs.buf[i], "FAIL: bitset_cpy() a.buf[%zu] = %" PRId64 " != %" PRId64 " = bs.buf[%zu]\n", i, a.buf[i], bs.buf[i], i);
 
+  bitset_destroy(&bs);
+  bitset_destroy(&a);
+  bitset_destroy(&b);
 
-  bitset_reset(&bs);
-  bitset_reset(&a);
-  bitset_set(&a, 1201);
+  ERROR_FATAL(bitset_init(&bs,1024) < 0, "FAIL: Init failed\n");
+  ERROR_FATAL(bitset_init(&a,1024) < 0, "FAIL: Init failed\n");
+
+  bitset_setrange(&a, 1024-32, 32);
+  size_t last = (a.n-1) / 64;
+  printf("a[last] = %#018" PRIx64 "\n", a.buf[last]);
   bitset_not(&bs, &a);
   for (int i = 0 ; i < (a.n + 63) / 64 - 1 ; i++)
     {
@@ -103,11 +109,10 @@ main(int argc, char *argv[argc])
 		      "FAIL: bitset_not() a.buf[%zu] = %" PRIx64 " != ~ %" PRIx64 " = bs.buf[%zu] = %" PRIx64 "\n", i,
 		      a.buf[i], bs.buf[i],i, ~ bs.buf[i]);
     }
-  size_t last = (a.n-1) / 64;
-  uint64_t exp = (~ bs.buf[last]) & ( ( 1ull << ( (a.n-1) % 64 + 1) ) - 1);
-  ERROR_FATAL_FMT(a.buf[last] != exp,
-		  "FAIL: bitset_not() a.buf[%zu] = %" PRIx64 " !=  %" PRIx64 " = bs.buf[%zu]\n",
-		  last,  a.buf[last], exp, last);
+  uint64_t exp = 0x00000000ffffffffull;
+  ERROR_FATAL_FMT(bs.buf[last] != exp,
+		  "FAIL: bitset_not() bs.buf[%zu] = %#018" PRIx64 " !=  %#018" PRIx64 "\n",
+		  last, bs.buf[last], exp);
   
   
   bitset_reset(&bs);
@@ -129,7 +134,6 @@ main(int argc, char *argv[argc])
     
   bitset_destroy(&bs);
   bitset_destroy(&a);
-  bitset_destroy(&b);
 
   return EXIT_SUCCESS;
 }
