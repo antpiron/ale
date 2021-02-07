@@ -3,88 +3,92 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <float.h>
 
 #define STATS_LOWER (0)
 #define STATS_UPPER (1)
 
-double stats_mean(size_t n, const double x[n]);
-double stats_var(size_t n, const double x[n]);
-double stats_sd(size_t n, const double x[n]);
-double stats_diff_mean(size_t n, const double x[n], const double y[n]);
-double stats_diff_var(size_t n, const double x[n], const double y[n]);
-double stats_diff_sd(size_t n, const double x[n], const double y[n]);
-double stats_cov(size_t n, const double x[n], const double y[n]);
+#define STATS_EPS (DBL_MIN)
+#define STATS_EPSl (LDBL_MIN)
+
+
 void stats_shuffle(void *vec, size_t nmemb, size_t size);
-int stats_pearson_corr(size_t n, const double x[n], const double y[n],
-		       double *rho, double *pvalue);
-void stats_mat_cov(size_t m, size_t n, double cov[m][m], const double x[m][n]);
-
-double stats_unif_std_rand();
-double stats_unif_rand(double min, double max);
-double stats_unif_std_F(double x);
-double stats_unif_F(double x, double min, double max);
-
-size_t stats_categorical_rand(size_t n, double cumul_p[n]);
-
-double stats_norm_std_rand();
-double stats_norm_rand(double mu, double sig);
-double stats_norm_std_F(double x);
-double stats_norm_F(double x, double mu, double sig);
-
-double stats_student_rand(double df);
-double stats_student_F(double x, double df);
-
-double stats_gamma_rand(double alpha, double beta);
-double stats_gamma_rand_k_theta(double k, double theta);
-double stats_gamma_F(double x, double alpha, double beta);
-void stats_gamma_fit_mm(size_t n, const double x[n], double *alpha, double *beta);
-
-double stats_beta_rand(double alpha, double beta);
-double stats_beta_F(double x, double alpha, double beta);
-void stats_beta_fit_mm(size_t n, const double x[n], double *alpha, double *beta);
-void stats_beta_fit(size_t n, const double x[n], double *alpha, double *beta);
-
-double stats_binom_f(long k, long n, double p);
-double stats_binom_F(long k, long n, double p);
-
-double stats_poisson_f(long k, double lambda);
-double stats_poisson_F(long k, double lambda);
-unsigned long stats_poisson_rand_its(double lambda);
-unsigned long stats_poisson_rand_pa(double lambda);
-unsigned long stats_poisson_rand(double lambda);
 
 #define STATS_GENERIC_HEADERS(SUFFIX,TYPE)				\
+  TYPE stats_mean##SUFFIX(size_t n, const TYPE x[n]);			\
+  TYPE stats_var##SUFFIX(size_t n, const TYPE x[n]);			\
+  TYPE stats_sd##SUFFIX(size_t n, const TYPE x[n]);			\
+  TYPE stats_diff_mean##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]); \
+  TYPE stats_diff_var##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]); \
+  TYPE stats_diff_sd##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]); \
+  TYPE stats_cov##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]);	\
+  int stats_pearson_corr##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n], \
+				 TYPE *rho, TYPE *pvalue);		\
+  void stats_mat_cov##SUFFIX(size_t m, size_t n, TYPE cov[m][m], const TYPE x[m][n]); \
+  									\
+  TYPE stats_rss##SUFFIX(size_t m, size_t n, const TYPE y[m], const TYPE x[m][n], \
+			 TYPE (*predict)(const TYPE x[n], void *cls), void *cls); \
+  int stats_rsquared##SUFFIX(size_t m, size_t n, const TYPE y[m], const TYPE x[m][n], \
+    TYPE (*predict)(const TYPE x[n], void *cls), void *cls,		\
+    TYPE *rsquared);							\
+  int stats_p_adjust_fdr_bh##SUFFIX(size_t n,  const TYPE p[n], TYPE padj[n]); \
+  int stats_p_adjust_fwer_bonf##SUFFIX(size_t n,  const TYPE p[n], TYPE padj[n]); \
+  									\
+  TYPE stats_binom_f##SUFFIX(long k, long n, TYPE p);			\
+  TYPE stats_binom_F##SUFFIX(long k, long n, TYPE p);			\
+									\
+  size_t stats_categorical_rand##SUFFIX(size_t n, TYPE cumul_p[n]);	\
+  									\
+  TYPE stats_unif_std_rand##SUFFIX();					\
+  TYPE stats_unif_rand##SUFFIX(TYPE min, TYPE max);			\
+  TYPE stats_unif_std_F##SUFFIX(TYPE x);				\
+  TYPE stats_unif_F##SUFFIX(TYPE x, TYPE min, TYPE max);		\
+									\
+  TYPE stats_norm_std_rand##SUFFIX();					\
+  TYPE stats_norm_rand##SUFFIX(TYPE mu, TYPE sig);			\
+  TYPE stats_norm_std_F##SUFFIX(TYPE x);				\
+  TYPE stats_norm_F##SUFFIX(TYPE x, TYPE mu, TYPE sig);			\
+									\
+  TYPE stats_poisson_f##SUFFIX(long k, TYPE lambda);			\
+  TYPE stats_poisson_F##SUFFIX(long k, TYPE lambda);			\
+  unsigned long stats_poisson_rand_its##SUFFIX(TYPE lambda);		\
+  unsigned long stats_poisson_rand_pa##SUFFIX(TYPE lambda);		\
+  unsigned long stats_poisson_rand##SUFFIX(TYPE lambda);		\
+									\
+  TYPE stats_student_rand##SUFFIX(TYPE df);				\
+  TYPE stats_student_F##SUFFIX(TYPE x, TYPE df);			\
+									\
+  struct stats_t_test##SUFFIX						\
+  {									\
+    TYPE pvalue, df, t;							\
+  };									\
+  TYPE stats_t_test##SUFFIX(size_t n, const TYPE x[n], TYPE mu, int H0,	\
+		    struct stats_t_test##SUFFIX *data);			\
+  TYPE stats_t_test_paired##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n], \
+				   TYPE mu, int H0,			\
+				   struct stats_t_test##SUFFIX *data);	\
+  TYPE stats_t_test_welch##SUFFIX(size_t nx, const TYPE x[nx], size_t ny, const TYPE y[ny], \
+				  TYPE mu, int H0,			\
+				  struct stats_t_test##SUFFIX *data);	\
+  									\
   TYPE stats_hyper_f##SUFFIX(long k, long K, long n, long N);		\
   TYPE stats_hyper_tail##SUFFIX(long k, long K, long n, long N, int upper); \
-  TYPE stats_hyper_F##SUFFIX(long k, long K, long n, long N); 
+  TYPE stats_hyper_F##SUFFIX(long k, long K, long n, long N);		\
+									\
+  TYPE stats_beta_rand##SUFFIX(TYPE alpha, TYPE beta);			\
+  TYPE stats_beta_F##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
+  void stats_beta_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
+  void stats_beta_fit##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
+									\
+  TYPE stats_gamma_rand##SUFFIX(TYPE alpha, TYPE beta);			\
+  TYPE stats_gamma_rand_k_theta##SUFFIX(TYPE k, TYPE theta);		\
+  TYPE stats_gamma_F##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
+  void stats_gamma_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta);
+
 
 STATS_GENERIC_HEADERS(,double)
 STATS_GENERIC_HEADERS(l,long double)
 
-
-struct stats_t_test {
-  double pvalue, df, t;
-};
-double stats_t_test(size_t n, const double x[n], double mu, int H0,
-		    struct stats_t_test *data);
-double stats_t_test_paired(size_t n, const double x[n], const double y[n],
-			   double mu, int H0,
-			   struct stats_t_test *data);
-double stats_t_test_welch(size_t nx, const double x[nx], size_t ny, const double y[ny],
-			  double mu, int H0,
-			  struct stats_t_test *data);
-
-double stats_rss(size_t m, size_t n, const double y[m], const double x[m][n],
-		 double (*predict)(const double x[n], void *cls), void *cls);
-int stats_rsquared(size_t m, size_t n, const double y[m], const double x[m][n],
-		   double (*predict)(const double x[n], void *cls), void *cls,
-		   double *rsquared);
-
-
-int stats_p_adjust_fdr_bh(size_t n,  const double p[n], double padj[n]);
-int stats_p_adjust_fwer_bonf(size_t n,  const double p[n], double padj[n]);
-
-int stats_cross_validation();
 
 
 #endif

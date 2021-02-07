@@ -69,7 +69,7 @@ main(int argc, char *argv[argc])
   res1 = stats_hyper_F(0, 5, 2, 1000);
   res2 = stats_hyper_F(0, 2, 5, 1000);
   eps = 1e-7;
-  ERROR_UNDEF_FATAL_FMT(0 != ale_doublecmp(res1, res2, eps),
+  ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res1, res2, eps),
 			"FAIL: stats_hyper_F(0, 5, 2, 1000) == %.20f != %.20f = stats_hyper_F(0, 2, 5, 1000)\n",
 			res1, res2);
   
