@@ -4,11 +4,11 @@
 #include <math.h>
 #include <float.h>
 
-#define ALE_EPS (DBL_MIN)
-#define ALE_EPSl (LDBL_MIN)
+#define ALE_EPS (DBL_MIN * 16)
+#define ALE_EPSl (LDBL_MIN * 16)
 
-#define ALE_TINY_DOUBLE (DBL_MIN)
-#define ALE_TINY_DOUBLEl (LDBL_MIN)
+#define ALE_TINY_DOUBLE (DBL_MIN * 1024)
+#define ALE_TINY_DOUBLEl (LDBL_MIN * 1024)
 
 
 #define MATH_GENERIC_HEADERS(SUFFIX,TYPE)				\
