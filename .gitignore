@@ -9,6 +9,7 @@ config.*
 /ltmain.sh
 .libs
 /stamp-h1
+.dirstamp
 /autom4te.cache
 /aclocal.m4
 /compile
