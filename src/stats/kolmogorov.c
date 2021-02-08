@@ -11,6 +11,7 @@
 /* 
    An Improved Evaluation of Kolmogorov’s Distribution. Luis Carvalho 
    https://www.jstatsoft.org/article/view/v065c03/v65c03.pdf
+   https://github.com/cran/kolmim/blob/master/src/kolmim.c
    Evaluating Kolmogorov’s Distribution. George Marsaglia, Wai Wan Tsang, Jingbo Wang.
    https://www.jstatsoft.org/article/view/v008i18/kolmo.pdf
 */

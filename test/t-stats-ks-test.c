@@ -16,7 +16,7 @@ cdf(double x, void *cls)
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (4000)
+#define LEN (2500)
   double *x = malloc(sizeof(double) * LEN);
   double pval, stat;
 
