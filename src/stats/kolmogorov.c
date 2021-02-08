@@ -11,6 +11,8 @@
 /* 
    An Improved Evaluation of Kolmogorov’s Distribution. Luis Carvalho 
    https://www.jstatsoft.org/article/view/v065c03/v65c03.pdf
+   Evaluating Kolmogorov’s Distribution. George Marsaglia, Wai Wan Tsang, Jingbo Wang.
+   https://www.jstatsoft.org/article/view/v008i18/kolmo.pdf
 */
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   TYPE									\
@@ -126,7 +128,8 @@
     if ( d >= 1.0 )							\
       return (TYPE) 1.0;						\
 									\
-    if ( n > 99 && n * d * d > 3.76 )					\
+    TYPE ndd = n * d * d;						\
+    if ( ndd > 7.24 || ( n > 99 && ndd > 3.76 ) )			\
       return stats_kolmo_F_approx##SUFFIX(d, n);			\
   									\
     return  stats_kolmo_F_carvalho##SUFFIX(d, n);			\
