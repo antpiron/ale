@@ -83,7 +83,9 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   TYPE stats_gamma_rand##SUFFIX(TYPE alpha, TYPE beta);			\
   TYPE stats_gamma_rand_k_theta##SUFFIX(TYPE k, TYPE theta);		\
   TYPE stats_gamma_F##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
-  void stats_gamma_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta);
+  void stats_gamma_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
+									\
+  TYPE stats_kolmo_F##SUFFIX(TYPE d, unsigned long n);
 
 
 STATS_GENERIC_HEADERS(,double)
