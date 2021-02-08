@@ -16,7 +16,7 @@ cdf(double x, void *cls)
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (100)
+#define LEN (4000)
   double *x = malloc(sizeof(double) * LEN);
   double pval, stat;
 
@@ -24,9 +24,16 @@ main(int argc, char *argv[argc])
     x[i] = stats_norm_rand(2, 1);
 
   stats_ks_test(LEN, x, cdf, NULL, &pval, &stat); 
-  printf("%.4f %.4f\n", pval, stat);
-  
-  ERROR_UNDEF_FATAL_FMT(pval >= 0.01, "FAIL: stats_ks_test() pval = %.4f >= 0.01\n",
+  printf("%.8f %.8f\n", pval, stat);
+  ERROR_UNDEF_FATAL_FMT(pval <= 0.01, "FAIL: norm_rand stats_ks_test() pval = %.4f <= 0.01\n",
+			pval);
+
+  for (int i = 0 ; i < LEN ; i++)
+    x[i] = stats_unif_std_rand();
+
+  stats_ks_test(LEN, x, cdf, NULL, &pval, &stat); 
+  printf("%.8f %.8f\n", pval, stat);
+  ERROR_UNDEF_FATAL_FMT(pval > 0.01, "FAIL: unif_rand stats_ks_test() pval = %.4f > 0.01\n",
 			pval);
 
   

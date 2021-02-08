@@ -85,6 +85,8 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   TYPE stats_gamma_F##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
   void stats_gamma_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
 									\
+  TYPE stats_kolmo_F_approx##SUFFIX(TYPE d, unsigned long n);		\
+  TYPE stats_kolmo_F_carvalho##SUFFIX(TYPE d, unsigned long n);		\
   TYPE stats_kolmo_F##SUFFIX(TYPE d, unsigned long n);			\
   int stats_ks_test##SUFFIX(size_t n, TYPE a[n],			\
 			    TYPE (*cdf)(TYPE x, void *cls), void *cls,	\

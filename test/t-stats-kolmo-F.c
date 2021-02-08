@@ -6,16 +6,6 @@
 #include "ale/math.h"
 
 
-double
-approx(double d, unsigned long n)
-{
-  double ret = 1 - 2 * exp( - (2.000071d + 0.331d / sqrt(n) + 1.409d / (double) n) * n * d * d );
-    
-  if (ret < 0)
-    return 0.0d;
-
-  return ret;
-}
 
 int
 main(int argc, char *argv[argc])
@@ -38,8 +28,8 @@ main(int argc, char *argv[argc])
     {
       for (double d =  0.19 ; d <= 0.5 ; d += 0.01d)
 	{
-	  double exp = approx(d, n);
-	  res = stats_kolmo_F(d, n);
+	  double exp = stats_kolmo_F_approx(d, n);
+	  res = stats_kolmo_F_carvalho(d, n);
 	  
 	  ERROR_UNDEF_FATAL_FMT(ale_cmp_double(res, exp, eps),
 				"FAIL: stats_kolmo_F(%e, %ld) = %.20e != %.20e == approx()\n", d, n, res, exp);

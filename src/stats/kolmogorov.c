@@ -14,7 +14,22 @@
 */
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   TYPE									\
-  stats_kolmo_F##SUFFIX(TYPE d, unsigned long n)			\
+  stats_kolmo_F_approx##SUFFIX(TYPE d, unsigned long n)			\
+  {									\
+    TYPE ret = 1 - 2 *							\
+      exp##SUFFIX( - (((TYPE) 2.000071d) +				\
+		      ((TYPE) 0.331d) / sqrt##SUFFIX(n) +		\
+		      ((TYPE) 1.409d) / (TYPE) n) *			\
+		   n * d * d );						\
+    									\
+    if (ret < 0)							\
+      return 0;								\
+    									\
+    return ret;								\
+  }									\
+  									\
+  TYPE									\
+  stats_kolmo_F_carvalho##SUFFIX(TYPE d, unsigned long n)		\
   {									\
     TYPE nd = n*d;							\
     TYPE k_dbl = ceil##SUFFIX(nd);					\
@@ -25,12 +40,7 @@
     TYPE *w = malloc(sizeof(TYPE) * (m - 2));				\
     TYPE *q = malloc(sizeof(TYPE) * m);					\
     TYPE qk = -1;							\
-									\
-    if ( d <= 0.0##SUFFIX )						\
-      return 0.0##SUFFIX;						\
-    if ( d >= 1.0##SUFFIX )						\
-      return 1.0##SUFFIX;						\
-									\
+    									\
     for (size_t i = 0 ; i < m ; i++)					\
       q[i] = 0;								\
     q[k - 1] = 1.0;							\
@@ -100,12 +110,27 @@
     if ( NULL != stat)							\
       *stat = best;							\
     *pval = 1 - stats_kolmo_F##SUFFIX(*stat, n);			\
-									\
+    if (*pval < 0)							\
+      *pval = 0.0;							\
+    									\
     free(index);							\
 									\
     return 0;								\
+  }									\
+  									\
+  TYPE									\
+  stats_kolmo_F##SUFFIX(TYPE d, unsigned long n)			\
+  {									\
+    if ( d <= 0.0 )							\
+      return (TYPE) 0.0;						\
+    if ( d >= 1.0 )							\
+      return (TYPE) 1.0;						\
+									\
+    if ( n > 99 && n * d * d > 3.76 )					\
+      return stats_kolmo_F_approx##SUFFIX(d, n);			\
+  									\
+    return  stats_kolmo_F_carvalho##SUFFIX(d, n);			\
   }
-
      
 GENERIC_FUNC(,double)
 GENERIC_FUNC(l,long double)
