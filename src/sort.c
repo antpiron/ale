@@ -12,23 +12,33 @@ struct indirect_closure
   int (*compar)(const void *, const void *, void *);
 };
 
-inline int
-sort_compar_double(const void *p1, const void *p2, void *arg)
-{
-  const double *a = p1;
-  const double *b = p2;
-  // disable unused parameter warning
-  (void)(arg);
+#define GENERIC_FUNC(SUFFIX,TYPE)					\
+  inline int								\
+  sort_compar_double##SUFFIX(const void *p1, const void *p2, void *arg)	\
+  {									\
+    const TYPE *a = p1;							\
+    const TYPE *b = p2;							\
+    /* disable unused parameter warning */				\
+    (void)(arg);							\
+    									\
+    if (*a < *b)							\
+      return -1;							\
+    									\
+    if (*a > *b)							\
+      return  1;							\
+    									\
+    return 0;								\
+  }									\
+  									\
+  int									\
+  sort_compar_double_decreasing##SUFFIX(const void *p1, const void *p2, void *arg) \
+  {									\
+    return - sort_compar_double##SUFFIX(p1, p2, arg);			\
+  }									
 
-  if (*a < *b)
-    return -1;
+GENERIC_FUNC(,double)
+GENERIC_FUNC(l,long double)
   
-  if (*a > *b)
-    return  1;
-  
-  return 0;
-}
-
 inline int
 sort_compar_size_t(const void *p1, const void *p2, void *arg)
 {
@@ -46,11 +56,6 @@ sort_compar_size_t(const void *p1, const void *p2, void *arg)
   return 0;
 }
 
-int
-sort_compar_double_decreasing(const void *p1, const void *p2, void *arg)
-{
-  return - sort_compar_double(p1, p2, arg);
-}
 
 static int
 indirect_compar(const void *p1, const void *p2, void *arg)

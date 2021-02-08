@@ -6,6 +6,7 @@
 #include "ale/error.h"
 #include "ale/portability.h"
 #include "ale/algebra.h"
+#include "ale/sort.h"
 
 /* 
    An Improved Evaluation of Kolmogorov’s Distribution. Luis Carvalho 
@@ -65,13 +66,46 @@
 	q[m - 1] = (v[0] * q[m - 1] + u) * s;				\
       }									\
     qk = q[k - 1];							\
-									\
+    									\
     free(v);								\
     free(w);								\
     free(q);								\
-									\
+    									\
     return(qk);								\
+  }									\
+									\
+  int									\
+  stats_ks_test##SUFFIX(size_t n, TYPE a[n],				\
+			    TYPE (*cdf)(TYPE x, void *cls), void *cls,	\
+			    TYPE *pval, TYPE *stat)			\
+  {									\
+    size_t *index = malloc(sizeof(size_t) * n);				\
+    TYPE best = -2;							\
+									\
+    sort_q_indirect(index, a, n, sizeof(TYPE),				\
+		    sort_compar_double##SUFFIX, NULL);			\
+		    							\
+    for (size_t i = 0 ; i < n ; i++)					\
+      {									\
+	TYPE stat1 = (*cdf)(a[index[i]], cls) - ((TYPE) i) / (TYPE) n;	\
+	TYPE stat2 = ((TYPE) 1) / (TYPE) n - stat1;			\
+									\
+	if (stat2 > stat1)						\
+	  stat1 = stat2;						\
+									\
+	if (stat1 > best)						\
+	  best = stat1;							\
+      }									\
+									\
+    if ( NULL != stat)							\
+      *stat = best;							\
+    *pval = 1 - stats_kolmo_F##SUFFIX(*stat, n);			\
+									\
+    free(index);							\
+									\
+    return 0;								\
   }
 
+     
 GENERIC_FUNC(,double)
 GENERIC_FUNC(l,long double)
