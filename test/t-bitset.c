@@ -6,6 +6,7 @@
 
 #include "ale/error.h"
 #include "ale/bitset.h"
+#include "ale/stats.h"
 
 #define NBRBIT (2043)
 
@@ -101,7 +102,7 @@ main(int argc, char *argv[argc])
 
   bitset_setrange(&a, 1024-32, 32);
   size_t last = (a.n-1) / 64;
-  printf("a[last] = %#018" PRIx64 "\n", a.buf[last]);
+  // printf("a[last] = %#018" PRIx64 "\n", a.buf[last]);
   bitset_not(&bs, &a);
   for (int i = 0 ; i < (a.n + 63) / 64 - 1 ; i++)
     {
@@ -131,7 +132,41 @@ main(int argc, char *argv[argc])
       ones++;
     }
   ERROR_FATAL_FMT(12 != ones, "FAIL: bitset_iterate() ones = %zu != 12\n", ones);
-    
+
+  bitset_reset(&bs);
+
+  size_t *vec = malloc(sizeof(size_t) * NBRBIT);
+  for (size_t i = 0 ; i < NBRBIT ; i++)
+    vec[i] = i;
+
+  stats_shuffle(vec, NBRBIT, sizeof(size_t));
+
+#define NBRSET (NBRBIT / 2)
+  for (size_t i = 0 ; i < NBRSET ; i++)
+    {
+      ERROR_FATAL_FMT( vec[i] >= NBRBIT, "FAIL: stats_shuffle() vec[%z] = %zu >= \n", i, vec[i], NBRBIT);
+      ERROR_FATAL_FMT( bitset_isset(&bs, vec[i]), "FAIL: stats_shuffle() vec[%z] is set.\n", i);
+      bitset_set(&bs, vec[i]);
+      ERROR_FATAL_FMT( ! bitset_isset(&bs, vec[i]), "FAIL: stats_shuffle() vec[%z] is not set.\n", i);
+    }
+  ones = bitset_ones(&bs);
+  ERROR_FATAL_FMT(ones != NBRSET, "FAIL: bitset_iterate() bitset_ones = %z != %d\n", ones, NBRSET);
+  ones = 0;
+  value = -1;
+  while (1)
+    {
+      ssize_t old_value = value;
+      value = bitset_iterate(&bs, value);
+      if (value < 0)
+	break;
+      /* ERROR_FATAL_FMT(! ( ( value >= 62 && value < 72) || 1201 == value || 1202 == value ), */
+      /* 		      "FAIL: bitset_iterate(%zd) = %zd\n", old_value, value); */
+      ones++;
+    }
+  ERROR_FATAL_FMT(NBRSET != ones, "FAIL: bitset_iterate() ones = %zu != %d\n", ones, NBRSET);
+
+  free(vec);
+
   bitset_destroy(&bs);
   bitset_destroy(&a);
 

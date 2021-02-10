@@ -172,21 +172,11 @@ bitset_iterate(struct bitset *bs, ssize_t lastpos)
 {
   ssize_t startpos = lastpos + 1;
 
-  for (size_t i = startpos ; i < bs->n ; i += 64)
+  /* TODO: optimize */
+  for (size_t i = startpos ; i < bs->n ; i++)
     {
-      ssize_t startpos64 = i / 64;
-      size_t mod = i % 64;
-      uint64_t mask = ~ ( (1ull << mod) - 1ull );
-      uint64_t cur = bs->buf[startpos64] & mask;
-
-      if ( 0 != cur )
-	{
-	  ssize_t pos;
-
-	  for ( pos = 0 ; ! ( 1ull & cur)  ; cur >>= 1, pos++ )
-	    ;
-	  return startpos64 * 64 + pos;
-	}
+      if ( bitset_isset(bs, i) )
+	return i;
     }
   return -1;
 }
@@ -253,7 +243,6 @@ static inline size_t
 bitset_ones(struct bitset *bs)
 {
   // https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
-  unsigned int v; // count the number of bits set in v
   size_t c = 0; // c accumulates the total bits set in v
 
   for (size_t i = 0 ; i < (bs->n + 63) / 64 ; i++)
