@@ -8,8 +8,8 @@
 #define STATS_LOWER (0)
 #define STATS_UPPER (1)
 
-#define STATS_EPS (DBL_MIN)
-#define STATS_EPSl (LDBL_MIN)
+#define STATS_EPS (DBL_EPSILON)
+#define STATS_EPSl (LDBL_EPSILON)
 
 
 void stats_shuffle(void *vec, size_t nmemb, size_t size);
@@ -77,6 +77,7 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
 									\
   TYPE stats_beta_rand##SUFFIX(TYPE alpha, TYPE beta);			\
   TYPE stats_beta_F##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
+  TYPE stats_beta_F_inv##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
   void stats_beta_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
   void stats_beta_fit##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
 									\

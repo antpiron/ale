@@ -20,6 +20,25 @@
   {									\
     return ale_ibeta##SUFFIX(x, alpha, beta);				\
   }									\
+									\
+  TYPE stats_beta_F_inv##SUFFIX(TYPE x, TYPE alpha, TYPE beta)		\
+  {									\
+    long double l = 0, r = 1;						\
+    long double half;							\
+    									\
+    for (size_t i = 0 ; i < 64 && r - l > ALE_EPSl ; i++ )		\
+      {									\
+	half = (r + l) / 2.0L;						\
+									\
+	long double beta_inv = stats_beta_Fl(half, alpha, beta);	\
+	if (beta_inv < x)						\
+	  l = half;							\
+	else								\
+	  r = half;							\
+      }									\
+									\
+    return half;							\
+  }									\
   									\
   void									\
   stats_beta_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta) \

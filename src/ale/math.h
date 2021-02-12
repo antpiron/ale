@@ -4,11 +4,11 @@
 #include <math.h>
 #include <float.h>
 
-#define ALE_EPS (DBL_MIN * 16)
-#define ALE_EPSl (LDBL_MIN * 16)
+#define ALE_EPS (DBL_EPSILON * 4)
+#define ALE_EPSl (LDBL_EPSILON * 4)
 
-#define ALE_TINY_DOUBLE (DBL_MIN * 1024)
-#define ALE_TINY_DOUBLEl (LDBL_MIN * 1024)
+#define ALE_TINY_DOUBLE (DBL_EPSILON * 4)
+#define ALE_TINY_DOUBLEl (LDBL_EPSILON * 4)
 
 
 #define MATH_GENERIC_HEADERS(SUFFIX,TYPE)				\
@@ -37,6 +37,9 @@ MATH_GENERIC_HEADERS(l,long double)
       fabs##SUFFIX(a) :							\
       fabs##SUFFIX(b);							\
     									\
+    if ( max < 1)							\
+      max = 1;								\
+									\
     if ( fabs##SUFFIX(diff) <= max * eps )				\
       return 0;								\
     									\
