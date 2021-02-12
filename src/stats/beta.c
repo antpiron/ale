@@ -23,14 +23,14 @@
 									\
   TYPE stats_beta_F_inv##SUFFIX(TYPE x, TYPE alpha, TYPE beta)		\
   {									\
-    long double l = 0, r = 1;						\
-    long double half;							\
+    TYPE l = 0, r = 1;							\
+    TYPE half;								\
     									\
-    for (size_t i = 0 ; i < 64 && r - l > ALE_EPSl ; i++ )		\
+    for (size_t i = 0 ; i < 64 && r - l > ALE_EPS##SUFFIX ; i++ )	\
       {									\
-	half = (r + l) / 2.0L;						\
+	half = (r + l) / 2;						\
 									\
-	long double beta_inv = stats_beta_Fl(half, alpha, beta);	\
+	TYPE beta_inv = stats_beta_F##SUFFIX(half, alpha, beta);	\
 	if (beta_inv < x)						\
 	  l = half;							\
 	else								\
