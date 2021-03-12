@@ -82,8 +82,7 @@ stats_bootstrap_correlated(size_t n, double vec[n],
 
       // predict
       /*
-	TODO: keep everything in the [0, 1] for p-value or fold FC.
-              Need to be standardized (x_i - mu) / sigma. 
+	TODO: Need to be standardized (x_i - mu) / sigma. 
       */
       res[index_correlated[i]] = r * vec[best] + stats_norm_rand(0, best_mse);
     }
