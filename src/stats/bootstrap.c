@@ -12,11 +12,25 @@ shuffle_n_size_t(size_t n, size_t *vec)
   stats_shuffle(vec, sizeof(size_t), n);
 }
 
+enum {
+  STATS_CP_PREDICT = 1,
+  STATS_CP_R       = 1 << 2,
+  STATS_CP_MSE     = 1 << 3,
+  STATS_CP_PVALUE  = 1 << 4,
 
+  STATS_CP_ALL     = STATS_CP_PREDICT | STATS_CP_R | STATS_CP_MSE | STATS_CP_PVALUE
+};
+
+struct stats_cp_results
+{
+  double y, r, mse, pvalue;
+};
+  
 void
-stats_bootstrap_correlated(size_t n, double vec[n],
-			   int (*correlation)(size_t i, size_t j, double *r, double *mse, double *pvalue, void *cls),
-			   void *cls, double res[n])
+stats_correlated_permutation(size_t n, double vec[n],
+			     int (*predict)(size_t i, size_t j, int flags, double x,
+					    struct stats_cp_results *res, void *cls),
+			     void *cls, double res[n])
 {
   size_t max_uncorrelated = 100;
   size_t n_uncorrelated = 0;
@@ -24,8 +38,8 @@ stats_bootstrap_correlated(size_t n, double vec[n],
   size_t *index_uncorrelated =  malloc( sizeof(size_t) * max_uncorrelated );
   size_t *index_correlated =  malloc( sizeof(size_t) * n );
   size_t *index = malloc( sizeof(size_t) * n );
-  double r, mse, pvalue;
- 
+  struct stats_cp_results predict_res;
+  
   shuffle_n_size_t(n, index);
 
   /* Build a set of max_uncorrelated variable */
@@ -36,8 +50,8 @@ stats_bootstrap_correlated(size_t n, double vec[n],
 
       for (size_t u = 0 ; u < n_uncorrelated ; u++)
 	{
-	  correlation(index[i], index_uncorrelated[u], &r, &mse, &pvalue, cls);
-	  if ( pvalue <= 0.05 )
+	  predict(index[i], index_uncorrelated[u], 0, STATS_CP_PVALUE, &predict_res, cls);
+	  if ( predict_res.pvalue <= 0.05 )
 	    {
 	      uncorrelated = 0;
 	      break;
@@ -66,17 +80,16 @@ stats_bootstrap_correlated(size_t n, double vec[n],
   // predict uncorrelated
   for (size_t i = 0 ; i < n_correlated ; i++)
     {
-      double best_r = 0;
-      ssize_t best = -1;
-      ssize_t best_mse = -1;
+      struct stats_cp_results best = { .mse = DBL_MAX };
+
       for (size_t u = 0 ; u < n_uncorrelated ; u++)
 	{
-	  correlation(index_correlated[i], index_uncorrelated[u], &r, &mse, &pvalue, cls);
-	  if ( fabs(best_r) > fabs(r) )
+	  predict(index_correlated[i], index_uncorrelated[u], vec[index_uncorrelated[u]],
+		  STATS_CP_PREDICT|STATS_CP_MSE, &predict_res, cls);
+	  
+	  if ( fabs(predict_res.mse) < fabs(best.mse) )
 	    {
-	      best_r = r;
-	      best_mse = mse;
-	      best = index_uncorrelated[u];
+	      best = predict_res;
 	    }
 	}
 
@@ -84,7 +97,7 @@ stats_bootstrap_correlated(size_t n, double vec[n],
       /*
 	TODO: Need to be standardized (x_i - mu) / sigma. 
       */
-      res[index_correlated[i]] = r * vec[best] + stats_norm_rand(0, best_mse);
+      res[index_correlated[i]] = best.y;
     }
 
     
