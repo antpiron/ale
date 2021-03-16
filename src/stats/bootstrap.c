@@ -142,8 +142,8 @@ stats_permutation_correlated_prepare(struct stats_permutation *p)
 
       for (size_t u = 0 ; u <  p->correlated.n_uncorrelated ; u++)
 	{
-	  p->correlated.predict( p->correlated.index_correlated[i],  p->correlated.index_uncorrelated[u],  p->vec[ p->correlated.index_uncorrelated[u]],
-				 STATS_CP_MSE, &predict_res,  p->correlated.cls);
+	  p->correlated.predict(p->correlated.index_correlated[i],  p->correlated.index_uncorrelated[u],  p->vec[ p->correlated.index_uncorrelated[u]],
+				STATS_CP_MSE, &predict_res,  p->correlated.cls);
 	  
 	  if ( fabs(predict_res.mse) < fabs(best.mse) )
 	    {
@@ -174,7 +174,25 @@ stats_permutation(struct stats_permutation *p, size_t n, double res[n])
     }
   else if ( STATS_PERMUTATION_CORRELATED == p->tag )
     {
+      size_t *index = malloc( sizeof(size_t) * p->correlated.n_uncorrelated );
 
+      shuffle_n_size_t(p->correlated.n_uncorrelated, index);
+
+      for (size_t i = 0 ; i < p->correlated.n_uncorrelated ; i++)
+	res[ p->correlated.index_uncorrelated[i] ] = p->vec[ p->correlated.index_uncorrelated[index[i]] ];
+
+      for (size_t i = 0 ; i < p->correlated.n_correlated ; i++)
+	{
+	  size_t to_predict = p->correlated.index_correlated[i];
+	  size_t predictor = p->correlated.index_best_predictor[to_predict];
+	  struct stats_cp_results predict_res;
+
+	  p->correlated.predict(to_predict,  predictor, p->vec[ predictor ],
+				STATS_CP_PREDICT, &predict_res,  p->correlated.cls);
+	  p->vec[to_predict] = predict_res.y;
+	}
+
+      free(index);
     }
 
   return 0;
