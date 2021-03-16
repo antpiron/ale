@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <float.h>
+#include <sys/types.h>
 
 #define STATS_LOWER (0)
 #define STATS_UPPER (1)
@@ -11,6 +12,14 @@
 #define STATS_EPS (DBL_EPSILON)
 #define STATS_EPSl (LDBL_EPSILON)
 
+enum {
+      STATS_PFLAGS_PREDICT = 1,
+      STATS_PFLAGS_R       = 1 << 2,
+      STATS_PFLAGS_MSE     = 1 << 3,
+      STATS_PFLAGS_PVALUE  = 1 << 4,
+      
+      STATS_PFLAGS_ALL     = STATS_PFLAGS_PREDICT | STATS_PFLAGS_R | STATS_PFLAGS_MSE | STATS_PFLAGS_PVALUE
+};
 
 void stats_shuffle(void *vec, size_t nmemb, size_t size);
 
@@ -29,8 +38,8 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   TYPE stats_rss##SUFFIX(size_t m, size_t n, const TYPE y[m], const TYPE x[m][n], \
 			 TYPE (*predict)(const TYPE x[n], void *cls), void *cls); \
   int stats_rsquared##SUFFIX(size_t m, size_t n, const TYPE y[m], const TYPE x[m][n], \
-    TYPE (*predict)(const TYPE x[n], void *cls), void *cls,		\
-    TYPE *rsquared);							\
+			     TYPE (*predict)(const TYPE x[n], void *cls), void *cls, \
+			     TYPE *rsquared);				\
   int stats_p_adjust_fdr_bh##SUFFIX(size_t n,  const TYPE p[n], TYPE padj[n]); \
   int stats_p_adjust_fwer_bonf##SUFFIX(size_t n,  const TYPE p[n], TYPE padj[n]); \
   									\
@@ -63,7 +72,7 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
     TYPE pvalue, df, t;							\
   };									\
   TYPE stats_t_test##SUFFIX(size_t n, const TYPE x[n], TYPE mu, int H0,	\
-		    struct stats_t_test##SUFFIX *data);			\
+			    struct stats_t_test##SUFFIX *data);		\
   TYPE stats_t_test_paired##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n], \
 				   TYPE mu, int H0,			\
 				   struct stats_t_test##SUFFIX *data);	\
@@ -74,26 +83,63 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   TYPE stats_hyper_f##SUFFIX(long k, long K, long n, long N);		\
   TYPE stats_hyper_tail##SUFFIX(long k, long K, long n, long N, int upper); \
   TYPE stats_hyper_F##SUFFIX(long k, long K, long n, long N);		\
-									\
+  									\
   TYPE stats_beta_rand##SUFFIX(TYPE alpha, TYPE beta);			\
   TYPE stats_beta_F##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
   TYPE stats_beta_F_inv##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
   void stats_beta_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
   void stats_beta_fit##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
-									\
+  									\
   TYPE stats_gamma_rand##SUFFIX(TYPE alpha, TYPE beta);			\
   TYPE stats_gamma_rand_k_theta##SUFFIX(TYPE k, TYPE theta);		\
   TYPE stats_gamma_F##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
   void stats_gamma_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
-									\
+  									\
   TYPE stats_kolmo_F_approx##SUFFIX(TYPE d, unsigned long n);		\
   TYPE stats_kolmo_F_carvalho##SUFFIX(TYPE d, unsigned long n);		\
   TYPE stats_kolmo_F##SUFFIX(TYPE d, unsigned long n);			\
   int stats_ks_test##SUFFIX(size_t n, TYPE a[n],			\
 			    TYPE (*cdf)(TYPE x, void *cls), void *cls,	\
-			    TYPE *pval, TYPE *stat);		
+			    TYPE *pval, TYPE *stat);			\
+  									\
+  struct stats_predict_results##SUFFIX					\
+  {									\
+    TYPE y, r, mse, pvalue;						\
+  };									\
+									\
+  struct stats_permutation##SUFFIX					\
+  {									\
+    int tag;								\
+    size_t n;								\
+    TYPE *vec;								\
+    union {								\
+      struct {								\
+	size_t max_uncorrelated;					\
+	size_t n_uncorrelated;						\
+	size_t n_correlated;						\
+	size_t *index_uncorrelated;					\
+	size_t *index_correlated;					\
+	ssize_t *index_best_predictor;					\
+	int (*predict)(size_t i, size_t j, int flags, TYPE x,		\
+		       struct stats_predict_results##SUFFIX *res, void *cls); \
+	void *cls;							\
+      } correlated;							\
+    };									\
+  };									\
+  									\
+  void stats_permutation_init##SUFFIX(struct stats_permutation##SUFFIX *p, \
+				      size_t n, TYPE vec[n]);		\
+  int stats_permutation_correlated_init##SUFFIX(struct stats_permutation##SUFFIX *p, \
+						size_t n, TYPE vec[n],	\
+						int (*predict)(size_t i, size_t j, int flags, TYPE x, \
+							       struct stats_predict_results##SUFFIX *res, void *cls), \
+						void *cls);		\
+  void stats_permutation_destroy##SUFFIX(struct stats_permutation##SUFFIX *p); \
+  int stats_permutation_correlated_prepare##SUFFIX(struct stats_permutation##SUFFIX *p); \
+  int stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, size_t n, TYPE res[n]); 
 
 
+  
 STATS_GENERIC_HEADERS(,double)
 STATS_GENERIC_HEADERS(l,long double)
 
