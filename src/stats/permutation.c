@@ -11,7 +11,6 @@ enum {
 };
 
 
-
 static void
 shuffle_n_size_t(size_t n, size_t *vec)
 {
