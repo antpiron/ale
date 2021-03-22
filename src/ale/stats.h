@@ -141,7 +141,9 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
 						void *cls);		\
   void stats_permutation_destroy##SUFFIX(struct stats_permutation##SUFFIX *p); \
   int stats_permutation_correlated_prepare##SUFFIX(struct stats_permutation##SUFFIX *p); \
-  int stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, size_t n, TYPE res[n]); 
+  void stats_permutation_correlated_get##SUFFIX(struct stats_permutation##SUFFIX *p, ssize_t correlated[p->n]); \
+  void stats_permutation_correlated_set##SUFFIX(struct stats_permutation##SUFFIX *p, ssize_t correlated[p->n]); \
+  int stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, TYPE res[p->n]); 
 
 
   

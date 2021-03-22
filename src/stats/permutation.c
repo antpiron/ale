@@ -63,7 +63,7 @@ shuffle_n_size_t(size_t n, size_t *vec)
   }									\
 									\
   int									\
-  stats_permutation_correlated_prepare##SUFFIX(struct stats_permutation##SUFFIX *p)	\
+  stats_permutation_correlated_prepare##SUFFIX(struct stats_permutation##SUFFIX *p) \
   {									\
     ERROR_UNDEF_RET(STATS_PERMUTATION == p->tag, -1);			\
 									\
@@ -103,7 +103,7 @@ shuffle_n_size_t(size_t n, size_t *vec)
     /* Correlated indexes */						\
     for (size_t i = 0 ; i <  p->correlated.n_correlated ; i++)		\
       {									\
-	struct stats_predict_results##SUFFIX best = { .mse = DBL_MAX };		\
+	struct stats_predict_results##SUFFIX best = { .mse = DBL_MAX };	\
 	ssize_t best_u = -1;						\
 									\
 	for (size_t u = 0 ; u <  p->correlated.n_uncorrelated ; u++)	\
@@ -127,10 +127,42 @@ shuffle_n_size_t(size_t n, size_t *vec)
     return 0;								\
   }									\
 									\
+  void									\
+  stats_permutation_correlated_get##SUFFIX(struct stats_permutation##SUFFIX *p, ssize_t correlated[p->n]) \
+  {									\
+    for (size_t i = 0 ; i <  p->correlated.n_correlated ; i++)		\
+      {									\
+	correlated[p->correlated.index_correlated[i]] = p->correlated.index_best_predictor[ p->correlated.index_correlated[i] ]; \
+      }									\
+    for (size_t i = 0 ; i <  p->correlated.n_uncorrelated ; i++)	\
+      {									\
+	correlated[p->correlated.index_uncorrelated[i]] = -1;		\
+      }									\
+  }									\
+									\
+  void									\
+  stats_permutation_correlated_set##SUFFIX(struct stats_permutation##SUFFIX *p, ssize_t correlated[p->n]) \
+  {									\
+    p->correlated.n_correlated = p->correlated.n_uncorrelated = 0;	\
+									\
+    for (size_t i = 0 ; i <  p->n ; i++)				\
+      {									\
+         ssize_t predictor = correlated[i];		\
+	 if ( 0 <= predictor)						\
+	   {								\
+	     p->correlated.index_best_predictor[i] = predictor;		\
+	     p->correlated.index_correlated[ p->correlated.n_correlated++ ] = i; \
+	   }								\
+	 else								\
+	   p->correlated.index_uncorrelated[ p->correlated.n_uncorrelated++ ] = i; \
+      }									\
+  }									\
 									\
   int									\
-  stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, size_t n, TYPE res[n]) \
+  stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, TYPE res[p->n]) \
   {									\
+    size_t n = p->n;							\
+  									\
     if ( STATS_PERMUTATION == p->tag )					\
       {									\
 	memcpy(res, p->vec, sizeof(TYPE) * n);				\
@@ -150,10 +182,11 @@ shuffle_n_size_t(size_t n, size_t *vec)
 	    size_t to_predict = p->correlated.index_correlated[i];	\
 	    size_t predictor = p->correlated.index_best_predictor[to_predict]; \
 	    struct stats_predict_results##SUFFIX predict_res;		\
-									\
+	    								\
 	    p->correlated.predict(to_predict,  predictor, p->vec[ predictor ], \
 				  STATS_PFLAGS_PREDICT, &predict_res,  p->correlated.cls); \
-	    p->vec[to_predict] = predict_res.y;				\
+	    res[to_predict] = predict_res.y;				\
+	    printf("predict %zu, %zu = %f\n", to_predict, predictor, (double) predict_res.y); \
 	  }								\
 									\
 	free(index);							\
