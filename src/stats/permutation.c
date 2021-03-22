@@ -5,10 +5,6 @@
 #include "ale/error.h"
 
 
-enum {
-      STATS_PERMUTATION,
-      STATS_PERMUTATION_CORRELATED
-};
 
 
 static void
@@ -17,7 +13,7 @@ shuffle_n_size_t(size_t n, size_t *vec)
   for (size_t i = 0 ; i < n ; i++)
     vec[i] = i;
 
-  stats_shuffle(vec, sizeof(size_t), n);
+  stats_shuffle(vec, n, sizeof(size_t));
 }
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
@@ -30,10 +26,11 @@ shuffle_n_size_t(size_t n, size_t *vec)
   }									\
 									\
   int									\
-  stats_permutation_correlated_init##SUFFIX(struct stats_permutation##SUFFIX *p, size_t n, TYPE vec[n], \
-				    int (*predict)(size_t i, size_t j, int flags, TYPE x, \
-						   struct stats_predict_results##SUFFIX *res, void *cls), \
-				    void *cls)				\
+  stats_permutation_correlated_init##SUFFIX(struct stats_permutation##SUFFIX *p, \
+					    size_t n, TYPE vec[n], ssize_t max_uncorrelated, \
+					    int (*predict)(size_t i, size_t j, int flags, TYPE x, \
+							   struct stats_predict_results##SUFFIX *res, void *cls), \
+					    void *cls)			\
   {									\
     stats_permutation_init##SUFFIX(p, n, vec);				\
 									\
@@ -41,7 +38,7 @@ shuffle_n_size_t(size_t n, size_t *vec)
     p->correlated.n_uncorrelated = p->correlated.n_correlated = 0;	\
     p->correlated.predict = predict;					\
     p->correlated.cls = cls;						\
-    p->correlated.max_uncorrelated = 100;				\
+    p->correlated.max_uncorrelated = (-1 == max_uncorrelated)? n : (size_t) max_uncorrelated; \
     p->correlated.index_uncorrelated =  malloc( sizeof(size_t) * p->correlated.max_uncorrelated ); \
     p->correlated.index_correlated =  malloc( sizeof(size_t) * n );	\
     p->correlated.index_best_predictor =  malloc( sizeof(size_t) * n );	\
@@ -100,7 +97,7 @@ shuffle_n_size_t(size_t n, size_t *vec)
 	  }								\
       }									\
 									\
-    for (size_t i = p->correlated.n_correlated ; i < p->n ; i++)	\
+    for (size_t i = p->correlated.n_correlated + p->correlated.n_uncorrelated ; i < p->n ; i++)	\
       p->correlated.index_correlated[ p->correlated.n_correlated++ ] = index[i]; \
 									\
     /* Correlated indexes */						\
@@ -136,8 +133,8 @@ shuffle_n_size_t(size_t n, size_t *vec)
   {									\
     if ( STATS_PERMUTATION == p->tag )					\
       {									\
-	memcpy(res, p->vec, sizeof(TYPE) * n);			\
-	stats_shuffle(res, sizeof(TYPE), n);				\
+	memcpy(res, p->vec, sizeof(TYPE) * n);				\
+	stats_shuffle(res, n, sizeof(TYPE));				\
       }									\
     else if ( STATS_PERMUTATION_CORRELATED == p->tag )			\
       {									\

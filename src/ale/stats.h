@@ -21,6 +21,11 @@ enum {
       STATS_PFLAGS_ALL     = STATS_PFLAGS_PREDICT | STATS_PFLAGS_R | STATS_PFLAGS_MSE | STATS_PFLAGS_PVALUE
 };
 
+enum {								
+      STATS_PERMUTATION,
+      STATS_PERMUTATION_CORRELATED
+};
+
 void stats_shuffle(void *vec, size_t nmemb, size_t size);
 
 #define STATS_GENERIC_HEADERS(SUFFIX,TYPE)				\
@@ -106,7 +111,7 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   {									\
     TYPE y, r, mse, pvalue;						\
   };									\
-									\
+  									\
   struct stats_permutation##SUFFIX					\
   {									\
     int tag;								\
@@ -130,7 +135,7 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   void stats_permutation_init##SUFFIX(struct stats_permutation##SUFFIX *p, \
 				      size_t n, TYPE vec[n]);		\
   int stats_permutation_correlated_init##SUFFIX(struct stats_permutation##SUFFIX *p, \
-						size_t n, TYPE vec[n],	\
+						size_t n, TYPE vec[n], ssize_t max_uncorrelated,  \
 						int (*predict)(size_t i, size_t j, int flags, TYPE x, \
 							       struct stats_predict_results##SUFFIX *res, void *cls), \
 						void *cls);		\
