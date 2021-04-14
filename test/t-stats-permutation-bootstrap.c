@@ -94,7 +94,23 @@ main(int argc, char *argv[argc])
 
   stats_permutation_destroy(&permutation);
 
+  // permutation without LD from set
+  ret = stats_permutation_correlated_init(&permutation, LEN, x, -1, predict_no_ld, NULL);
+  ERROR_FATAL(0 != ret, "FAIL: stats_permutation_correlated_init() != 0\n");
+  
+  for (size_t i = 0 ; i < LEN ; i++) 
+    corr[i] = -1;
 
+  stats_permutation_correlated_set(&permutation, corr);
+
+  stats_permutation(&permutation, res);
+  qsort_r(res, LEN, sizeof(double), 
+	  sort_compar_double, NULL);
+  for (size_t i = 0 ; i < LEN ; i++) 
+    ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res[i], i, EPS), "FAIL: from set, res.sorted[%zu] = %f != %zu\n", i, res[i], i); 
+
+  stats_permutation_destroy(&permutation);
+ 
   // LD without LD ;-)
   ret = stats_permutation_correlated_init(&permutation, LEN, x, -1, predict_no_ld, NULL);
   ERROR_FATAL(0 != ret, "FAIL: stats_permutation_correlated_init() != 0\n");
@@ -113,8 +129,7 @@ main(int argc, char *argv[argc])
 	  sort_compar_double, NULL);
   for (size_t i = 0 ; i < LEN ; i++) 
     ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res[i], i, EPS), "FAIL: res.sorted[%zu] = %f != %zu\n", i, res[i], i); 
-  printf("\n");
-  
+   
   stats_permutation_destroy(&permutation);
 
   
