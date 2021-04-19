@@ -5,6 +5,7 @@
 
 #define ALG_GENERIC_HEADERS(SUFFIX,TYPE)				\
   TYPE* alg_sub_v_v##SUFFIX(size_t n, TYPE v1[n], TYPE v2[n], TYPE res[n]); \
+  TYPE*  alg_opposite_v##SUFFIX(size_t n, TYPE v[n], TYPE res[n]);	\
 									\
   TYPE* alg_identity_init##SUFFIX(size_t m, size_t n, TYPE A[m][n]);	\
   TYPE* alg_transpose##SUFFIX(size_t m, size_t n, const TYPE A[m][n], TYPE res[n][m]); \

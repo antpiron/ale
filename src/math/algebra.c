@@ -6,76 +6,85 @@
 #include "ale/algebra.h"
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
-  TYPE								\
-  alg_sum_of_squares##SUFFIX(size_t n, const TYPE vec[n])			\
+  TYPE									\
+  alg_sum_of_squares##SUFFIX(size_t n, const TYPE vec[n])		\
   {									\
     TYPE sum = 0;							\
-									\
+    									\
     for (size_t i = 0 ; i < n ; i++)					\
       sum += vec[i] * vec[i];						\
-									\
+    									\
     return sum;								\
   }									\
-									\
-  TYPE								\
+  									\
+  TYPE									\
   alg_norm##SUFFIX(size_t n, const TYPE vec[n])				\
   {									\
-    return sqrt##SUFFIX(alg_sum_of_squares##SUFFIX(n, vec));				\
+    return sqrt##SUFFIX(alg_sum_of_squares##SUFFIX(n, vec));		\
   }									\
-									\
-  TYPE*								\
-  alg_normalize##SUFFIX(size_t n, const TYPE vec[n], TYPE res[n])		\
+  									\
+  TYPE*									\
+  alg_normalize##SUFFIX(size_t n, const TYPE vec[n], TYPE res[n])	\
   {									\
-    TYPE norm = alg_norm##SUFFIX(n, vec);					\
-									\
+    TYPE norm = alg_norm##SUFFIX(n, vec);				\
+    									\
     for (size_t i = 0 ; i < n ; i++)					\
       res[i] = vec[i] / norm;						\
-									\
+    									\
     return res;								\
   }									\
-									\
+  									\
   TYPE*								\
-  alg_identity_init##SUFFIX(size_t m, size_t n, TYPE A[m][n])			\
+  alg_identity_init##SUFFIX(size_t m, size_t n, TYPE A[m][n])		\
   {									\
     for (size_t i = 0 ; i < m ; i++)					\
       for (size_t j = 0 ; j < m ; j++)					\
 	A[i][j] = ( i == j )?1:0;					\
-									\
+    									\
     return &A[0][0];							\
   }									\
-									\
-  TYPE								\
+  									\
+  TYPE									\
   alg_dot##SUFFIX(size_t n, const TYPE v1[n], const TYPE v2[n])		\
   {									\
     TYPE res = 0;							\
     for (size_t i = 0 ; i < n ; i++)					\
       res += v1[i] * v2[i];						\
-									\
+    									\
     return res;								\
   }									\
-									\
-  TYPE*								\
+  									\
+  TYPE*									\
   alg_lin_comb2##SUFFIX(size_t n, TYPE a1, const TYPE v1[n],		\
-		TYPE a2, const TYPE v2[n], TYPE res[n])		\
+			TYPE a2, const TYPE v2[n], TYPE res[n])		\
   {									\
-									\
+    									\
     for (size_t i = 0 ; i < n ; i++)					\
       res[i] = a1*v1[i] + a2*v2[i];					\
-									\
+    									\
     return res;								\
   }									\
-									\
-  TYPE*								\
+  									\
+  TYPE*									\
   alg_sub_v_v##SUFFIX(size_t n, TYPE v1[n], TYPE v2[n], TYPE res[n])	\
   {									\
     for (size_t i = 0 ; i < n ; i++)					\
       res[i] = v1[i] - v2[i];						\
-									\
+    									\
     return res;								\
   }									\
-									\
-  TYPE*								\
-  alg_div_v_c##SUFFIX(size_t n, const TYPE vec[n], TYPE d,  TYPE res[n])	\
+  									\
+  TYPE*									\
+  alg_opposite_v##SUFFIX(size_t n, TYPE v[n], TYPE res[n])		\
+  {									\
+    for (size_t i = 0 ; i < n ; i++)					\
+      res[i] = -v[i];							\
+    									\
+    return res;								\
+  }									\
+   									\
+  TYPE*									\
+  alg_div_v_c##SUFFIX(size_t n, const TYPE vec[n], TYPE d,  TYPE res[n]) \
   {									\
     for (size_t i = 0 ; i < n ; i++)					\
       res[i] = vec[i] / d;						\
@@ -83,8 +92,8 @@
     return res;								\
   }									\
 									\
-  TYPE*								\
-  alg_mul_v_c##SUFFIX(size_t n, const TYPE vec[n], TYPE d,  TYPE res[n])	\
+  TYPE*									\
+  alg_mul_v_c##SUFFIX(size_t n, const TYPE vec[n], TYPE d,  TYPE res[n]) \
   {									\
     for (size_t i = 0 ; i < n ; i++)					\
       res[i] = vec[i] * d;						\
@@ -92,7 +101,7 @@
     return res;								\
   }									\
 									\
-  TYPE*								\
+  TYPE*									\
   alg_mul_m_v##SUFFIX(size_t m, size_t n, const TYPE A[m][n], const TYPE vec[n], TYPE res[n]) \
   {									\
     for (size_t i = 0 ; i < m ; i++)					\
@@ -105,7 +114,7 @@
     return res;								\
   }									\
 									\
-  TYPE*								\
+  TYPE*									\
   alg_mul_vt_m##SUFFIX(size_t m, size_t n, const TYPE vec[m], const TYPE A[m][n], TYPE res[n]) \
   {									\
     for (size_t i = 0 ; i < n ; i++)					\
@@ -248,10 +257,10 @@
     TYPE (*V)[n][n] = malloc(sizeof(*V));				\
     int ret;								\
 									\
-    alg_QR_householder##SUFFIX(n, n, A, *V);					\
-    householder_proj_QtB##SUFFIX(n, n, p, *V, B);				\
+    alg_QR_householder##SUFFIX(n, n, A, *V);				\
+    householder_proj_QtB##SUFFIX(n, n, p, *V, B);			\
 									\
-    ret = alg_UX_B_solve##SUFFIX(n, p, A, B, X);				\
+    ret = alg_UX_B_solve##SUFFIX(n, p, A, B, X);			\
 									\
     free(V);								\
 									\
@@ -269,18 +278,18 @@
     int ret;								\
 									\
     /* TODO: handle return code */					\
-    alg_QR_householder##SUFFIX(m, n, A, *V);					\
-    householder_proj_QtB##SUFFIX(m, n, p, *V, B);				\
+    alg_QR_householder##SUFFIX(m, n, A, *V);				\
+    householder_proj_QtB##SUFFIX(m, n, p, *V, B);			\
+    									\
+    alg_U_transpose##SUFFIX(n, A, *Rt);					\
 									\
-    alg_U_transpose##SUFFIX(n, A, *Rt);						\
-									\
-    alg_mul_L_A##SUFFIX(n, p,  *Rt, B, *RtQtB);					\
-									\
-    ret = alg_LX_B_solve##SUFFIX(n, p, *Rt, *RtQtB, *Y);			\
+    alg_mul_L_A##SUFFIX(n, p,  *Rt, B, *RtQtB);				\
+    									\
+    ret = alg_LX_B_solve##SUFFIX(n, p, *Rt, *RtQtB, *Y);		\
     if (ret >= 0)							\
-      ret = alg_UX_B_solve##SUFFIX(n, p, A, *Y, X);				\
-									\
-									\
+      ret = alg_UX_B_solve##SUFFIX(n, p, A, *Y, X);			\
+    									\
+    									\
     free(V);								\
     free(Rt);								\
     free(RtQtB);							\
@@ -296,15 +305,15 @@
     if (m < n)								\
       return -1;							\
 									\
-    alg_transpose##SUFFIX(m,n,A,Qt);						\
+    alg_transpose##SUFFIX(m,n,A,Qt);					\
     for (size_t i = 0 ; i < n ; i++)					\
       {									\
-	R[i][i] = alg_norm##SUFFIX(m, Qt[i]);					\
-	alg_div_v_c##SUFFIX(m, Qt[i], R[i][i], Qt[i]);				\
+	R[i][i] = alg_norm##SUFFIX(m, Qt[i]);				\
+	alg_div_v_c##SUFFIX(m, Qt[i], R[i][i], Qt[i]);			\
 	for (size_t j = i+1 ; j < n ; j++)				\
 	  {								\
-	    R[i][j] = alg_dot##SUFFIX(m, Qt[i], Qt[i]);				\
-	    alg_lin_comb2##SUFFIX(m, 1.0, Qt[j], -R[i][j], Qt[i], Qt[j]);	\
+	    R[i][j] = alg_dot##SUFFIX(m, Qt[i], Qt[i]);			\
+	    alg_lin_comb2##SUFFIX(m, 1.0, Qt[j], -R[i][j], Qt[i], Qt[j]); \
 	  }								\
       }									\
 									\
@@ -377,27 +386,27 @@
     for (size_t k = 0 ; k < n ; k++)					\
       {									\
 	size_t mv = m - k;						\
-	TYPE ss, norm;						\
+	TYPE ss, norm;							\
 									\
 	for (size_t i = 0 ; i < mv ; i++)				\
 	  V[k][i] = A[i+k][k];						\
 	/* ||v_2:m-k|| */						\
-	ss = alg_sum_of_squares##SUFFIX(mv-1, V[k]+1);				\
+	ss = alg_sum_of_squares##SUFFIX(mv-1, V[k]+1);			\
 	/* ||v|| */							\
-	norm = sqrt##SUFFIX(V[k][0]*V[k][0] + ss);				\
+	norm = sqrt##SUFFIX(V[k][0]*V[k][0] + ss);			\
 	/* v = v + sign(v1) * e1 */					\
-	V[k][0] += copysign##SUFFIX(1.0, V[k][0]) * norm;			\
+	V[k][0] += copysign##SUFFIX(1.0, V[k][0]) * norm;		\
 	/* ||v|| */							\
-	norm = sqrt##SUFFIX(V[k][0]*V[k][0] + ss);				\
+	norm = sqrt##SUFFIX(V[k][0]*V[k][0] + ss);			\
 	if (0 == norm)							\
 	  {								\
 	    ret = -1;							\
 	    break;							\
 	  }								\
-	alg_div_v_c##SUFFIX(mv, V[k], norm, V[k]);				\
+	alg_div_v_c##SUFFIX(mv, V[k], norm, V[k]);			\
 									\
 	/* A_k:m,k:n = A_k:m,k:n - 2 * v * v^t * A_k:m,k:n */		\
-	householder_proj##SUFFIX(m, n, k, V[k], A, *vA);			\
+	householder_proj##SUFFIX(m, n, k, V[k], A, *vA);		\
       }									\
 									\
     free(vA);								\

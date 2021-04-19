@@ -18,6 +18,7 @@
 #include <ale/process.h>
 #include <ale/index.h>
 #include <ale/matrix.h>
+#include <ale/optimisation.h>
 #include <ale/memory.h>
 #include <ale/skiplist.h>
 #include <ale/sort.h>
