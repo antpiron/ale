@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ale/algebra.h"
+#include "ale/error.h"
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   TYPE									\
@@ -70,6 +71,15 @@
   {									\
     for (size_t i = 0 ; i < n ; i++)					\
       res[i] = v1[i] - v2[i];						\
+    									\
+    return res;								\
+  }									\
+  									\
+  TYPE*									\
+  alg_add_v_v##SUFFIX(size_t n, TYPE v1[n], TYPE v2[n], TYPE res[n])	\
+  {									\
+    for (size_t i = 0 ; i < n ; i++)					\
+      res[i] = v1[i] + v2[i];						\
     									\
     return res;								\
   }									\
@@ -199,8 +209,7 @@
     TYPE *sum = NULL;							\
 									\
     for (size_t i = 0 ; i < n ; i++)					\
-      if (0 == U[i][i])							\
-	return -1;							\
+      ERROR_CUSTOM_RET(0 == U[i][i], 1, -1);				\
 									\
     sum = malloc(sizeof(TYPE) * p);					\
 									\
@@ -227,8 +236,7 @@
     TYPE *sum = NULL;							\
 									\
     for (size_t i = 0 ; i < n ; i++)					\
-      if (0 == L[i][i])							\
-	return -1;							\
+      ERROR_CUSTOM_RET(0 == L[i][i], 1, -1);				\
 									\
     sum = malloc(sizeof(TYPE) * p);					\
 									\
@@ -439,4 +447,20 @@ print_ml(size_t m, size_t n, long double A[m][n])
 	printf("%Lf\t", A[i][j]);
       printf("\n");
     }	
+}
+
+void	
+print_v(size_t n, double v[n])
+{
+  for (size_t i = 0 ; i < n ; i++)
+    printf("%f\t", v[i]);
+  printf("\n");
+}
+
+void	
+print_vl(size_t n, long double v[n])
+{
+  for (size_t i = 0 ; i < n ; i++)
+    printf("%Lf\t", v[i]);
+  printf("\n");
 }
