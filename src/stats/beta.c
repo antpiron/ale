@@ -67,7 +67,7 @@
     TYPE dg = ale_digamma(x[0] + x[1]);					\
 									\
     y[0] = c->sum_ln_x -  c->n * ( ale_digamma(x[0]) - dg );		\
-    y[1] = c->sum_ln_1x - c->n * ( ale_digamma(x[1]) - dg);		\
+    y[1] = c->sum_ln_1x - c->n * ( ale_digamma(x[1]) - dg );		\
   }									\
   									\
   int									\
@@ -76,7 +76,6 @@
     int ret = 0;							\
     struct grad_cls##SUFFIX cls = { .n = n,  .sum_ln_x = 0, .sum_ln_1x = 0}; \
     stats_beta_fit_mm##SUFFIX(n, x, alpha, beta);			\
-    TYPE ab[2] = {*alpha, *beta};					\
 									\
     for (size_t i = 0 ; i < n ; i++)					\
       {									\
@@ -84,8 +83,24 @@
 	cls.sum_ln_1x = log(1 - x[i]);					\
       }									\
 									\
-    ret = optimisation_gradient_descent##SUFFIX(2, ab, OPTIM_MAX,	\
-						NULL, gradf##SUFFIX, &cls); \
+    for (size_t i = 0 ; i < 4 ; i++)					\
+      {									\
+	TYPE ab[2] = {*alpha, *beta};					\
+	ret = optimisation_gradient_descent##SUFFIX(2, ab, OPTIM_MAX,	\
+						    NULL, gradf##SUFFIX, &cls); \
+	if ( 0 == ret)							\
+	  {								\
+	    *alpha = ab[0];						\
+	    *beta = ab[1];						\
+	    break;							\
+	  }								\
+	else								\
+	  {								\
+	    *alpha = stats_unif_std_rand() * 1000;			\
+	    *beta = stats_unif_std_rand() * 1000;			\
+	  }								\
+      }									\
+									\
     ERROR_RET(0 != ret, -1);						\
     									\
     return 0;								\

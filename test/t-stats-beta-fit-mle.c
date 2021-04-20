@@ -20,11 +20,14 @@ main(int argc, char *argv[argc])
     {
       alpha = stats_unif_std_rand() * 100;
       beta = stats_unif_std_rand() * 100;
+
+      printf("stats_beta_fit_mle(%f, %f)\n", alpha, beta);
       
       for (int i = 0 ; i < LEN ; i++)
 	res = x[i] = stats_beta_rand(alpha, beta);
       
       ret = stats_beta_fit_mle(LEN, x, &ralpha, &rbeta);
+      ERROR_FATAL_FMT(0 != ret, "FAIL: stats_beta_fit_mle(), alpha = %f, beta = %f\n", ralpha, rbeta);
       ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(ralpha, alpha, eps), "FAIL: stats_beta_fit_mle(), alpha == %f != %f\n",
 			    ralpha, alpha);
       ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(rbeta, beta, eps), "FAIL: stats_beta_fit_mle(), beta == %f != %f\n",

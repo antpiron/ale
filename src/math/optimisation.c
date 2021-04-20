@@ -7,7 +7,7 @@
 #include "ale/error.h"
 
 
-#define MAX_ITER 1024
+#define MAX_ITER (1ll << 11)
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   /* https://en.wikipedia.org/wiki/Gradient_descent */			\
