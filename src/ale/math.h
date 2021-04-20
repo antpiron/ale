@@ -33,6 +33,13 @@ MATH_GENERIC_HEADERS(l,long double)
   int									\
   ale_cmp_double##SUFFIX(TYPE a, TYPE b, TYPE eps)			\
   {									\
+    if ( isinf##SUFFIX(a) && isinf##SUFFIX(b) )				\
+      return isinf##SUFFIX(a) - isinf##SUFFIX(b);			\
+    if ( isinf##SUFFIX(a) )						\
+      return 1;								\
+    if ( isinf##SUFFIX(b) )						\
+      return -1;							\
+									\
     TYPE diff = a - b;							\
     TYPE max = (fabs##SUFFIX(a) >= fabs##SUFFIX(b)) ?			\
       fabs##SUFFIX(a) :							\

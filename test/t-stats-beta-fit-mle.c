@@ -27,12 +27,15 @@ main(int argc, char *argv[argc])
 	res = x[i] = stats_beta_rand(alpha, beta);
       
       ret = stats_beta_fit_mle(LEN, x, &ralpha, &rbeta);
-      ERROR_FATAL_FMT(0 != ret, "FAIL: stats_beta_fit_mle(), alpha = %f, beta = %f\n", ralpha, rbeta);
-      ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(ralpha, alpha, eps), "FAIL: stats_beta_fit_mle(), alpha == %f != %f\n",
-			    ralpha, alpha);
-      ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(rbeta, beta, eps), "FAIL: stats_beta_fit_mle(), beta == %f != %f\n",
-			    rbeta, beta);
-    }
+      ERROR_FATAL_FMT(0 != ret, "FAIL: stats_beta_fit_mle(%f, %f), alpha = %f, beta = %f\n", alpha, beta, ralpha, rbeta);
+      printf("stats_beta_fit_mle(%f, %f) => alpha = %f, beta = %f\n", alpha, beta, ralpha, rbeta);
+      ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(ralpha, alpha, eps),
+			    "FAIL: stats_beta_fit_mle(%f, %f), alpha == %f != %f\n",
+			    alpha, beta, ralpha, alpha);
+      ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(rbeta, beta, eps),
+			    "FAIL: stats_beta_fit_mle(%f, %f), beta == %f != %f\n",
+			    alpha, beta, rbeta, beta);
+     }
   free(x);
 
   return EXIT_SUCCESS;

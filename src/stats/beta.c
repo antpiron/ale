@@ -64,9 +64,14 @@
   gradf##SUFFIX(TYPE *y, TYPE *x, void *cls)				\
   {									\
     struct grad_cls##SUFFIX *c = cls;					\
+    if ( x[0] < 0 || x[1] < 0 )						\
+      {									\
+	y[0] = y[1] = 0;						\
+	return;								\
+      }									\
     TYPE dg = ale_digamma(x[0] + x[1]);					\
 									\
-    y[0] = c->sum_ln_x -  c->n * ( ale_digamma(x[0]) - dg );		\
+    y[0] = c->sum_ln_x  - c->n * ( ale_digamma(x[0]) - dg );		\
     y[1] = c->sum_ln_1x - c->n * ( ale_digamma(x[1]) - dg );		\
   }									\
   									\
@@ -75,32 +80,24 @@
   {									\
     int ret = 0;							\
     struct grad_cls##SUFFIX cls = { .n = n,  .sum_ln_x = 0, .sum_ln_1x = 0}; \
-    stats_beta_fit_mm##SUFFIX(n, x, alpha, beta);			\
 									\
     for (size_t i = 0 ; i < n ; i++)					\
       {									\
-	cls.sum_ln_x = log(x[i]);					\
-	cls.sum_ln_1x = log(1 - x[i]);					\
+	cls.sum_ln_x += log(x[i]);					\
+	cls.sum_ln_1x += log(1 - x[i]);					\
       }									\
 									\
-    for (size_t i = 0 ; i < 4 ; i++)					\
+    stats_beta_fit_mm##SUFFIX(n, x, alpha, beta);			\
+    TYPE ab[2] = {*alpha, *beta};					\
+    ret = optimisation_gradient_descent##SUFFIX(2, ab, OPTIM_MAX,	\
+						NULL, gradf##SUFFIX, &cls); \
+    /* if <= 0, return the mm estimates */				\
+    if (ab[0] > 0 && ab[1] > 0)						\
       {									\
-	TYPE ab[2] = {*alpha, *beta};					\
-	ret = optimisation_gradient_descent##SUFFIX(2, ab, OPTIM_MAX,	\
-						    NULL, gradf##SUFFIX, &cls); \
-	if ( 0 == ret)							\
-	  {								\
-	    *alpha = ab[0];						\
-	    *beta = ab[1];						\
-	    break;							\
-	  }								\
-	else								\
-	  {								\
-	    *alpha = stats_unif_std_rand() * 1000;			\
-	    *beta = stats_unif_std_rand() * 1000;			\
-	  }								\
+	*alpha = ab[0];							\
+	*beta = ab[1];							\
       }									\
-									\
+      									\
     ERROR_RET(0 != ret, -1);						\
     									\
     return 0;								\

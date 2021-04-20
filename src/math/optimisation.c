@@ -7,7 +7,7 @@
 #include "ale/error.h"
 
 
-#define MAX_ITER (1ll << 11)
+#define MAX_ITER (1ll << 12)
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   /* https://en.wikipedia.org/wiki/Gradient_descent */			\
@@ -27,9 +27,7 @@
     									\
     gradf(g, x, cls);							\
     									\
-    for (size_t iter = 0 ;						\
-	 alg_norm##SUFFIX(n, g) > ALE_EPS##SUFFIX ;			\
-	 iter++)							\
+    for (size_t iter = 0 ; ; iter++)					\
       {									\
 	if (OPTIM_MIN == direction)					\
 	  alg_opposite_v##SUFFIX(n, g, p);				\
@@ -37,6 +35,8 @@
 	  memcpy(p, g, sizeof(TYPE) * n);				\
 	alg_mul_v_c##SUFFIX(n, p, alpha, p);				\
 									\
+	if ( alg_norm##SUFFIX(n, p) <= ALE_EPS##SUFFIX * 10 )		\
+	  break;							\
 	memcpy(delta_x, x, sizeof(TYPE) * n);				\
 	alg_add_v_v##SUFFIX(n, x, p, x);				\
 	alg_sub_v_v##SUFFIX(n, x, delta_x, delta_x);			\
@@ -45,11 +45,11 @@
 	gradf(g, x, cls);						\
 	alg_sub_v_v##SUFFIX(n, g, delta_grad, delta_grad);		\
 	denom = alg_dot##SUFFIX(n, delta_grad, delta_grad);		\
-	ERROR_CUSTOM_GOTO(0 == denom, ERROR_GRADIENT_DESCENT_DIVISION_BY_ZERO, ERROR##SUFFIX); \
-	alpha = fabs##SUFFIX(alg_dot##SUFFIX(n, delta_x, delta_grad)) / denom; \
+	if (0 != denom)							\
+	  alpha = fabs##SUFFIX(alg_dot##SUFFIX(n, delta_x, delta_grad)) / denom; \
 	ERROR_CUSTOM_GOTO(iter >= MAX_ITER, ERROR_GRADIENT_DESCENT_TOO_MANY_ITER, ERROR##SUFFIX); \
       }									\
-									\
+    									\
     for (size_t i = 0 ; i < n ; i++)					\
       {									\
 	ERROR_CUSTOM_GOTO(isnan(x[i]), ERROR_GRADIENT_DESCENT_NO_CONVERGENCE, ERROR##SUFFIX); \
