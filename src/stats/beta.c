@@ -103,10 +103,10 @@
     return 0;								\
   }									\
 									\
-  void									\
+  int									\
   stats_beta_fit##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta) \
   {									\
-    stats_beta_fit_mm##SUFFIX(n, x, alpha, beta);			\
+    return stats_beta_fit_mle##SUFFIX(n, x, alpha, beta);		\
   }
 
 GENERIC_FUNC(,double)
