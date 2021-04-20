@@ -84,7 +84,31 @@
       }									\
     									\
     return factor * (f - 1.0);						\
+  }									\
+  									\
+  TYPE									\
+  ale_digamma##SUFFIX(TYPE x)						\
+  {									\
+    TYPE sum = 0;							\
+    TYPE num[]   = { -1,   1,  -1,   1,  -1,   691, -1};		\
+    TYPE denom[] = { 12, 120, 252, 240, 132, 32760, 12};		\
+    									\
+    for ( ; x < 10 ; x++)						\
+      sum -= 1 / x;							\
+    									\
+    sum += log##SUFFIX(x) - 0.5##SUFFIX / x;				\
+    									\
+    const TYPE x2 = 1.0L / (x*x);					\
+    TYPE fact = x2;							\
+    for (size_t i = 0 ; i < 7 ; i++, fact *= x2)			\
+       {								\
+	 sum += num[i] / denom[i] * fact;				\
+       }								\
+       									\
+    return sum;								\
   }
+
+  
 
 GENERIC_FUNC(,double)
 GENERIC_FUNC(l,long double)
