@@ -35,7 +35,7 @@
 	  memcpy(p, g, sizeof(TYPE) * n);				\
 	alg_mul_v_c##SUFFIX(n, p, alpha, p);				\
 									\
-	if ( alg_norm##SUFFIX(n, p) <= ALE_EPS##SUFFIX * 10 )		\
+	if ( alg_norm##SUFFIX(n, p) <= ALE_EPS##SUFFIX * 100 )		\
 	  break;							\
 	memcpy(delta_x, x, sizeof(TYPE) * n);				\
 	alg_add_v_v##SUFFIX(n, x, p, x);				\
