@@ -93,6 +93,7 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   TYPE stats_beta_F##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
   TYPE stats_beta_F_inv##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
   void stats_beta_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
+  int stats_beta_fit_mle_newton##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
   int stats_beta_fit_mle##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
   int stats_beta_fit##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
   									\

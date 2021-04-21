@@ -92,7 +92,7 @@
     stats_beta_fit_mm##SUFFIX(n, x, alpha, beta);			\
     y[0] = *alpha; y[1] = *beta;					\
 									\
-    while (1)								\
+    for (size_t i = 0 ; i < 1024 ; i++ )				\
       {									\
 	TYPE dg = ale_digamma(y[0] + y[1]);				\
 	grad[0] = sum_ln_x - n * (ale_digamma(y[0]) - dg);		\
@@ -111,9 +111,11 @@
 	H1[1][1] = inv_det * H[0][0];					\
 	H1[1][0] = -inv_det * H[1][0];					\
 	H1[0][1] = -inv_det * H[0][1];					\
+									\
 	alg_mul_m_v##SUFFIX(2, 2, H1, grad, p);				\
 	alg_add_v_v##SUFFIX(2, y, p, y);				\
-	if ( alg_norm##SUFFIX(2, p) <= ALE_EPS##SUFFIX * 100 )		\
+	TYPE norm =  alg_norm##SUFFIX(2, grad);				\
+	if ( norm <= ALE_EPS##SUFFIX )					\
 	  break;							\
       }									\
     									\
@@ -153,7 +155,7 @@
   int									\
   stats_beta_fit##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta) \
   {									\
-    return stats_beta_fit_mle##SUFFIX(n, x, alpha, beta);		\
+    return stats_beta_fit_mle_newton##SUFFIX(n, x, alpha, beta);	\
   }
 
 GENERIC_FUNC(,double)
