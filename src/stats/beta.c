@@ -5,6 +5,7 @@
 #include "ale/math.h"
 #include "ale/error.h"
 #include "ale/optimisation.h"
+#include "ale/algebra.h"
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   /* https://en.wikipedia.org/wiki/Beta_distribution#Generating_beta-distributed_random_variates */ \
@@ -74,7 +75,53 @@
     y[0] = c->sum_ln_x  - c->n * ( ale_digamma(x[0]) - dg );		\
     y[1] = c->sum_ln_1x - c->n * ( ale_digamma(x[1]) - dg );		\
   }									\
-  									\
+									\
+    /* https://www.real-statistics.com/distribution-fitting/distribution-fitting-via-maximum-likelihood/fitting-beta-distribution-parameters-mle/ */ \
+  int									\
+  stats_beta_fit_mle_newton##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta) \
+  {									\
+    TYPE grad[2], H[2][2], H1[2][2], p[2], y[2];			\
+    TYPE sum_ln_x = 0, sum_ln_1x = 0;					\
+									\
+    for (size_t i = 0 ; i < n ; i++)					\
+      {									\
+	sum_ln_x += log(x[i]);						\
+	sum_ln_1x += log(1 - x[i]);					\
+      }									\
+    									\
+    stats_beta_fit_mm##SUFFIX(n, x, alpha, beta);			\
+    y[0] = *alpha; y[1] = *beta;					\
+									\
+    while (1)								\
+      {									\
+	TYPE dg = ale_digamma(y[0] + y[1]);				\
+	grad[0] = sum_ln_x - n * (ale_digamma(y[0]) - dg);		\
+	grad[1] = sum_ln_x - n * (ale_digamma(y[1]) - dg);		\
+									\
+	TYPE tg = ale_trigamma(y[0] + y[1]);				\
+	H[0][0] = - n * (ale_trigamma(y[0]) - tg);			\
+	H[1][1] = - n * (ale_trigamma(y[1]) - tg);			\
+	H[0][1] = H[1][0] = n * tg;					\
+									\
+	TYPE det = H[0][0] * H[1][1] - H[0][1] * H[1][0];		\
+	ERROR_CUSTOM_RET(0 == det, -1, 1);				\
+									\
+	TYPE inv_det = 1 / det;						\
+	H1[0][0] = inv_det * H[1][1];					\
+	H1[1][1] = inv_det * H[0][0];					\
+	H1[1][0] = -inv_det * H[1][0];					\
+	H1[0][1] = -inv_det * H[0][1];					\
+	alg_mul_m_v##SUFFIX(2, 2, H1, grad, p);				\
+	alg_add_v_v##SUFFIX(2, y, p, y);				\
+	if ( alg_norm##SUFFIX(2, p) <= ALE_EPS##SUFFIX * 100 )		\
+	  break;							\
+      }									\
+    									\
+    *alpha = y[0]; *beta = y[1];					\
+									\
+    return 0;								\
+  }									\
+									\
   int									\
   stats_beta_fit_mle##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta) \
   {									\

@@ -106,7 +106,30 @@
        }								\
        									\
     return sum;								\
+  }									\
+  									\
+  TYPE									\
+  ale_trigamma##SUFFIX(TYPE x)						\
+  {									\
+    TYPE sum = 0;							\
+    TYPE num[]   = { 1, -1,  1, -1,  5, -691, 7};			\
+    TYPE denom[] = { 6, 30, 42, 30, 66, 2730, 6};			\
+    									\
+    for ( ; x < 10 ; x++)						\
+      sum += 1 / (x*x);							\
+    									\
+    const TYPE x2 = 1.0L / (x*x);					\
+    sum += 1.0 / x + 0.5 * x2 ;						\
+    									\
+    TYPE fact = x2 / x;							\
+    for (size_t i = 0 ; i < 7 ; i++, fact *= x2)			\
+       {								\
+	 sum += num[i] / denom[i] * fact;				\
+       }								\
+       									\
+    return sum;								\
   }
+
 
   
 

@@ -7,6 +7,7 @@
   TYPE* alg_add_v_v##SUFFIX(size_t n, TYPE v1[n], TYPE v2[n], TYPE res[n]); \
   TYPE* alg_sub_v_v##SUFFIX(size_t n, TYPE v1[n], TYPE v2[n], TYPE res[n]); \
   TYPE* alg_mul_v_c##SUFFIX(size_t n, const TYPE vec[n], TYPE d,  TYPE res[n]); \
+  TYPE* alg_mul_m_v##SUFFIX(size_t m, size_t n, const TYPE A[m][n], const TYPE vec[n], TYPE res[n]); \
   TYPE*	alg_div_v_c##SUFFIX(size_t n, const TYPE vec[n], TYPE d,  TYPE res[n]); \
   TYPE* alg_opposite_v##SUFFIX(size_t n, TYPE v[n], TYPE res[n]);	\
   TYPE* alg_mul_m_v##SUFFIX(size_t m, size_t n, const TYPE A[m][n], const TYPE vec[n], TYPE res[n]); \

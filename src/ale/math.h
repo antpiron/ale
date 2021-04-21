@@ -20,6 +20,7 @@
   TYPE ale_riugamma##SUFFIX(TYPE x, TYPE a);				\
   TYPE ale_ibeta##SUFFIX(TYPE x, TYPE a, TYPE b);			\
   TYPE  ale_digamma##SUFFIX(TYPE x);					\
+  TYPE  ale_trigamma##SUFFIX(TYPE x);					\
   static inline int ale_cmp_double##SUFFIX(TYPE a, TYPE b, TYPE eps);
 
 
