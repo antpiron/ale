@@ -8,7 +8,7 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (1000000)
+#define LEN (2000000)
   double *x = malloc(sizeof(double)*LEN);
   double eps = 0.01;
   double count = 0;
@@ -20,7 +20,7 @@ main(int argc, char *argv[argc])
   
   for (int iter = 0 ; iter < 4 ; iter++)
     {
-      alpha = stats_unif_std_rand() * 100;
+      alpha = stats_unif_std_rand() * 10;
       beta = stats_unif_std_rand() * 100;
 
       printf("stats_beta_fit_mle(%f, %f)\n", alpha, beta);

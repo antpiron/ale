@@ -3,6 +3,7 @@
 #include <string.h>
 #include "ale/stats.h"
 #include "ale/error.h"
+#include "ale/matrix.h"
 
 
 
@@ -45,6 +46,25 @@ shuffle_n_size_t(size_t n, size_t *vec)
 									\
     return 0;								\
   }									\
+									\
+  int stats_predict_from_values##SUFFIX(size_t i, size_t j,		\
+					int flags, TYPE x,		\
+					struct stats_predict_results##SUFFIX *res, \
+					void *cls)			\
+  {									\
+    /* TODO: implement matrix as long double */				\
+    struct matrix *mat = cls;						\
+    double (*m)[mat->n] = (void*) mat->data;				\
+    double pvalue, rho, rho_abs;					\
+									\
+    stats_pearson_corr(mat->n, m[i], m[j], &pvalue, &rho);		\
+    res->pvalue = pvalue;						\
+    res->r = rho;							\
+    rho_abs = fabs(rho);						\
+    res->y = rho_abs * x + (1 - rho_abs) * stats_unif_std_rand();	\
+									\
+    return 0;								\
+  }  									\
 									\
   static								\
   void									\

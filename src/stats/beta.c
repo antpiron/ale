@@ -92,7 +92,7 @@
     stats_beta_fit_mm##SUFFIX(n, x, alpha, beta);			\
     y[0] = *alpha; y[1] = *beta;					\
 									\
-    for (size_t i = 0 ; i < 1024 ; i++ )				\
+    for (size_t i = 0 ; i < (1ll << 12) ; i++ )				\
       {									\
 	TYPE dg = ale_digamma(y[0] + y[1]);				\
 	grad[0] = sum_ln_x - n * (ale_digamma(y[0]) - dg);		\
