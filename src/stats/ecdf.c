@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "ale/stats.h"
 #include "ale/math.h"
+#include "ale/sort.h"
 
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
@@ -20,9 +21,9 @@
   {									\
     ecdf->n= n;								\
     ecdf->x = x;							\
-    ecdf->index = malloc(n * sizeof(size_t));				\
+    ecdf->index = malloc( n * sizeof(size_t) );				\
     sort_q_indirect(ecdf->index, x, n, sizeof(TYPE),			\
-		    sort_compar_double#SUFFIX, NULL);			\
+		    sort_compar_double##SUFFIX, NULL);			\
   }									\
   									\
   void									\
@@ -41,27 +42,40 @@
   stats_ecdf_F##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE x)		\
   {									\
     ssize_t l = 0, r = ecdf->n - 1;					\
+    TYPE x0, x1;							\
+    TYPE delta_p = (TYPE) 1 / (TYPE) (ecdf->n + 1);			\
     									\
     if ( x < ecdf->x[ ecdf->index[l] ])					\
-      return 0;								\
+      {									\
+	x0 = ecdf->x[ ecdf->index[l] ];					\
+	x1 = ecdf->x[ ecdf->index[l + 1] ];				\
+      }									\
     else if ( x >= ecdf->x[ ecdf->index[r] ])				\
-      return 1;								\
+      {									\
+	x0 = ecdf->x[ ecdf->index[r - 1] ];				\
+	x1 = ecdf->x[ ecdf->index[r] ];					\
+      }									\
     else								\
-      while (l < r)							\
-	{								\
-	  ssize_t mid = (r - l) / 2;					\
-	  								\
-	  if ( x <= ecdf->x[ ecdf->index[mid] ] )			\
-	    r = mid;							\
-	  								\
-	  if (l == mid)							\
-	    mid++;							\
+      {									\
+	while (l < r)							\
+	  {								\
+	    ssize_t mid = (r - l) / 2;					\
+	    								\
+	    if ( x <= ecdf->x[ ecdf->index[mid] ] )			\
+	      r = mid;							\
+	    								\
+	    if (l == mid)						\
+	      mid++;							\
+	    								\
+	    if ( x >= ecdf->x[ ecdf->index[mid] ] )			\
+	      l = mid;							\
+	  }								\
+	x0 = ecdf->x[ ecdf->index[l] ];					\
+	x1 = ecdf->x[ ecdf->index[l + 1] ];				\
+      }									\
     									\
-	  if ( x >= ecdf->x[ ecdf->index[mid] ] )			\
-	    l = mid;							\
-	}								\
-    									\
-    return (TYPE) (l+1) / (TYPE) ( ecdf->n + 1 );			\
+    TYPE p0 = (TYPE) (l+1) * delta_p;					\
+    return delta_p / (x1 - x0) * (x - x0) + p0;				\
   }									\
 									\
   TYPE									\
@@ -73,7 +87,7 @@
     TYPE p0 = stats_ecdf_F##SUFFIX(ecdf, x0);				\
     TYPE p1 = stats_ecdf_F##SUFFIX(ecdf, x1);				\
     									\
-    return ecdf->x[ x_index ] ;						\
+    return 0 ;								\
   }
 
 GENERIC_FUNC(,double)
