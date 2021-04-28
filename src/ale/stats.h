@@ -101,7 +101,21 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   TYPE stats_gamma_rand_k_theta##SUFFIX(TYPE k, TYPE theta);		\
   TYPE stats_gamma_F##SUFFIX(TYPE x, TYPE alpha, TYPE beta);		\
   void stats_gamma_fit_mm##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta); \
+									\
   									\
+  struct stats_ecdf##SUFFIX						\
+  {									\
+    size_t n;								\
+    TYPE *x;								\
+    size_t *index;							\
+  };									\
+									\
+  void stats_ecdf_init##SUFFIX(struct stats_ecdf##SUFFIX *ecdf,		\
+			       size_t n, TYPE x[n]);			\
+  void stats_ecdf_destroy##SUFFIX(struct stats_ecdf##SUFFIX *ecdf);	\
+  TYPE stats_ecdf_F##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE x);	\
+  TYPE stats_ecdf_F_inv##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE p); \
+    									\
   TYPE stats_kolmo_F_approx##SUFFIX(TYPE d, unsigned long n);		\
   TYPE stats_kolmo_F_carvalho##SUFFIX(TYPE d, unsigned long n);		\
   TYPE stats_kolmo_F##SUFFIX(TYPE d, unsigned long n);			\

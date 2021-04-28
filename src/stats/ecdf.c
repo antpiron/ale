@@ -7,14 +7,6 @@
 
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
-  									\
-  struct stats_ecdf##SUFFIX						\
-  {									\
-    size_t n;								\
-    TYPE *x;								\
-    size_t *index;							\
-  };									\
-  									\
   void									\
   stats_ecdf_init##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, size_t n,	\
 			  TYPE x[n])					\
@@ -49,25 +41,23 @@
       {									\
 	x0 = ecdf->x[ ecdf->index[l] ];					\
 	x1 = ecdf->x[ ecdf->index[l + 1] ];				\
+	l = 0; 								\
       }									\
     else if ( x >= ecdf->x[ ecdf->index[r] ])				\
       {									\
 	x0 = ecdf->x[ ecdf->index[r - 1] ];				\
 	x1 = ecdf->x[ ecdf->index[r] ];					\
+	l = r -1;							\
       }									\
     else								\
       {									\
-	while (l < r)							\
+        while (l < r - 1)						\
 	  {								\
-	    ssize_t mid = (r - l) / 2;					\
+	    ssize_t mid = (r + l) / 2;					\
 	    								\
-	    if ( x <= ecdf->x[ ecdf->index[mid] ] )			\
+	    if ( x < ecdf->x[ ecdf->index[mid] ] )			\
 	      r = mid;							\
-	    								\
-	    if (l == mid)						\
-	      mid++;							\
-	    								\
-	    if ( x >= ecdf->x[ ecdf->index[mid] ] )			\
+	    else							\
 	      l = mid;							\
 	  }								\
 	x0 = ecdf->x[ ecdf->index[l] ];					\
@@ -75,7 +65,15 @@
       }									\
     									\
     TYPE p0 = (TYPE) (l+1) * delta_p;					\
-    return delta_p / (x1 - x0) * (x - x0) + p0;				\
+    TYPE result = delta_p / (x1 - x0) * (x - x0) + p0;			\
+									\
+    if ( 1 < result)							\
+      result = 1;							\
+									\
+    if ( 0 > result)							\
+      result = 0;							\
+									\
+    return result;							\
   }									\
 									\
   TYPE									\
