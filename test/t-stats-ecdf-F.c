@@ -29,11 +29,16 @@ main(int argc, char *argv[argc])
   for (size_t i = 0 ; i < n ; i++)
     {
       res = stats_ecdf_F(&ecdf, i+1);
-      expected =  (double) (i+1) / (double) (n + 1);
+      expected =  (double) (i+1) / (double) n;
       ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res, expected, eps) , "FAIL: stats_ecdf_F(%zu) = %f != %f\n", i+1, res, expected);
     }
-  
 
+  x[3] = 3;
+  x[4] = 3;
+  res = stats_ecdf_F(&ecdf, 3);
+  expected =  (double) 5.0d / (double) n;
+  ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res, expected, eps) , "FAIL: stats_ecdf_F(%zu) = %f != %f\n", 3, res, expected);
+  
   stats_ecdf_destroy(&ecdf);
   
   

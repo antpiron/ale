@@ -33,57 +33,33 @@
   TYPE									\
   stats_ecdf_F##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE x)		\
   {									\
-    ssize_t l = 0, r = ecdf->n - 1;					\
-    TYPE x0, x1;							\
-    TYPE delta_p = (TYPE) 1 / (TYPE) (ecdf->n + 1);			\
+    ssize_t l = 0, r = ecdf->n;						\
     									\
-    if ( x < ecdf->x[ ecdf->index[l] ])					\
+    if ( x < ecdf->x[ ecdf->index[0] ])					\
+      return 0;								\
+    									\
+    if ( x >= ecdf->x[ ecdf->index[r - 1] ])				\
+      return 1;								\
+    									\
+    while (1)								\
       {									\
-	x0 = ecdf->x[ ecdf->index[l] ];					\
-	x1 = ecdf->x[ ecdf->index[l + 1] ];				\
-	l = 0; 								\
-      }									\
-    else if ( x >= ecdf->x[ ecdf->index[r] ])				\
-      {									\
-	x0 = ecdf->x[ ecdf->index[r - 1] ];				\
-	x1 = ecdf->x[ ecdf->index[r] ];					\
-	l = r -1;							\
-      }									\
-    else								\
-      {									\
-        while (l < r - 1)						\
-	  {								\
-	    ssize_t mid = (r + l) / 2;					\
-	    								\
-	    if ( x < ecdf->x[ ecdf->index[mid] ] )			\
-	      r = mid;							\
-	    else							\
-	      l = mid;							\
-	  }								\
-	x0 = ecdf->x[ ecdf->index[l] ];					\
-	x1 = ecdf->x[ ecdf->index[l + 1] ];				\
+	ssize_t mid = (r + l) / 2;					\
+									\
+	if ( x < ecdf->x[ ecdf->index[mid] ] )				\
+	  r = mid;							\
+	else if ( l != mid )						\
+	  l = mid;							\
+	else								\
+	  break;							\
       }									\
     									\
-    TYPE p0 = (TYPE) (l+1) * delta_p;					\
-    TYPE result = delta_p / (x1 - x0) * (x - x0) + p0;			\
-									\
-    if ( 1 < result)							\
-      result = 1;							\
-									\
-    if ( 0 > result)							\
-      result = 0;							\
-									\
-    return result;							\
+    return (double) (l+1) / ecdf->n;					\
   }									\
 									\
   TYPE									\
   stats_ecdf_F_inv##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE p)	\
   {									\
-    TYPE x = p * ecdf->n;						\
-    size_t x0 = floor##SUFFIX(x);					\
-    size_t x1 = ceil##SUFFIX(x);					\
-    TYPE p0 = stats_ecdf_F##SUFFIX(ecdf, x0);				\
-    TYPE p1 = stats_ecdf_F##SUFFIX(ecdf, x1);				\
+    									\
     									\
     return 0 ;								\
   }
