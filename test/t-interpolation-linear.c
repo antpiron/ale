@@ -24,14 +24,15 @@ main(int argc, char *argv[argc])
   interpolation_init(&inter, n, y, x);
   ERROR_UNDEF_FATAL_FMT(inter.n != n, "FAIL: interpolation_init() %zu != %zu\n", inter.n, n);
 
-  res = interpolation_linear_f(&inter, 1.5, NULL, NULL);
-  expected = 1.5;
-  ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res, expected, eps), "FAIL: interpolation_linear_f(1.5) %f != %f\n", res, expected);
-
-  res = interpolation_linear_f(&inter, 0, NULL, NULL);
-  expected = 0;
-  ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res, expected, eps), "FAIL: interpolation_linear_f(0) %f != %f\n", res, expected);
-
+  for (expected = -10 ; expected < n + 10 ; expected += 0.1)
+    {
+      res = interpolation_linear_f(&inter, expected, NULL, NULL);
+      expected = expected;
+      ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res, expected, eps),
+			    "FAIL: interpolation_linear_f(%f) %f != %f\n",
+			    expected, res, expected);
+    }
+  
   interpolation_destroy(&inter);
   
   
