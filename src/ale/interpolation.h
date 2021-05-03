@@ -9,6 +9,7 @@
       size_t n;								\
       TYPE *x;								\
       TYPE *y;								\
+      size_t *index;							\
     };									\
 									\
     struct interpolation_min_max##SUFFIX				\

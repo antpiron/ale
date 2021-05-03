@@ -53,6 +53,7 @@ shuffle_n_size_t(size_t n, size_t *vec)
 					void *cls)			\
   {									\
     /* TODO: implement matrix as long double */				\
+    (void) flags;							\
     struct matrix *mat = cls;						\
     double (*m)[mat->n] = (void*) mat->data;				\
     double pvalue, rho, rho_abs;					\
