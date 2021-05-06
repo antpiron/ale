@@ -6,6 +6,9 @@
 #include <float.h>
 #include <sys/types.h>
 
+#include <ale/memory.h>
+#include <ale/interpolation.h>
+
 #define STATS_LOWER (0)
 #define STATS_UPPER (1)
 
@@ -105,9 +108,13 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   									\
   struct stats_ecdf##SUFFIX						\
   {									\
-    size_t n;								\
+    size_t n, no_dup_n;							\
     TYPE *x;								\
     size_t *index;							\
+    TYPE *no_dup_F;							\
+    TYPE *no_dup_x;							\
+    struct interpolation_linear##SUFFIX inter_inv;			\
+    struct mem_pool pool;						\
   };									\
 									\
   void stats_ecdf_init##SUFFIX(struct stats_ecdf##SUFFIX *ecdf,		\

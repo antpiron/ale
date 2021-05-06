@@ -8,27 +8,39 @@
 #include "ale/sort.h"
 #include "ale/interpolation.h"
 
+#define I_INDEX(inter, i) ( (NULL == (inter)->index) ? i : (inter)->index[i] )
 
-#define MAX_ITER (1ll << 12)
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   void									\
-  interpolation_init##SUFFIX(struct interpolation_linear##SUFFIX *inter, \
-			     size_t n, TYPE y[n], TYPE x[n])		\
+  interpolation_init_full##SUFFIX(struct interpolation_linear##SUFFIX *inter, \
+				  size_t n, TYPE y[n], TYPE x[n],	\
+				  size_t index[n])			\
   {									\
     inter->n = n;							\
     inter->y = y;							\
     inter->x = x;							\
-    inter->index = malloc(n * sizeof(size_t));				\
-    sort_q_indirect(inter->index, x, n, sizeof(TYPE),			\
+    inter->index = index;						\
+    inter->index_allocated = 0;						\
+  }									\
+									\
+  void									\
+  interpolation_init##SUFFIX(struct interpolation_linear##SUFFIX *inter, \
+			     size_t n, TYPE y[n], TYPE x[n])		\
+  {									\
+    size_t *index = malloc(n * sizeof(size_t));				\
+    sort_q_indirect(index, x, n, sizeof(TYPE),				\
 		    sort_compar_double##SUFFIX, NULL);			\
+    interpolation_init_full##SUFFIX(inter, n, y, x, index);		\
+    inter->index_allocated = 1;						\
   }									\
 									\
   void									\
   interpolation_destroy##SUFFIX(struct interpolation_linear##SUFFIX *inter) \
   {									\
     (void)inter;							\
-    free(inter->index);							\
+    if (inter->index_allocated)						\
+      free(inter->index);						\
   }									\
 									\
   TYPE									\
@@ -39,21 +51,21 @@
     TYPE x0, y0, x1, y1;						\
     TYPE result;							\
     									\
-    if ( x < inter->x[ inter->index[0] ] )				\
+    if ( x < inter->x[ I_INDEX(inter, 0) ] )				\
       {									\
 	l = 0;								\
 	r = 1;								\
       }									\
-    else if ( x >= inter->x[ inter->index[inter->n - 1] ] )		\
+    else if ( x >= inter->x[ I_INDEX(inter, inter->n - 1) ] )		\
       {									\
 	l = inter->n - 2;						\
 	r = inter->n - 1;						\
       }									\
     									\
-    x0 = inter->x[ inter->index[l] ];					\
-    y0 = inter->y[ inter->index[l] ];					\
-    x1 = inter->x[ inter->index[r] ];					\
-    y1 = inter->y[ inter->index[r] ];					\
+    x0 = inter->x[ I_INDEX(inter, l) ];					\
+    y0 = inter->y[ I_INDEX(inter, l) ];					\
+    x1 = inter->x[ I_INDEX(inter, r) ];					\
+    y1 = inter->y[ I_INDEX(inter, r) ];					\
     									\
     result = (y1 - y0) / (x1 - x0) * (x - x0) + y0;			\
 									\
@@ -77,12 +89,16 @@
   {									\
     size_t l = 0, r = inter->n;						\
     TYPE x0, y0, x1, y1;						\
+    TYPE smallest = inter->x[ I_INDEX(inter, 0) ];			\
+    TYPE biggest = inter->x[ I_INDEX(inter, inter->n - 1) ];		\
+    int lt =  (x < smallest);						\
+    int gte = (x >= biggest);						\
     									\
-    if ( x < inter->x[ inter->index[0] ] || x >= inter->x[ inter->index[inter->n - 1] ] ) \
+    if ( lt || gte )							\
       {									\
 	if (NULL == out_of_domain)					\
 	  return interpolation_out_of_domain_linear##SUFFIX(inter, x, cls); \
-									\
+	 								\
 	return out_of_domain(inter, x, cls);				\
       }									\
 									\
@@ -98,10 +114,10 @@
 	  break;							\
       }									\
     									\
-    x0 = inter->x[ inter->index[l] ];					\
-    y0 = inter->y[ inter->index[l] ];					\
-    x1 = inter->x[ inter->index[r] ];					\
-    y1 = inter->y[ inter->index[r] ];					\
+    x0 = inter->x[ I_INDEX(inter, l) ];					\
+    y0 = inter->y[ I_INDEX(inter, l) ];					\
+    x1 = inter->x[ I_INDEX(inter, r) ];					\
+    y1 = inter->y[ I_INDEX(inter, r) ];					\
     									\
     return (y1 - y0) / (x1 - x0) * (x - x0) + y0;			\
   }

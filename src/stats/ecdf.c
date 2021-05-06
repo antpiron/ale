@@ -4,24 +4,63 @@
 #include "ale/stats.h"
 #include "ale/math.h"
 #include "ale/sort.h"
+#include "ale/interpolation.h"
 
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
+  void									\
+  stats_ecdf_init_no_dup##SUFFIX(struct stats_ecdf##SUFFIX *ecdf)	\
+  {									\
+    size_t n = ecdf->n;							\
+    TYPE *x = ecdf->x;							\
+									\
+    ecdf->no_dup_F = mem_malloc(&ecdf->pool, n * sizeof(TYPE) );	\
+    ecdf->no_dup_x = mem_malloc(&ecdf->pool, n * sizeof(TYPE) );	\
+									\
+    TYPE last = x[ ecdf->index[0] ];					\
+    ecdf->no_dup_x[0] = last;						\
+    ecdf->no_dup_F[0] = (TYPE) 1 / (TYPE) ecdf->n;			\
+									\
+    size_t no_dup_i = 0;						\
+									\
+    for (size_t i = 1 ; i < n ; i++)					\
+      {									\
+	TYPE current = x[ ecdf->index[i] ];				\
+									\
+	if ( last != current )						\
+	  {								\
+	    ecdf->no_dup_x[ ++no_dup_i ] = current;			\
+	  }								\
+									\
+	ecdf->no_dup_F[ no_dup_i ] = (TYPE) (i+1) / (TYPE)ecdf->n;	\
+      }									\
+									\
+    ecdf->no_dup_n = no_dup_i + 1;					\
+  }									\
+									\
   void									\
   stats_ecdf_init##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, size_t n,	\
 			  TYPE x[n])					\
   {									\
     ecdf->n= n;								\
     ecdf->x = x;							\
-    ecdf->index = malloc( n * sizeof(size_t) );				\
+    mem_init(&ecdf->pool);						\
+    ecdf->index = mem_malloc(&ecdf->pool, n * sizeof(size_t) );		\
+									\
     sort_q_indirect(ecdf->index, x, n, sizeof(TYPE),			\
 		    sort_compar_double##SUFFIX, NULL);			\
+									\
+    stats_ecdf_init_no_dup##SUFFIX(ecdf);				\
+    interpolation_init_full##SUFFIX(&ecdf->inter_inv, ecdf->no_dup_n,	\
+				    ecdf->no_dup_x, ecdf->no_dup_F,	\
+				    NULL);				\
   }									\
   									\
   void									\
   stats_ecdf_destroy##SUFFIX(struct stats_ecdf##SUFFIX *ecdf)		\
   {									\
-    free(ecdf->index);							\
+    interpolation_destroy##SUFFIX(&ecdf->inter_inv);			\
+    mem_destroy(&ecdf->pool);						\
   }									\
   									\
   TYPE									\
@@ -53,15 +92,18 @@
 	  break;							\
       }									\
     									\
-    return (double) (l+1) / ecdf->n;					\
+    return (TYPE) (l+1) / (TYPE) ecdf->n;				\
   }									\
-									\
+  									\
   TYPE									\
   stats_ecdf_F_inv##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE p)	\
   {									\
-    									\
-    									\
-    return 0 ;								\
+    TYPE res;								\
+									\
+    res = interpolation_linear_f##SUFFIX(&ecdf->inter_inv, p,		\
+					 NULL, NULL);			\
+									\
+    return res;								\
   }
 
 GENERIC_FUNC(,double)
