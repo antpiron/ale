@@ -54,19 +54,30 @@
     interpolation_init_full##SUFFIX(&ecdf->inter_inv, ecdf->no_dup_n,	\
 				    ecdf->no_dup_x, ecdf->no_dup_F,	\
 				    NULL);				\
+    mem_callback(&ecdf->pool, &ecdf->inter_inv,				\
+      (void*) interpolation_destroy##SUFFIX);				\
+    interpolation_init_full##SUFFIX(&ecdf->inter, ecdf->no_dup_n,	\
+				    ecdf->no_dup_F, ecdf->no_dup_x,	\
+				    NULL);				\
+    mem_callback(&ecdf->pool, &ecdf->inter,				\
+		 (void*) interpolation_destroy##SUFFIX);		\
   }									\
   									\
   void									\
   stats_ecdf_destroy##SUFFIX(struct stats_ecdf##SUFFIX *ecdf)		\
   {									\
-    interpolation_destroy##SUFFIX(&ecdf->inter_inv);			\
     mem_destroy(&ecdf->pool);						\
   }									\
   									\
   TYPE									\
   stats_ecdf_f##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE x)		\
   {									\
-    return 0;								\
+    TYPE x0 = x;							\
+    TYPE x1 = x + ALE_EPS##SUFFIX;					\
+    TYPE y0 = stats_ecdf_F_linear##SUFFIX(ecdf, x0);			\
+    TYPE y1 = stats_ecdf_F_linear##SUFFIX(ecdf, x1);			\
+									\
+    return (y1 - y0) / ALE_EPS##SUFFIX;					\
   }									\
   									\
   TYPE									\
@@ -94,6 +105,18 @@
     									\
     return (TYPE) (l+1) / (TYPE) ecdf->n;				\
   }									\
+  									\
+  TYPE									\
+  stats_ecdf_F_linear##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE x)	\
+  {									\
+    TYPE res;								\
+									\
+    res = interpolation_linear_f##SUFFIX(&ecdf->inter, x,		\
+					 NULL,				\
+					 &(struct interpolation_min_max##SUFFIX) {.min = 0, .max = 1} ); \
+									\
+    return res;								\
+  }  									\
   									\
   TYPE									\
   stats_ecdf_F_inv##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE p)	\

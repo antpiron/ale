@@ -29,6 +29,13 @@ main(int argc, char *argv[argc])
   res = stats_ecdf_F_inv(&ecdf, 0);
   ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res, 0, eps) , "FAIL: stats_ecdf_F_inv(0) = %f != %zu\n", res, 0);
 
+  for (size_t i = 0 ; i < n ; i++)
+    {
+      expected = i + 1;
+      res = stats_ecdf_F_inv(&ecdf, stats_ecdf_F(&ecdf, expected));
+      ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(res, expected, eps) , "FAIL: stats_ecdf_F_inv(1) = %f != %f\n", res, expected);
+    }
+
   stats_ecdf_destroy(&ecdf);
   
   

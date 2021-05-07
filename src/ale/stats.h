@@ -114,6 +114,7 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
     TYPE *no_dup_F;							\
     TYPE *no_dup_x;							\
     struct interpolation_linear##SUFFIX inter_inv;			\
+    struct interpolation_linear##SUFFIX inter;				\
     struct mem_pool pool;						\
   };									\
 									\
@@ -121,6 +122,7 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
 			       size_t n, TYPE x[n]);			\
   void stats_ecdf_destroy##SUFFIX(struct stats_ecdf##SUFFIX *ecdf);	\
   TYPE stats_ecdf_F##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE x);	\
+  TYPE stats_ecdf_F_linear##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE x); \
   TYPE stats_ecdf_F_inv##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE p); \
     									\
   TYPE stats_kolmo_F_approx##SUFFIX(TYPE d, unsigned long n);		\
