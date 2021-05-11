@@ -127,7 +127,16 @@
 					 NULL, NULL);			\
 									\
     return res;								\
+  }									\
+									\
+  TYPE									\
+  stats_ecdf_rand##SUFFIX(struct stats_ecdf##SUFFIX *ecdf)		\
+  {									\
+    TYPE unif = stats_unif_std_rand##SUFFIX();				\
+									\
+    return stats_ecdf_F_inv##SUFFIX(ecdf, unif);			\
   }
+ 
 
 GENERIC_FUNC(,double)
 GENERIC_FUNC(l,long double)

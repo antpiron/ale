@@ -124,7 +124,8 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   TYPE stats_ecdf_F##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE x);	\
   TYPE stats_ecdf_F_linear##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE x); \
   TYPE stats_ecdf_F_inv##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE p); \
-    									\
+  TYPE stats_ecdf_rand##SUFFIX(struct stats_ecdf##SUFFIX *ecdf);	\
+  									\
   TYPE stats_kolmo_F_approx##SUFFIX(TYPE d, unsigned long n);		\
   TYPE stats_kolmo_F_carvalho##SUFFIX(TYPE d, unsigned long n);		\
   TYPE stats_kolmo_F##SUFFIX(TYPE d, unsigned long n);			\
