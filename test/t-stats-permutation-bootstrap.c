@@ -54,6 +54,7 @@ main(int argc, char *argv[argc])
 #define LEN (100)
   double x[LEN], res[LEN];
   ssize_t corr[LEN];
+  ssize_t corr_res[LEN];
   int ret;
   struct stats_permutation permutation;
 
@@ -77,19 +78,25 @@ main(int argc, char *argv[argc])
 
   stats_permutation_correlated_set(&permutation, corr);
   
-  for (size_t i = 0 ; i < LEN ; i++) 
-    corr[i] = 0;
+  // for (size_t i = 0 ; i < LEN ; i++) 
+  //  corr[i] = 0;
 
-  stats_permutation_correlated_get(&permutation, corr);
+  stats_permutation_correlated_get(&permutation, corr_res);
   
   for (size_t i = 0 ; i < LEN ; i++) 
     {
-      ERROR_UNDEF_FATAL_FMT(0 == (i % 2) && -1 != corr[i],
-			    "FAIL:  stats_permutation_correlated_get() corr[%zu] == %zu != -1\n",
-			    i, corr[i]);
-      ERROR_UNDEF_FATAL_FMT(0 != (i % 2) && (i-1) != corr[i],
-			    "FAIL:  stats_permutation_correlated_get() corr[%zu] == %zu != %zu\n",
-			    i, corr[i], i-1);
+      if (corr[i] != corr_res[i])
+	{
+	  for (size_t i = 0 ; i < LEN ; i++) 
+	    printf("%zd\t", corr[i]);
+	  printf("\n");
+	  for (size_t i = 0 ; i < LEN ; i++) 
+	    printf("%zd\t", corr_res[i]); 
+	  printf("\n");
+	  ERROR_UNDEF_FATAL_FMT(corr[i] != corr_res[i],
+				"FAIL:  stats_permutation_correlated_get() corr[%zu] == %zd != %zd == corr_res[%zu]\n",
+				i, corr[i], corr_res[i], i);
+	}
     }
 
   stats_permutation_destroy(&permutation);

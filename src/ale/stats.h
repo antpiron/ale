@@ -17,9 +17,9 @@
 
 enum {
       STATS_PFLAGS_PREDICT = 1,
-      STATS_PFLAGS_R       = 1 << 2,
-      STATS_PFLAGS_MSE     = 1 << 3,
-      STATS_PFLAGS_PVALUE  = 1 << 4,
+      STATS_PFLAGS_R       = 1 << 1,
+      STATS_PFLAGS_MSE     = 1 << 2,
+      STATS_PFLAGS_PVALUE  = 1 << 3,
       
       STATS_PFLAGS_ALL     = STATS_PFLAGS_PREDICT | STATS_PFLAGS_R | STATS_PFLAGS_MSE | STATS_PFLAGS_PVALUE
 };

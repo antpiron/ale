@@ -153,7 +153,8 @@ shuffle_n_size_t(size_t n, size_t *vec)
   {									\
     for (size_t i = 0 ; i <  p->correlated.n_correlated ; i++)		\
       {									\
-	correlated[p->correlated.index_correlated[i]] = p->correlated.index_best_predictor[ p->correlated.index_correlated[i] ]; \
+	size_t index_correlated = p->correlated.index_correlated[i];	\
+	correlated[index_correlated] = p->correlated.index_best_predictor[ index_correlated ]; \
       }									\
     for (size_t i = 0 ; i <  p->correlated.n_uncorrelated ; i++)	\
       {									\
@@ -168,14 +169,16 @@ shuffle_n_size_t(size_t n, size_t *vec)
 									\
     for (size_t i = 0 ; i <  p->n ; i++)				\
       {									\
-         ssize_t predictor = correlated[i];		\
-	 if ( 0 <= predictor)						\
-	   {								\
-	     p->correlated.index_best_predictor[i] = predictor;		\
-	     p->correlated.index_correlated[ p->correlated.n_correlated++ ] = i; \
-	   }								\
-	 else								\
-	   p->correlated.index_uncorrelated[ p->correlated.n_uncorrelated++ ] = i; \
+	ssize_t predictor = correlated[i];				\
+	if ( 0 <= predictor)						\
+	  {								\
+	    p->correlated.index_best_predictor[i] = predictor;		\
+	    p->correlated.index_correlated[ p->correlated.n_correlated++ ] = i; \
+	  }								\
+	else								\
+	  {								\
+	    p->correlated.index_uncorrelated[ p->correlated.n_uncorrelated++ ] = i; \
+	  }								\
       }									\
   }									\
 									\
@@ -204,10 +207,10 @@ shuffle_n_size_t(size_t n, size_t *vec)
 	    size_t predictor = p->correlated.index_best_predictor[to_predict]; \
 	    struct stats_predict_results##SUFFIX predict_res;		\
 	    								\
-	    p->correlated.predict(to_predict,  predictor, p->vec[ predictor ], \
-				  STATS_PFLAGS_PREDICT, &predict_res,  p->correlated.cls); \
+	    p->correlated.predict(to_predict,  predictor, STATS_PFLAGS_PREDICT, p->vec[ predictor ], \
+				   &predict_res,  p->correlated.cls); \
 	    res[to_predict] = predict_res.y;				\
-	    printf("predict %zu, %zu = %f\n", to_predict, predictor, (double) predict_res.y); \
+	    /* printf("predict %zu from %zu = %f\n", to_predict, predictor, (double) predict_res.y); */	\
 	  }								\
 									\
 	free(index);							\

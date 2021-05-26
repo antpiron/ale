@@ -155,7 +155,9 @@
   int									\
   stats_beta_fit##SUFFIX(size_t n, const TYPE x[n], TYPE *alpha, TYPE *beta) \
   {									\
-    return stats_beta_fit_mle_newton##SUFFIX(n, x, alpha, beta);	\
+    stats_beta_fit_mm##SUFFIX(n, x, alpha, beta);				\
+    return 0;								\
+    /* return stats_beta_fit_mle_newton##SUFFIX(n, x, alpha, beta); */	\
   }
 
 GENERIC_FUNC(,double)
