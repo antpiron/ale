@@ -311,6 +311,7 @@
 				  TYPE A[m][n], TYPE B[m][p], TYPE X[n][p], \
 				  TYPE (*pvalues)[p])			\
   {									\
+    /* TODO: clean up allocation */					\
     TYPE (*V)[n][m] = malloc(sizeof(*V));				\
     TYPE (*Rt)[n][n] = malloc(sizeof(*Rt));				\
     TYPE (*QtB)[m][p] = malloc(sizeof(*QtB));				\
