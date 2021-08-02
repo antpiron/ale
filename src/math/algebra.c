@@ -289,24 +289,26 @@
     return ret;								\
   }									\
 									\
-  /* destroy A and B */							\
   int									\
   alg_AX_B_solve##SUFFIX(size_t n, size_t p, TYPE A[n][n], TYPE B[n][p], TYPE X[n][p]) \
   {									\
-    TYPE (*V)[n][n] = malloc(sizeof(*V));				\
+    struct mem_pool pool;					        \
+    mem_init_size(&pool, sizeof(TYPE) * n * n * 2);			\
+    TYPE (*V)[n][n] = mem_malloc(&pool, sizeof(*V));			\
+    TYPE (*R)[n][n] = mem_malloc(&pool, sizeof(*R));			\
     int ret;								\
 									\
-    alg_QR_householder##SUFFIX(n, n, A, *V);				\
+    memcpy(*R, A, sizeof(*R));						\
+    alg_QR_householder##SUFFIX(n, n, *R, *V);				\
     householder_proj_QtB##SUFFIX(n, n, p, *V, B);			\
 									\
-    ret = alg_UX_B_solve##SUFFIX(n, p, A, B, X);			\
+    ret = alg_UX_B_solve##SUFFIX(n, p, *R, B, X);			\
 									\
-    free(V);								\
+    mem_destroy(&pool);							\
 									\
     return ret;								\
   }									\
 									\
-  /* destroy A and B */							\
   int									\
   alg_AX_B_OLS_solve_full##SUFFIX(size_t m, size_t n, size_t p,		\
 				  TYPE A[m][n], TYPE B[m][p], TYPE X[n][p], \
@@ -392,7 +394,6 @@
     return ret;								\
   }									\
   									\
-  /* destroy A and B */							\
   int									\
   alg_AX_B_OLS_solve##SUFFIX(size_t m, size_t n, size_t p, TYPE A[m][n], TYPE B[m][p], TYPE X[n][p]) \
   {									\
