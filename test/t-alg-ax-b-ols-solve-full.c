@@ -89,7 +89,7 @@ main(int argc, char *argv[argc])
       for (size_t i = 0 ; i < m ; i++)
 	for (size_t j = 0 ; j < p ; j++)
 	  {
-	    Y[i][j] += stats_norm_std_rand() * 10;
+	    Y[i][j] += stats_norm_rand(0, 1);
 	  }
 
       ret = alg_AX_B_OLS_solve_full(m, n, p, X, Y, b_res, stat);
@@ -100,15 +100,16 @@ main(int argc, char *argv[argc])
 	  for (size_t j = 0; j < p ; j++)
 	    {
 	      const double eps = 0.01;
-	      delta = fabs(b[i][j] - b_res[i][j]);
-	      ERROR_UNDEF_FATAL_FMT( 0 != ale_cmp_double(b[i][j], b_res[i][j], eps) ,
-				     "FAIL: alg_AX_B_OLS_solve_full() b_res[%ld][%ld] = %f !=  %f = b[%ld][%ld] ; delta = %f > %f = eps\n",
-				     i, j, b_res[i][j], b[i][j], i, j, delta, eps);
-	      
 	      ERROR_UNDEF_FATAL_FMT(stat[i][j].pvalue > 0.05,
 				    "FAIL: alg_AX_B_OLS_solve_full() stat[%ld][%ld].pvalue = %f >  0.05 (score = %e ; mse = %e)\n",
 				    i, j, stat[i][j].pvalue, stat[i][j].score, stat[i][j].mse);
 	      printf("%10.6e ", stat[i][j].score);
+
+	      delta = fabs(b[i][j] - b_res[i][j]);
+	      ERROR_UNDEF_FATAL_FMT( 0 != ale_cmp_double(b[i][j], b_res[i][j], eps) ,
+	      			     "FAIL: alg_AX_B_OLS_solve_full() b_res[%ld][%ld] = %f !=  %f = b[%ld][%ld] ; delta = %f > %f = eps\n",
+	      			     i, j, b_res[i][j], b[i][j], i, j, delta, eps);
+	      
 	    }
 	  printf("\n");
 	}

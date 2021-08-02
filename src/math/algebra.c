@@ -358,36 +358,32 @@
 	    }								\
 									\
 	ret = alg_L_inverse##SUFFIX(n, *Rt, *Rt_inv);			\
-	if (0 == ret)							\
-	  {								\
-	    ret = alg_UX_B_solve##SUFFIX(n, n, *R, *Rt_inv, *AtA_inv);	\
+	ERROR_CUSTOM_GOTO(ret < 0, -2, OLS_ERROR##SUFFIX);		\
 									\
-	    if (0 == ret)						\
-	      {								\
-		for (size_t i = 0 ; i < n ; i++)			\
-		  for (size_t j = 0 ; j < p ; j++)			\
-		    {							\
-		      TYPE df = m - n;					\
-		      TYPE mse = rss[j] / df;				\
-		      TYPE Si2 = (*AtA_inv)[i][i];			\
-		      if ( Si2 < 0) Si2 = 0;				\
-		      TYPE denom = sqrt(Si2 * mse);			\
-		      if (0 != denom)					\
-			{						\
-			  TYPE t = X[i][j] / denom;			\
-			  stat[i][j].pvalue = 1 - stats_student_F##SUFFIX(t, df); \
-			  stat[i][j].score = t;				\
-			  stat[i][j].mse = mse;				\
-			}						\
-		      else						\
-			{						\
-			  stat[i][j].pvalue = 0;			\
-			  stat[i][j].score = INFINITY;			\
-			  stat[i][j].mse = mse;				\
-			}						\
-		    }							\
-	      }								\
-	  }								\
+	ret = alg_UX_B_solve##SUFFIX(n, n, *R, *Rt_inv, *AtA_inv);	\
+	ERROR_CUSTOM_GOTO(ret < 0, -3, OLS_ERROR##SUFFIX);		\
+	for (size_t i = 0 ; i < n ; i++)				\
+	  for (size_t j = 0 ; j < p ; j++)				\
+	    {								\
+	      TYPE df = m - n;						\
+	      TYPE mse = rss[j] / df;					\
+	      TYPE Si2 = (*AtA_inv)[i][i];				\
+	      if ( Si2 < 0) Si2 = 0;					\
+	      TYPE denom = sqrt(Si2 * mse);				\
+	      if (0 != denom)						\
+		{							\
+		  TYPE t = X[i][j] / denom;				\
+		  stat[i][j].pvalue = 2 * (1 - stats_student_F##SUFFIX(fabs##SUFFIX(t), df)); \
+		  stat[i][j].score = t;					\
+		  stat[i][j].mse = mse;					\
+		}							\
+	      else							\
+		{							\
+		  stat[i][j].pvalue = 0;				\
+		  stat[i][j].score = INFINITY;				\
+		  stat[i][j].mse = mse;					\
+		}							\
+	    }								\
       }									\
     									\
   OLS_ERROR##SUFFIX:							\
