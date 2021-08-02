@@ -6,6 +6,7 @@
 #include "ale/algebra.h"
 #include "ale/stats.h"
 #include "ale/error.h"
+#include "ale/memory.h"
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   TYPE									\
@@ -309,36 +310,39 @@
   int									\
   alg_AX_B_OLS_solve_full##SUFFIX(size_t m, size_t n, size_t p,		\
 				  TYPE A[m][n], TYPE B[m][p], TYPE X[n][p], \
-				  TYPE (*pvalues)[p])			\
+				  struct stats_stastistic##SUFFIX (*stat)[p]) \
   {									\
     /* TODO: clean up allocation */					\
-    TYPE (*V)[n][m] = malloc(sizeof(*V));				\
-    TYPE (*Rt)[n][n] = malloc(sizeof(*Rt));				\
-    TYPE (*QtB)[m][p] = malloc(sizeof(*QtB));				\
-    TYPE (*RtQtB)[n][p] = malloc(sizeof(*RtQtB));			\
-    TYPE (*Y)[n][p] =  malloc(sizeof(*Y));				\
+    struct mem_pool pool;					        \
+    mem_init(&pool);							\
+    TYPE (*V)[n][m] = mem_malloc(&pool, sizeof(*V));			\
+    TYPE (*R)[m][n] = mem_malloc(&pool, sizeof(*R));			\
+    TYPE (*Rt)[n][n] = mem_malloc(&pool, sizeof(*Rt));			\
+    TYPE (*QtB)[m][p] = mem_malloc(&pool, sizeof(*QtB));		\
+    TYPE (*RtQtB)[n][p] = mem_malloc(&pool, sizeof(*RtQtB));		\
+    TYPE (*Y)[n][p] =  mem_malloc(&pool, sizeof(*Y));			\
     int ret = 0;							\
-									\
-    /* TODO: handle return code */					\
-    ret = alg_QR_householder##SUFFIX(m, n, A, *V);			\
+    									\
+    memcpy(*R, A, sizeof(*R));						\
+    ret = alg_QR_householder##SUFFIX(m, n, *R, *V);			\
     ERROR_CUSTOM_GOTO(ret < 0, -1, OLS_ERROR##SUFFIX);			\
     memcpy(*QtB, B, sizeof(*QtB));					\
     householder_proj_QtB##SUFFIX(m, n, p, *V, *QtB);			\
     									\
-    alg_U_transpose##SUFFIX(n, A, *Rt);					\
+    alg_U_transpose##SUFFIX(n, *R, *Rt);				\
 									\
     alg_mul_L_A##SUFFIX(n, p,  *Rt, *QtB, *RtQtB);			\
     									\
     ret = alg_LX_B_solve##SUFFIX(n, p, *Rt, *RtQtB, *Y);		\
     if (ret >= 0)							\
-      ret = alg_UX_B_solve##SUFFIX(n, p, A, *Y, X);			\
+      ret = alg_UX_B_solve##SUFFIX(n, p, *R, *Y, X);			\
     									\
-    if (NULL != pvalues)						\
+    if (NULL != stat)							\
       {									\
-	TYPE (*AX)[m][p] = malloc(sizeof(*AX));				\
-	TYPE (*Rt_inv)[n][n] = malloc(sizeof(*Rt_inv));			\
-	TYPE (*QtQ_inv)[n][n] = malloc(sizeof(*QtQ_inv));		\
-	TYPE *rss = malloc(sizeof(TYPE) * p);				\
+	TYPE (*AX)[m][p] = mem_malloc(&pool, sizeof(*AX));		\
+	TYPE (*Rt_inv)[n][n] = mem_malloc(&pool, sizeof(*Rt_inv));	\
+	TYPE (*AtA_inv)[n][n] = mem_malloc(&pool, sizeof(*AtA_inv));	\
+	TYPE *rss = mem_malloc(&pool, sizeof(TYPE) * p);			\
 	/* compute p-values for coefficients https://stats.stackexchange.com/a/344008 */ \
 	/* https://en.wikipedia.org/wiki/Residual_sum_of_squares#Relation_with_Pearson's_product-moment_correlation */ \
 	alg_mul_m_m##SUFFIX(m, n, p, A, X, *AX);			\
@@ -356,32 +360,38 @@
 	ret = alg_L_inverse##SUFFIX(n, *Rt, *Rt_inv);			\
 	if (0 == ret)							\
 	  {								\
-	    ret = alg_UX_B_solve##SUFFIX(n, n, A, *Rt_inv, *QtQ_inv);	\
+	    ret = alg_UX_B_solve##SUFFIX(n, n, *R, *Rt_inv, *AtA_inv);	\
 									\
 	    if (0 == ret)						\
 	      {								\
-	        for (size_t i = 0 ; i < n ; i++)				\
+		for (size_t i = 0 ; i < n ; i++)			\
 		  for (size_t j = 0 ; j < p ; j++)			\
 		    {							\
 		      TYPE df = m - n;					\
-		      TYPE t = X[i][j] /				\
-			( (*QtQ_inv)[i][i] * sqrt(rss[j] / df ) );	\
-		      pvalues[i][j] = 1 - stats_student_F##SUFFIX(t, df); \
+		      TYPE mse = rss[j] / df;				\
+		      TYPE Si2 = (*AtA_inv)[i][i];			\
+		      if ( Si2 < 0) Si2 = 0;				\
+		      TYPE denom = sqrt(Si2 * mse);			\
+		      if (0 != denom)					\
+			{						\
+			  TYPE t = X[i][j] / denom;			\
+			  stat[i][j].pvalue = 1 - stats_student_F##SUFFIX(t, df); \
+			  stat[i][j].score = t;				\
+			  stat[i][j].mse = mse;				\
+			}						\
+		      else						\
+			{						\
+			  stat[i][j].pvalue = 0;			\
+			  stat[i][j].score = INFINITY;			\
+			  stat[i][j].mse = mse;				\
+			}						\
 		    }							\
 	      }								\
 	  }								\
-	free(AX);							\
-	free(Rt_inv);							\
-	free(QtQ_inv);							\
-	free(rss);							\
       }									\
     									\
   OLS_ERROR##SUFFIX:							\
-    free(V);								\
-    free(Rt);								\
-    free(QtB);								\
-    free(RtQtB);							\
-    free(Y);								\
+    mem_destroy(&pool);							\
 									\
     return ret;								\
   }									\

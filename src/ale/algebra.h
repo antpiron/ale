@@ -21,7 +21,15 @@
   int alg_U_inverse##SUFFIX(size_t n, const TYPE U[n][n], TYPE X[n][n]); \
   int alg_L_inverse##SUFFIX(size_t n, const TYPE L[n][n], TYPE X[n][n]); \
 									\
+  struct stats_stastistic##SUFFIX					\
+  {									\
+    TYPE pvalue, score, mse;						\
+  };									\
+									\
   int alg_AX_B_solve##SUFFIX(size_t n, size_t p, TYPE A[n][n], TYPE B[n][p], TYPE X[n][p]); \
+  int alg_AX_B_OLS_solve_full##SUFFIX(size_t m, size_t n, size_t p,	\
+				      TYPE A[m][n], TYPE B[m][p], TYPE X[n][p], \
+				      struct stats_stastistic##SUFFIX (*stat)[p]); \
   int alg_AX_B_OLS_solve##SUFFIX(size_t m, size_t n, size_t p, TYPE A[m][n], TYPE B[m][p], TYPE X[n][p]); \
   									\
   TYPE alg_norm##SUFFIX(size_t n, const TYPE vec[n]);			\
