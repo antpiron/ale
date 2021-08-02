@@ -14,7 +14,6 @@ main(int argc, char *argv[argc])
   const size_t m = 8, n = 3, p = 3;;
   double A[m][n],  X[n][p], B[m][p];
   struct stats_stastistic stat[n][p];
-  double A_copy[m][n];
   double B_copy[m][p];
   double delta;
   int ret;
@@ -23,7 +22,7 @@ main(int argc, char *argv[argc])
   for (size_t i = 0 ; i < m ; i++)
     for (size_t j = 0 ; j < n ; j++)
       {
-	A_copy[i][j] = A[i][j] = (i == j)?2:1;
+	A[i][j] = (i == j)?2:1;
       }
   
   for (size_t i = 0 ; i < m ; i++)
@@ -44,16 +43,11 @@ main(int argc, char *argv[argc])
   
   ret = alg_AX_B_OLS_solve_full(m, n, p, A, B, X, stat);
   ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve_full() ret = %d\n != 0", ret);
-
-  printf("\nA=\n");
-  print_m(m, n, A);
-  printf("\nB=\n");
-  print_m(m, p, B);
   
   printf("\nX=\n");
   print_m(n, p, X);
 
-  alg_mul_m_m(m,n,p, A_copy, X, B);
+  alg_mul_m_m(m,n,p, A, X, B);
   printf("\nB=\n");
   print_m(m, p, B);
 
@@ -63,7 +57,7 @@ main(int argc, char *argv[argc])
     {
       
       delta = fabs(B[i][j] - B_copy[i][j]);
-      ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_AX_B_OLS_solve_full() delta != B[%ld, %ld] = %f\n", i, j, delta);
+      ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_AX_B_OLS_solve_full() delta B[%ld, %ld] != 0 = %f\n", i, j, delta);
     }
 
 
