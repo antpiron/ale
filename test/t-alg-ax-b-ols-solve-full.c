@@ -58,13 +58,13 @@ main(int argc, char *argv[argc])
   print_m(m, p, B);
 
 
-  /* for (size_t i = 0 ; i < m ; i++) */
-  /*   for (size_t j = 0; j < p ; j++) */
-  /*   { */
+  for (size_t i = 0 ; i < m ; i++)
+    for (size_t j = 0; j < p ; j++)
+    {
       
-  /*     delta = fabs(B[i][j] - B_copy[i][j]); */
-  /*     ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_AX_B_OLS_solve_full() delta != B[%ld, %ld] = %f\n", i, j, delta); */
-  /*   } */
+      delta = fabs(B[i][j] - B_copy[i][j]);
+      ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_AX_B_OLS_solve_full() delta != B[%ld, %ld] = %f\n", i, j, delta);
+    }
 
 
   
