@@ -11,20 +11,17 @@
 int
 main(int argc, char *argv[argc])
 {
-  const size_t m = 8, n = 3, p = 3;;
+  const size_t m = 10, n = 3, p = 3;;
   double A[m][n],  X[n][p], B[m][p];
   struct stats_stastistic stat[n][p];
   double B_copy[m][p];
   double delta;
   int ret;
+  const double alpha = 0.05;
   const double eps = 0.0000001;
 
-  for (size_t i = 0 ; i < m ; i++)
-    for (size_t j = 0 ; j < n ; j++)
-      {
-	A[i][j] = (i == j)?2:1;
-      }
-  
+  ALG_INIT_M(m, n, A, (i == j)?2:1);
+
   for (size_t i = 0 ; i < m ; i++)
     for (size_t j = 0 ; j < p; j++)
       {
@@ -60,7 +57,23 @@ main(int argc, char *argv[argc])
       ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_AX_B_OLS_solve_full() delta B[%ld, %ld] != 0 = %f\n", i, j, delta);
     }
 
+  ALG_INIT_M(m, n, A, stats_norm_rand(0, 1));
+  ALG_INIT_M(m, p, B, stats_norm_rand(0, 1));
 
+  ret = alg_AX_B_OLS_solve_full(m, n, p, A, B, X, stat);
+  ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve_full() ret = %d\n != 0", ret);
+
+  for (size_t i = 0 ; i < n ; i++)
+    {
+      for (size_t j = 0; j < p ; j++)
+	{
+	  //  alpha / (m * p) == Bonferroni correction
+	  const double bonf_alpha = alpha / (n * p);
+	  ERROR_UNDEF_FATAL_FMT(stat[i][j].pvalue <= bonf_alpha,
+				"FAIL: alg_AX_B_OLS_solve_full() stat[%ld][%ld].pvalue = %f <=  %f (beta = %f ; score = %e ; mse = %e)\n",
+				i, j, stat[i][j].pvalue, bonf_alpha, X[i][j], stat[i][j].score, stat[i][j].mse);
+	}
+    }
   
   for (int iter = 0 ; iter < MAX_ITER ; iter++)
     {
@@ -70,21 +83,12 @@ main(int argc, char *argv[argc])
       struct stats_stastistic stat[n][p];
 
 
-      for (size_t i = 0 ; i < n ; i++)
-	for (size_t j = 0 ; j < p ; j++)
-	  b[i][j] = stats_unif_rand(0, 1000);
-      
-      for (size_t i = 0 ; i < m ; i++)
-	for (size_t j = 0 ; j < n ; j++)
-	  X[i][j] = stats_unif_rand(0, 1000);
+      ALG_INIT_M(n, p, b, stats_unif_rand(0, 1000));
+      ALG_INIT_M(m, n, X, stats_unif_rand(0, 1000));
 
       alg_mul_m_m(m, n, p, X, b, Y);
 
-      for (size_t i = 0 ; i < m ; i++)
-	for (size_t j = 0 ; j < p ; j++)
-	  {
-	    Y[i][j] += stats_norm_rand(0, 1);
-	  }
+      ALG_ADD_M(m, p, Y, stats_norm_rand(0, 1));
 
       ret = alg_AX_B_OLS_solve_full(m, n, p, X, Y, b_res, stat);
       ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve_full() ret = %d\n != 0", ret);

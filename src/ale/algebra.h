@@ -3,7 +3,20 @@
 
 #include <stddef.h>
 
+#define ALG_INIT_M(m, n, A, value) do {		\
+    for (size_t i = 0 ; i < (m) ; i++)		\
+      for (size_t j = 0 ; j < (n) ; j++)	\
+	(A)[i][j] = (value);			\
+  } while (0)
+
+#define ALG_ADD_M(m, n, A, value) do {		\
+    for (size_t i = 0 ; i < (m) ; i++)		\
+      for (size_t j = 0 ; j < (n) ; j++)	\
+	(A)[i][j] += (value);			\
+  } while (0)
+
 #define ALG_GENERIC_HEADERS(SUFFIX,TYPE)				\
+									\
   TYPE* alg_add_v_v##SUFFIX(size_t n, TYPE v1[n], TYPE v2[n], TYPE res[n]); \
   TYPE* alg_sub_v_v##SUFFIX(size_t n, TYPE v1[n], TYPE v2[n], TYPE res[n]); \
   TYPE* alg_mul_v_c##SUFFIX(size_t n, const TYPE vec[n], TYPE d,  TYPE res[n]); \

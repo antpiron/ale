@@ -40,9 +40,7 @@
   TYPE*									\
   alg_identity_init##SUFFIX(size_t m, size_t n, TYPE A[m][n])		\
   {									\
-    for (size_t i = 0 ; i < m ; i++)					\
-      for (size_t j = 0 ; j < m ; j++)					\
-	A[i][j] = ( i == j )?1:0;					\
+    ALG_INIT_M(m, n, A, ( i == j )?1:0);				\
     									\
     return &A[0][0];							\
   }									\
@@ -341,10 +339,11 @@
     									\
     if (NULL != stat)							\
       {									\
+        TYPE df = m - n;						\
 	TYPE (*AX)[m][p] = mem_malloc(&pool, sizeof(*AX));		\
 	TYPE (*Rt_inv)[n][n] = mem_malloc(&pool, sizeof(*Rt_inv));	\
 	TYPE (*AtA_inv)[n][n] = mem_malloc(&pool, sizeof(*AtA_inv));	\
-	TYPE *rss = mem_malloc(&pool, sizeof(TYPE) * p);			\
+	TYPE *rss = mem_malloc(&pool, sizeof(TYPE) * p);		\
 	/* compute p-values for coefficients https://stats.stackexchange.com/a/344008 */ \
 	/* https://en.wikipedia.org/wiki/Residual_sum_of_squares#Relation_with_Pearson's_product-moment_correlation */ \
 	alg_mul_m_m##SUFFIX(m, n, p, A, X, *AX);			\
@@ -367,11 +366,10 @@
 	for (size_t i = 0 ; i < n ; i++)				\
 	  for (size_t j = 0 ; j < p ; j++)				\
 	    {								\
-	      TYPE df = m - n;						\
 	      TYPE mse = rss[j] / df;					\
 	      TYPE Si2 = (*AtA_inv)[i][i];				\
 	      if ( Si2 < 0) Si2 = 0;					\
-	      TYPE denom = sqrt(Si2 * mse);				\
+	      TYPE denom = sqrt##SUFFIX(Si2 * mse);			\
 	      if (0 != denom)						\
 		{							\
 		  TYPE t = X[i][j] / denom;				\
