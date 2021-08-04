@@ -12,7 +12,7 @@ int
 main(int argc, char *argv[argc])
 {
   struct alg_ols ols;
-  const size_t m = 30, n = 3, p = 3;;
+  const size_t m = 100, n = 3, p = 3;;
   double A[m][n],  X[n][p], B[m][p];
   double B_copy[m][p];
   double delta;
