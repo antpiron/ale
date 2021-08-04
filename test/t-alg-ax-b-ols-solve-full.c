@@ -12,7 +12,7 @@ int
 main(int argc, char *argv[argc])
 {
   struct alg_ols ols;
-  const size_t m = 10, n = 3, p = 3;;
+  const size_t m = 30, n = 3, p = 3;;
   double A[m][n],  X[n][p], B[m][p];
   double B_copy[m][p];
   double delta;
@@ -59,14 +59,38 @@ main(int argc, char *argv[argc])
   
   alg_AX_B_OLS_destroy(&ols);
 
-  ALG_INIT_M(m, n, A, stats_unif_rand(0, 1000));
+  ALG_INIT_M(m, n, A, (j == 0)?1:stats_unif_rand(0, 1000));
   ALG_INIT_M(m, p, B, stats_unif_rand(0, 1000));
+  printf("\nA=\n");
+  print_m(m, n, A);
+  printf("\nB=\n");
+  print_m(m, p, B);
+  
 
   ret = alg_AX_B_OLS_init(&ols, m, n, p, A, B, X);
   ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve_full() ret = %d\n != 0", ret);
 
-  ret = alg_AX_B_OLS_statitics(&ols);
-  ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_statitics() ret = %d\n != 0", ret);
+  printf("\nX=\n");
+  print_m(n, p, X);
+
+  ret = alg_AX_B_OLS_statistics(&ols, 1);
+  ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_statistics() ret = %d\n != 0", ret);
+  
+  for (size_t i = 0; i < p ; i++)
+    {
+      double *r_squared = ols.r_squared;
+      double *pvalue = ols.pvalue;
+      double *score = ols.score;
+      const double bonf_alpha = alpha / p;
+
+      ERROR_UNDEF_FATAL_FMT(0 == ale_cmp_double(r_squared[i], 1, eps),
+			    "FAIL: RANDOM alg_AX_B_OLS_statistics() r_squared[%zu] = %f\n == 1.0\n",
+			    i, r_squared[i]);
+      ERROR_UNDEF_FATAL_FMT(pvalue[i] <= bonf_alpha ,
+			    "FAIL: RANDOM alg_AX_B_OLS_statistics() pvalue[%zu] = %f <= %f (r_squared[%zu] = %f, score[i] = %f)\n",
+			    i, pvalue[i], bonf_alpha, i, r_squared[i], i, score[i]);
+      printf("%f\t", pvalue[i]);
+    }
   
   for (size_t i = 0 ; i < n ; i++)
     {
@@ -78,7 +102,7 @@ main(int argc, char *argv[argc])
 	  double (*beta_score)[p] = ols.beta_score;
 	  
 	  ERROR_UNDEF_FATAL_FMT(beta_pvalue[i][j] <= bonf_alpha,
-				"FAIL: alg_AX_B_OLS_init() stat[%ld][%ld].pvalue = %f <=  %f (beta = %f ; score = %e)\n",
+				"FAIL: RANDOM alg_AX_B_OLS_statistics() beta_pvalue[%ld][%ld] = %f <=  %f (beta = %f ; score = %e)\n",
 				i, j, beta_pvalue[i][j], bonf_alpha, X[i][j], beta_score[i][j]);
 	}
     }
@@ -101,8 +125,14 @@ main(int argc, char *argv[argc])
       ret = alg_AX_B_OLS_init(&ols, m, n, p, X, Y, b_res);
       ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_init() ret = %d\n != 0", ret);
 
-      ret = alg_AX_B_OLS_statitics(&ols);
-      ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_statitics() ret = %d\n != 0", ret);
+      ret = alg_AX_B_OLS_statistics(&ols, 0);
+      ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_statistics() ret = %d\n != 0", ret);
+
+      for (size_t i = 0; i < p ; i++)
+	{
+	   double *r_squared = ols.r_squared;
+	   ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(r_squared[i], 1, eps), "FAIL: alg_AX_B_OLS_statistics() r_squared[%zu] = %f\n != 1.0", i, r_squared[i]);
+	}
       
       for (size_t i = 0 ; i < n ; i++)
 	{
@@ -112,13 +142,13 @@ main(int argc, char *argv[argc])
 	      double (*beta_pvalue)[p] = ols.beta_pvalue;
 	      double (*beta_score)[p] = ols.beta_score;
 	      ERROR_UNDEF_FATAL_FMT(beta_pvalue[i][j] > 0.05,
-				    "FAIL: alg_AX_B_OLS_solve_full() stat[%ld][%ld].pvalue = %f >  0.05 (score = %e)\n",
+				    "FAIL: alg_AX_B_OLS_statistics() beta_pvalue[%ld][%ld] = %f >  0.05 (score = %e)\n",
 				    i, j, beta_pvalue[i][j], beta_score[i][j]);
 	      printf("%10.6e ", beta_score[i][j]);
 
 	      delta = fabs(b[i][j] - b_res[i][j]);
 	      ERROR_UNDEF_FATAL_FMT( 0 != ale_cmp_double(b[i][j], b_res[i][j], eps) ,
-	      			     "FAIL: alg_AX_B_OLS_solve_full() b_res[%ld][%ld] = %f !=  %f = b[%ld][%ld] ; delta = %f > %f = eps\n",
+	      			     "FAIL: alg_AX_B_OLS_init() b_res[%ld][%ld] = %f !=  %f = b[%ld][%ld] ; delta = %f > %f = eps\n",
 	      			     i, j, b_res[i][j], b[i][j], i, j, delta, eps);
 	      
 	    }

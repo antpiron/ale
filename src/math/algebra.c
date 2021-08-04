@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "ale/algebra.h"
 #include "ale/stats.h"
+#include "ale/math.h"
 #include "ale/error.h"
 #include "ale/memory.h"
 
@@ -369,7 +370,7 @@ OLS_INIT_ERROR##SUFFIX:							\
   }									\
   									\
   int									\
-  alg_AX_B_OLS_statitics##SUFFIX(struct alg_ols##SUFFIX *ols)		\
+  alg_AX_B_OLS_statistics##SUFFIX(struct alg_ols##SUFFIX *ols, size_t intercept) \
   {									\
     if ( NULL != ols->r_squared )					\
       {									\
@@ -388,12 +389,11 @@ OLS_INIT_ERROR##SUFFIX:							\
     TYPE (*R)[n] = ols->R;						\
     TYPE (*Rt)[n] = ols->Rt;						\
     									\
-			 ols->ret_statistics = ols->custom_ret_statistics = 0; \
+    ols->ret_statistics = ols->custom_ret_statistics = 0;		\
 									\
     TYPE *r_squared = ols->r_squared = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
     TYPE *score = ols->score = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
-    /* TODO: add fstatistic */						\
-    /* TYPE *pvalue = */ ols->pvalue = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
+    TYPE *pvalue = ols->pvalue = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
     /* TODO: add cross-validation */						\
     /* TYPE *mse = */ ols->mse = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
     TYPE (*beta_pvalue)[p] = ols->beta_pvalue = mem_malloc(&ols->pool, sizeof(TYPE) * n * p); \
@@ -409,18 +409,19 @@ OLS_INIT_ERROR##SUFFIX:							\
     									\
     /* compute p-values for coefficients https://stats.stackexchange.com/a/344008 */ \
     /* https://en.wikipedia.org/wiki/Residual_sum_of_squares#Relation_with_Pearson's_product-moment_correlation */ \
-    alg_mul_m_m##SUFFIX(m, n, p, A, X, AX);				\
-    stats_colmeans##SUFFIX(m, p, AX, means);				\
     									\
+    alg_mul_m_m##SUFFIX(m, n, p, A, X, AX);				\
+    if (intercept)							\
+      stats_colmeans##SUFFIX(m, p, AX, means);				\
     									\
     for (size_t i = 0 ; i < p ; i++)					\
-      rss[i] = 0;							\
+      mss[i] = rss[i] = 0;						\
     									\
     for (size_t i = 0 ; i < m ; i++)					\
       for (size_t j = 0 ; j < p ; j++)					\
 	{								\
 	  TYPE e_ij = B[i][j] - AX[i][j];				\
-	  TYPE f_ij = AX[i][j] - means[j];				\
+	  TYPE f_ij = (intercept) ? AX[i][j] - means[j] : AX[i][j];	\
 	  rss[j] += e_ij * e_ij;					\
 	  mss[j] += f_ij * f_ij;					\
 	}								\
@@ -431,7 +432,9 @@ OLS_INIT_ERROR##SUFFIX:							\
 	/* TODO: https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/R/lm.R#L335 */ \
 	/* R module do not check for zero denom */			\
 	r_squared[i] = mss[i] / denom;					\
-	score[i] = mss[i] / m / (rss[i] / df);				\
+	/* http://facweb.cs.depaul.edu/sjost/csc423/documents/f-test-reg.htm */	\
+	score[i] = (mss[i] / (n - intercept)) / (rss[i] / df);		\
+	pvalue[i] = 1 - stats_F_F(score[i], n - intercept, df);		\
       }									\
     									\
 									\
