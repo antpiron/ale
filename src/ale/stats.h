@@ -81,6 +81,8 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   TYPE stats_student_rand##SUFFIX(TYPE df);				\
   TYPE stats_student_F##SUFFIX(TYPE x, TYPE df);			\
 									\
+  TYPE stats_F_F##SUFFIX(TYPE x, TYPE d1, TYPE d2);			\
+									\
   struct stats_t_test##SUFFIX						\
   {									\
     TYPE pvalue, df, t;							\
