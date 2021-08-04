@@ -5,6 +5,7 @@
 #include "ale/stats.h"
 #include "ale/math.h"
 #include "ale/error.h"
+#include "ale/algebra.h"
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   TYPE									\
@@ -84,6 +85,24 @@
     return sqrt##SUFFIX(stats_diff_var##SUFFIX(n, x, y));		\
   }									\
 									\
+  void									\
+  stats_rowmeans##SUFFIX(size_t m, size_t n, const TYPE A[m][n], TYPE means[m]) \
+  {									\
+    for (size_t i = 0 ; i < m ; i++)					\
+      means[i] = stats_mean##SUFFIX(n, A[i]);				\
+  }									\
+  									\
+  void									\
+  stats_colmeans##SUFFIX(size_t m, size_t n, const TYPE A[m][n], TYPE means[n]) \
+  {									\
+    TYPE (*At)[m] = malloc(sizeof(TYPE) * m * n);			\
+									\
+    alg_transpose##SUFFIX(m, n, A, At);					\
+    stats_rowmeans##SUFFIX(n, m, At, means);				\
+    									\
+    free(At);								\
+  }									\
+  									\
   int									\
   stats_pearson_corr##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n], \
 		     TYPE *rho, TYPE *pvalue)				\

@@ -2,6 +2,7 @@
 #define __ALGEBRA_H
 
 #include <stddef.h>
+#include <ale/memory.h>
 
 #define ALG_INIT_M(m, n, A, value) do {		\
     for (size_t i = 0 ; i < (m) ; i++)		\
@@ -34,22 +35,47 @@
   int alg_U_inverse##SUFFIX(size_t n, const TYPE U[n][n], TYPE X[n][n]); \
   int alg_L_inverse##SUFFIX(size_t n, const TYPE L[n][n], TYPE X[n][n]); \
 									\
-  struct stats_stastistic##SUFFIX					\
+  int alg_AX_B_solve##SUFFIX(size_t n, size_t p, TYPE A[n][n], TYPE B[n][p], TYPE X[n][p]); \
+									\
+  struct alg_ols##SUFFIX						\
   {									\
-    TYPE pvalue, score, mse;						\
+    struct mem_pool pool;						\
+    size_t m, n, p;							\
+    void *A;                                /* [m, n] */		\
+    void *B;                                /* [m, p] */		\
+    void *X;                                /* [n, p] */		\
+    void *r_squared, *score, *pvalue, *mse; /* [p] */			\
+    void *beta_pvalue, *beta_score;	    /* [n, p] */		\
+									\
+    									\
+    void *V;                                /* [n][m] */		\
+    void *R;                                /* [m][n] */		\
+    void *Rt;                               /* [n][n] */		\
+    void *QtB;                              /* [m][p] */		\
+    void *RtQtB;                            /* [n][p] */		\
+    void *Y;                                /* [n][p] */		\
+    									\
+    void *AX;                               /* [m][p] */		\
+    void *rss, *means, *mss;                /* [p] */			\
+    void *Rt_inv, *AtA_inv;                 /* [n][n] */		\
+    int ret_statistics, custom_ret_statistics;				\
   };									\
 									\
-  int alg_AX_B_solve##SUFFIX(size_t n, size_t p, TYPE A[n][n], TYPE B[n][p], TYPE X[n][p]); \
-  int alg_AX_B_OLS_solve_full##SUFFIX(size_t m, size_t n, size_t p,	\
-				      TYPE A[m][n], TYPE B[m][p], TYPE X[n][p], \
-				      struct stats_stastistic##SUFFIX (*stat)[p]); \
-  int alg_AX_B_OLS_solve##SUFFIX(size_t m, size_t n, size_t p, TYPE A[m][n], TYPE B[m][p], TYPE X[n][p]); \
+  int alg_AX_B_OLS_init##SUFFIX(struct alg_ols##SUFFIX *ols,		\
+				size_t m, size_t n, size_t p,		\
+				TYPE A[m][n], TYPE B[m][p],		\
+				TYPE (*X)[p]);				\
+  void alg_AX_B_OLS_destroy##SUFFIX(struct alg_ols##SUFFIX *ols);	\
+  int alg_AX_B_OLS_statitics##SUFFIX(struct alg_ols##SUFFIX *ols);	\
+  int alg_AX_B_OLS_solve##SUFFIX(size_t m, size_t n, size_t p,		\
+				 TYPE A[m][n], TYPE B[m][p],		\
+				 TYPE X[n][p]);				\
   									\
   TYPE alg_norm##SUFFIX(size_t n, const TYPE vec[n]);			\
   TYPE alg_dot##SUFFIX(size_t n, const TYPE v1[n], const TYPE v2[n]);	\
   									\
-  void print_m##SUFFIX(size_t m, size_t n, TYPE A[m][n]);		\
-  void print_v##SUFFIX(size_t n, TYPE v[n]);				\
+  void print_m##SUFFIX(size_t m, size_t n, const TYPE A[m][n]);		\
+  void print_v##SUFFIX(size_t n, const TYPE v[n]);			\
   									\
   int alg_QR_householder##SUFFIX(size_t m, size_t n, TYPE A[m][n], TYPE V[n][m]); \
   int householder_proj_QtB##SUFFIX(size_t m, size_t n, size_t p, TYPE V[n][m], TYPE B[m][p]); \

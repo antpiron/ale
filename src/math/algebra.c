@@ -137,7 +137,7 @@
     return res;								\
   }									\
 									\
-  TYPE*								\
+  TYPE*									\
   alg_mul_m_m##SUFFIX(size_t m, size_t n, size_t p, const TYPE A[m][n], const TYPE B[n][p], TYPE res[m][p]) \
   {									\
     for (size_t i = 0 ; i < m ; i++)					\
@@ -151,7 +151,7 @@
     return res[0];							\
   }									\
 									\
-  TYPE*								\
+  TYPE*									\
   alg_mul_L_A##SUFFIX(size_t n, size_t p, const TYPE L[n][n], const TYPE A[n][p], TYPE LA[n][p]) \
   {									\
     for (size_t i = 0 ; i < n ; i++)					\
@@ -165,7 +165,7 @@
     return LA[0];							\
   }									\
 									\
-  TYPE*								\
+  TYPE*									\
   alg_transpose##SUFFIX(size_t m, size_t n, const TYPE A[m][n], TYPE res[n][m]) \
   {									\
     size_t min_m_n = (m < n)?m:n;					\
@@ -173,21 +173,25 @@
       for (size_t i = 0 ; i < min_m_n ; i++)				\
 	res[i][i] = A[i][i];						\
 									\
-    for (size_t i = 1 ; i < m ; i++)					\
+    for (size_t i = 0 ; i < m ; i++)					\
       {									\
-	size_t min_i_n = (i < n)?i:n;					\
-	for (size_t j = 0 ; j < min_i_n ; j++)				\
+	for (size_t j = i + 1 ; j < n ; j++)				\
 	  {								\
-	    TYPE tmp = A[i][j];					\
-	    res[i][j] = A[j][i];					\
-	    res[j][i] = tmp;						\
+	    if (j < m && i < n)						\
+	      {								\
+		TYPE tmp = A[i][j];					\
+		res[i][j] = A[j][i];					\
+		res[j][i] = tmp;					\
+	      }								\
+	    else							\
+	      res[j][i] = A[i][j];					\
 	  }								\
       }									\
-									\
-    return (TYPE*) res;						\
+	    								\
+    return (TYPE*) res;							\
   }									\
 									\
-  TYPE*								\
+  TYPE*									\
   alg_U_transpose##SUFFIX(size_t n, const TYPE U[n][n], TYPE L[n][n])	\
   {									\
     for (size_t i = 0 ; i < n ; i++)					\
@@ -308,94 +312,173 @@
   }									\
 									\
   int									\
-  alg_AX_B_OLS_solve_full##SUFFIX(size_t m, size_t n, size_t p,		\
-				  TYPE A[m][n], TYPE B[m][p], TYPE X[n][p], \
-				  struct stats_stastistic##SUFFIX (*stat)[p]) \
+  alg_AX_B_OLS_init##SUFFIX(struct alg_ols##SUFFIX *ols,		\
+			    size_t m, size_t n, size_t p,		\
+			    TYPE A[m][n], TYPE B[m][p], TYPE (*X)[p])	\
   {									\
-    /* TODO: clean up allocation */					\
-    struct mem_pool pool;					        \
-    mem_init(&pool);							\
-    TYPE (*V)[n][m] = mem_malloc(&pool, sizeof(*V));			\
-    TYPE (*R)[m][n] = mem_malloc(&pool, sizeof(*R));			\
-    TYPE (*Rt)[n][n] = mem_malloc(&pool, sizeof(*Rt));			\
-    TYPE (*QtB)[m][p] = mem_malloc(&pool, sizeof(*QtB));		\
-    TYPE (*RtQtB)[n][p] = mem_malloc(&pool, sizeof(*RtQtB));		\
-    TYPE (*Y)[n][p] =  mem_malloc(&pool, sizeof(*Y));			\
     int ret = 0;							\
-    									\
-    memcpy(*R, A, sizeof(*R));						\
-    ret = alg_QR_householder##SUFFIX(m, n, *R, *V);			\
-    ERROR_CUSTOM_GOTO(ret < 0, -1, OLS_ERROR##SUFFIX);			\
-    memcpy(*QtB, B, sizeof(*QtB));					\
-    householder_proj_QtB##SUFFIX(m, n, p, *V, *QtB);			\
-    									\
-    alg_U_transpose##SUFFIX(n, *R, *Rt);				\
 									\
-    alg_mul_L_A##SUFFIX(n, p,  *Rt, *QtB, *RtQtB);			\
+    mem_init(&ols->pool);						\
+    ols->m = m;								\
+    ols->n = n;								\
+    ols->p = p;								\
+    ols->A = A;								\
+    ols->B = B;								\
+    ols->X = (NULL == X)?						\
+      mem_malloc(&ols->pool, sizeof(TYPE) * n * p) : X;			\
+									\
+    ols->V = mem_malloc(&ols->pool, sizeof(TYPE) * n * m);		\
+    ols->R = mem_malloc(&ols->pool, sizeof(TYPE) * n * m);		\
+    ols->Rt = mem_malloc(&ols->pool, sizeof(TYPE) * n * n);		\
+    ols->QtB = mem_malloc(&ols->pool, sizeof(TYPE) * m * p);		\
+    ols->RtQtB = mem_malloc(&ols->pool, sizeof(TYPE) * n * p);		\
+    ols->Y =  mem_malloc(&ols->pool, sizeof(TYPE) * n * p);		\
+    ols->r_squared = ols->score = ols->pvalue = ols->mse = NULL;	\
+    ols->beta_pvalue = ols->beta_score = NULL;				\
     									\
-    ret = alg_LX_B_solve##SUFFIX(n, p, *Rt, *RtQtB, *Y);		\
-    if (ret >= 0)							\
-      ret = alg_UX_B_solve##SUFFIX(n, p, *R, *Y, X);			\
+    memcpy(ols->R, A, sizeof(TYPE) * n * m);				\
+    ret = alg_QR_householder##SUFFIX(m, n, ols->R, ols->V);		\
+    ERROR_CUSTOM_GOTO(ret < 0, -1, OLS_INIT_ERROR##SUFFIX);		\
     									\
-    if (NULL != stat)							\
-      {									\
-        TYPE df = m - n;						\
-	TYPE (*AX)[m][p] = mem_malloc(&pool, sizeof(*AX));		\
-	TYPE (*Rt_inv)[n][n] = mem_malloc(&pool, sizeof(*Rt_inv));	\
-	TYPE (*AtA_inv)[n][n] = mem_malloc(&pool, sizeof(*AtA_inv));	\
-	TYPE *rss = mem_malloc(&pool, sizeof(TYPE) * p);		\
-	/* compute p-values for coefficients https://stats.stackexchange.com/a/344008 */ \
-	/* https://en.wikipedia.org/wiki/Residual_sum_of_squares#Relation_with_Pearson's_product-moment_correlation */ \
-	alg_mul_m_m##SUFFIX(m, n, p, A, X, *AX);			\
-									\
-	for (size_t i = 0 ; i < p ; i++)				\
-	  rss[i] = 0;							\
-									\
-	for (size_t i = 0 ; i < m ; i++)				\
-	  for (size_t j = 0 ; j < p ; j++)				\
-	    {								\
-	      TYPE e_ij = B[i][j] - (*AX)[i][j];			\
-	      rss[j] += e_ij * 	e_ij;					\
-	    }								\
-									\
-	ret = alg_L_inverse##SUFFIX(n, *Rt, *Rt_inv);			\
-	ERROR_CUSTOM_GOTO(ret < 0, -2, OLS_ERROR##SUFFIX);		\
-									\
-	ret = alg_UX_B_solve##SUFFIX(n, n, *R, *Rt_inv, *AtA_inv);	\
-	ERROR_CUSTOM_GOTO(ret < 0, -3, OLS_ERROR##SUFFIX);		\
-	for (size_t i = 0 ; i < n ; i++)				\
-	  for (size_t j = 0 ; j < p ; j++)				\
-	    {								\
-	      TYPE mse = rss[j] / df;					\
-	      TYPE Si2 = (*AtA_inv)[i][i];				\
-	      if ( Si2 < 0) Si2 = 0;					\
-	      TYPE denom = sqrt##SUFFIX(Si2 * mse);			\
-	      if (0 != denom)						\
-		{							\
-		  TYPE t = X[i][j] / denom;				\
-		  stat[i][j].pvalue = 2 * (1 - stats_student_F##SUFFIX(fabs##SUFFIX(t), df)); \
-		  stat[i][j].score = t;					\
-		  stat[i][j].mse = mse;					\
-		}							\
-	      else							\
-		{							\
-		  stat[i][j].pvalue = 0;				\
-		  stat[i][j].score = INFINITY;				\
-		  stat[i][j].mse = mse;					\
-		}							\
-	    }								\
-      }									\
+    memcpy(ols->QtB, B, sizeof(TYPE) * m * p);				\
+    householder_proj_QtB##SUFFIX(m, n, p, ols->V, ols->QtB);		\
     									\
-  OLS_ERROR##SUFFIX:							\
-    mem_destroy(&pool);							\
+    alg_U_transpose##SUFFIX(n, ols->R, ols->Rt);			\
+									\
+    alg_mul_L_A##SUFFIX(n, p,  ols->Rt, ols->QtB, ols->RtQtB);		\
+    									\
+    ret = alg_LX_B_solve##SUFFIX(n, p, ols->Rt, ols->RtQtB, ols->Y);	\
+    ERROR_CUSTOM_GOTO(ret < 0, -2, OLS_INIT_ERROR##SUFFIX);		\
+    									\
+    ret = alg_UX_B_solve##SUFFIX(n, p, ols->R, ols->Y, ols->X);		\
+    ERROR_CUSTOM_GOTO(ret < 0, -3, OLS_INIT_ERROR##SUFFIX);		\
+    									\
+    return ret;								\
+									\
+OLS_INIT_ERROR##SUFFIX:							\
+									\
+    mem_destroy(&ols->pool);						\
 									\
     return ret;								\
   }									\
+									\
+  void								        \
+  alg_AX_B_OLS_destroy##SUFFIX(struct alg_ols##SUFFIX *ols)		\
+  {									\
+    mem_destroy(&ols->pool);						\
+  }									\
+  									\
+  int									\
+  alg_AX_B_OLS_statitics##SUFFIX(struct alg_ols##SUFFIX *ols)		\
+  {									\
+    if ( NULL != ols->r_squared )					\
+      {									\
+	if (0 == ols->ret_statistics)					\
+	  return 0;							\
+	else								\
+	  ERROR_CUSTOM_RET(1, ols->ret_statistics, (ols->custom_ret_statistics)); \
+      }									\
+									\
+    size_t m = ols->m;							\
+    size_t n = ols->n;							\
+    size_t p = ols->p;							\
+    TYPE (*A)[n] = ols->A;						\
+    TYPE (*B)[p] = ols->B;						\
+    TYPE (*X)[p] = ols->X;						\
+    TYPE (*R)[n] = ols->R;						\
+    TYPE (*Rt)[n] = ols->Rt;						\
+    									\
+			 ols->ret_statistics = ols->custom_ret_statistics = 0; \
+									\
+    TYPE *r_squared = ols->r_squared = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
+    TYPE *score = ols->score = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
+    /* TODO: add fstatistic */						\
+    /* TYPE *pvalue = */ ols->pvalue = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
+    /* TODO: add cross-validation */						\
+    /* TYPE *mse = */ ols->mse = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
+    TYPE (*beta_pvalue)[p] = ols->beta_pvalue = mem_malloc(&ols->pool, sizeof(TYPE) * n * p); \
+    TYPE (*beta_score)[p] = ols->beta_score = mem_malloc(&ols->pool, sizeof(TYPE) * n * p); \
+    									\
+    TYPE df = m - n;							\
+    TYPE (*AX)[p] = ols->AX = mem_malloc(&ols->pool, sizeof(TYPE) * m * p);	\
+    TYPE *rss = ols->rss = mem_malloc(&ols->pool, sizeof(TYPE) * p);	\
+    TYPE *means = ols->means = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
+    TYPE *mss = ols->mss = mem_malloc(&ols->pool, sizeof(TYPE) * p);	\
+    TYPE (*Rt_inv)[n] = ols->Rt_inv= mem_malloc(&ols->pool, sizeof(TYPE) * n * n); \
+    TYPE (*AtA_inv)[n] = ols->AtA_inv = mem_malloc(&ols->pool, sizeof(TYPE) * n * n);	\
+    									\
+    /* compute p-values for coefficients https://stats.stackexchange.com/a/344008 */ \
+    /* https://en.wikipedia.org/wiki/Residual_sum_of_squares#Relation_with_Pearson's_product-moment_correlation */ \
+    alg_mul_m_m##SUFFIX(m, n, p, A, X, AX);				\
+    stats_colmeans##SUFFIX(m, p, AX, means);				\
+    									\
+    									\
+    for (size_t i = 0 ; i < p ; i++)					\
+      rss[i] = 0;							\
+    									\
+    for (size_t i = 0 ; i < m ; i++)					\
+      for (size_t j = 0 ; j < p ; j++)					\
+	{								\
+	  TYPE e_ij = B[i][j] - AX[i][j];				\
+	  TYPE f_ij = AX[i][j] - means[j];				\
+	  rss[j] += e_ij * e_ij;					\
+	  mss[j] += f_ij * f_ij;					\
+	}								\
+    									\
+    for (size_t i = 0 ; i < p ; i++)					\
+      {									\
+	TYPE denom =  mss[i] + rss[i];					\
+	/* TODO: https://github.com/SurajGupta/r-source/blob/a28e609e72ed7c47f6ddfbb86c85279a0750f0b7/src/library/stats/R/lm.R#L335 */ \
+	/* R module do not check for zero denom */			\
+	r_squared[i] = mss[i] / denom;					\
+	score[i] = mss[i] / m / (rss[i] / df);				\
+      }									\
+    									\
+									\
+    ols->ret_statistics = alg_L_inverse##SUFFIX(n, Rt, Rt_inv);		\
+    ERROR_CUSTOM_RET(ols->ret_statistics < 0, ols->ret_statistics,	\
+		     (ols->custom_ret_statistics = -2));		\
+    									\
+    ols->ret_statistics= alg_UX_B_solve##SUFFIX(n, n,			\
+						R, Rt_inv, AtA_inv);	\
+    ERROR_CUSTOM_RET(ols->ret_statistics < 0, ols->ret_statistics,	\
+		     (ols->custom_ret_statistics = -3));		\
+    for (size_t i = 0 ; i < n ; i++)					\
+      for (size_t j = 0 ; j < p ; j++)					\
+	{								\
+	  TYPE mse = rss[j] / df; 					\
+	  TYPE Si2 = AtA_inv[i][i];					\
+	  if ( Si2 < 0) Si2 = 0;					\
+	  TYPE denom = sqrt##SUFFIX(Si2 * mse);				\
+	  if (0 != denom)						\
+	    {								\
+	      TYPE t = X[i][j] / denom;					\
+	      beta_pvalue[i][j] = 2 *					\
+		(1 - stats_student_F##SUFFIX(fabs##SUFFIX(t), df));	\
+	      beta_score[i][j] = t;					\
+	    }								\
+	  else								\
+	    {								\
+	      beta_pvalue [i][j] = 0;					\
+	      beta_score[i][j] = INFINITY;				\
+	    }								\
+	}								\
+    									\
+    									\
+    return ols->ret_statistics;						\
+  }									\
+  									\
   									\
   int									\
   alg_AX_B_OLS_solve##SUFFIX(size_t m, size_t n, size_t p, TYPE A[m][n], TYPE B[m][p], TYPE X[n][p]) \
   {									\
-    return alg_AX_B_OLS_solve_full##SUFFIX(m, n, p, A, B, X, NULL);	\
+    struct alg_ols##SUFFIX ols;						\
+    int ret = alg_AX_B_OLS_init##SUFFIX(&ols, m, n, p, A, B, X);	\
+    ERROR_RET(ret < 0, ret);						\
+									\
+    alg_AX_B_OLS_destroy##SUFFIX(&ols);					\
+									\
+    return ret;								\
   }									\
 									\
   int									\
@@ -520,7 +603,7 @@ GENERIC_FUNC(l,long double)
 
 
 void	
-print_m(size_t m, size_t n, double A[m][n])
+print_m(size_t m, size_t n, const double A[m][n])
 {
   for (size_t i = 0 ; i < m ; i++)
     {
@@ -531,7 +614,7 @@ print_m(size_t m, size_t n, double A[m][n])
 }
 
 void	
-print_ml(size_t m, size_t n, long double A[m][n])
+print_ml(size_t m, size_t n, const long double A[m][n])
 {
   for (size_t i = 0 ; i < m ; i++)
     {
@@ -542,7 +625,7 @@ print_ml(size_t m, size_t n, long double A[m][n])
 }
 
 void	
-print_v(size_t n, double v[n])
+print_v(size_t n, const double v[n])
 {
   for (size_t i = 0 ; i < n ; i++)
     printf("%f\t", v[i]);
@@ -550,7 +633,7 @@ print_v(size_t n, double v[n])
 }
 
 void	
-print_vl(size_t n, long double v[n])
+print_vl(size_t n, const long double v[n])
 {
   for (size_t i = 0 ; i < n ; i++)
     printf("%Lf\t", v[i]);

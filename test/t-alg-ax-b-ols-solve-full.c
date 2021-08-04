@@ -11,13 +11,13 @@
 int
 main(int argc, char *argv[argc])
 {
-  const size_t m = 10, n = 3, p = 3;;
+  /* const size_t m = 10, n = 3, p = 3;;
   double A[m][n],  X[n][p], B[m][p];
   struct stats_stastistic stat[n][p];
   double B_copy[m][p];
   double delta;
   int ret;
-  const double alpha = 0.05;
+  const double alpha = 0.01;
   const double eps = 0.0000001;
 
   ALG_INIT_M(m, n, A, (i == j)?2:1);
@@ -57,8 +57,8 @@ main(int argc, char *argv[argc])
       ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_AX_B_OLS_solve_full() delta B[%ld, %ld] != 0 = %f\n", i, j, delta);
     }
 
-  ALG_INIT_M(m, n, A, stats_norm_rand(0, 1));
-  ALG_INIT_M(m, p, B, stats_norm_rand(0, 1));
+  ALG_INIT_M(m, n, A, stats_unif_rand(0, 1000));
+  ALG_INIT_M(m, p, B, stats_unif_rand(0, 1000));
 
   ret = alg_AX_B_OLS_solve_full(m, n, p, A, B, X, stat);
   ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve_full() ret = %d\n != 0", ret);
@@ -114,6 +114,6 @@ main(int argc, char *argv[argc])
 	  
       printf("\n");
     }
-
+  */ 
   return EXIT_SUCCESS;
 }

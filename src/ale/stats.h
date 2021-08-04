@@ -39,6 +39,12 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
   TYPE stats_diff_var##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]); \
   TYPE stats_diff_sd##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]); \
   TYPE stats_cov##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]);	\
+									\
+  void stats_rowmeans##SUFFIX(size_t m, size_t n,			\
+			      const TYPE A[m][n], TYPE means[m]);	\
+  void stats_colmeans##SUFFIX(size_t m, size_t n,			\
+			      const TYPE A[m][n], TYPE means[n]);	\
+									\
   int stats_pearson_corr##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n], \
 				 TYPE *rho, TYPE *pvalue);		\
   void stats_mat_cov##SUFFIX(size_t m, size_t n, TYPE cov[m][m], const TYPE x[m][n]); \
