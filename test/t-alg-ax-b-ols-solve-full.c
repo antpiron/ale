@@ -11,9 +11,9 @@
 int
 main(int argc, char *argv[argc])
 {
-  /* const size_t m = 10, n = 3, p = 3;;
+  struct alg_ols ols;
+  const size_t m = 10, n = 3, p = 3;;
   double A[m][n],  X[n][p], B[m][p];
-  struct stats_stastistic stat[n][p];
   double B_copy[m][p];
   double delta;
   int ret;
@@ -37,9 +37,9 @@ main(int argc, char *argv[argc])
   print_m(m, n, A);
   printf("\nB=\n");
   print_m(m, p, B);
-  
-  ret = alg_AX_B_OLS_solve_full(m, n, p, A, B, X, stat);
-  ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve_full() ret = %d\n != 0", ret);
+
+  ret = alg_AX_B_OLS_init(&ols, m, n, p, A, B, X);
+  ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_init ret = %d\n != 0", ret);
   
   printf("\nX=\n");
   print_m(n, p, X);
@@ -56,31 +56,39 @@ main(int argc, char *argv[argc])
       delta = fabs(B[i][j] - B_copy[i][j]);
       ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: alg_AX_B_OLS_solve_full() delta B[%ld, %ld] != 0 = %f\n", i, j, delta);
     }
+  
+  alg_AX_B_OLS_destroy(&ols);
 
   ALG_INIT_M(m, n, A, stats_unif_rand(0, 1000));
   ALG_INIT_M(m, p, B, stats_unif_rand(0, 1000));
 
-  ret = alg_AX_B_OLS_solve_full(m, n, p, A, B, X, stat);
+  ret = alg_AX_B_OLS_init(&ols, m, n, p, A, B, X);
   ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve_full() ret = %d\n != 0", ret);
 
+  ret = alg_AX_B_OLS_statitics(&ols);
+  ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_statitics() ret = %d\n != 0", ret);
+  
   for (size_t i = 0 ; i < n ; i++)
     {
       for (size_t j = 0; j < p ; j++)
 	{
 	  //  alpha / (m * p) == Bonferroni correction
 	  const double bonf_alpha = alpha / (n * p);
-	  ERROR_UNDEF_FATAL_FMT(stat[i][j].pvalue <= bonf_alpha,
-				"FAIL: alg_AX_B_OLS_solve_full() stat[%ld][%ld].pvalue = %f <=  %f (beta = %f ; score = %e ; mse = %e)\n",
-				i, j, stat[i][j].pvalue, bonf_alpha, X[i][j], stat[i][j].score, stat[i][j].mse);
+	  double (*beta_pvalue)[p] = ols.beta_pvalue;
+	  double (*beta_score)[p] = ols.beta_score;
+	  
+	  ERROR_UNDEF_FATAL_FMT(beta_pvalue[i][j] <= bonf_alpha,
+				"FAIL: alg_AX_B_OLS_init() stat[%ld][%ld].pvalue = %f <=  %f (beta = %f ; score = %e)\n",
+				i, j, beta_pvalue[i][j], bonf_alpha, X[i][j], beta_score[i][j]);
 	}
     }
+  alg_AX_B_OLS_destroy(&ols);
   
   for (int iter = 0 ; iter < MAX_ITER ; iter++)
     {
       size_t m = 100, n = 2, p = 15;
       double b[n][p], b_res[n][p];
       double Y[m][p], X[m][n];
-      struct stats_stastistic stat[n][p];
 
 
       ALG_INIT_M(n, p, b, stats_unif_rand(0, 1000));
@@ -90,18 +98,23 @@ main(int argc, char *argv[argc])
 
       ALG_ADD_M(m, p, Y, stats_norm_rand(0, 1));
 
-      ret = alg_AX_B_OLS_solve_full(m, n, p, X, Y, b_res, stat);
-      ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_solve_full() ret = %d\n != 0", ret);
+      ret = alg_AX_B_OLS_init(&ols, m, n, p, X, Y, b_res);
+      ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_init() ret = %d\n != 0", ret);
 
+      ret = alg_AX_B_OLS_statitics(&ols);
+      ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: alg_AX_B_OLS_statitics() ret = %d\n != 0", ret);
+      
       for (size_t i = 0 ; i < n ; i++)
 	{
 	  for (size_t j = 0; j < p ; j++)
 	    {
 	      const double eps = 0.01;
-	      ERROR_UNDEF_FATAL_FMT(stat[i][j].pvalue > 0.05,
-				    "FAIL: alg_AX_B_OLS_solve_full() stat[%ld][%ld].pvalue = %f >  0.05 (score = %e ; mse = %e)\n",
-				    i, j, stat[i][j].pvalue, stat[i][j].score, stat[i][j].mse);
-	      printf("%10.6e ", stat[i][j].score);
+	      double (*beta_pvalue)[p] = ols.beta_pvalue;
+	      double (*beta_score)[p] = ols.beta_score;
+	      ERROR_UNDEF_FATAL_FMT(beta_pvalue[i][j] > 0.05,
+				    "FAIL: alg_AX_B_OLS_solve_full() stat[%ld][%ld].pvalue = %f >  0.05 (score = %e)\n",
+				    i, j, beta_pvalue[i][j], beta_score[i][j]);
+	      printf("%10.6e ", beta_score[i][j]);
 
 	      delta = fabs(b[i][j] - b_res[i][j]);
 	      ERROR_UNDEF_FATAL_FMT( 0 != ale_cmp_double(b[i][j], b_res[i][j], eps) ,
@@ -113,7 +126,8 @@ main(int argc, char *argv[argc])
 	}
 	  
       printf("\n");
+      alg_AX_B_OLS_destroy(&ols);	
     }
-  */ 
+   
   return EXIT_SUCCESS;
 }
