@@ -434,7 +434,7 @@ OLS_INIT_ERROR##SUFFIX:							\
 	r_squared[i] = mss[i] / denom;					\
 	/* http://facweb.cs.depaul.edu/sjost/csc423/documents/f-test-reg.htm */	\
 	score[i] = (mss[i] / (n - intercept)) / (rss[i] / (df + intercept));	\
-	pvalue[i] = 1 - stats_F_F(score[i], df + intercept, n - intercept);		\
+	pvalue[i] = 1 - stats_F_F(score[i],(n - intercept), (df + intercept));		\
       }									\
     									\
 									\
