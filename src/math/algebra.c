@@ -440,8 +440,8 @@ OLS_INIT_ERROR##SUFFIX:							\
 	/* R module do not check for zero denom */			\
 	r_squared[i] = mss[i] / denom;					\
 	/* http://facweb.cs.depaul.edu/sjost/csc423/documents/f-test-reg.htm */	\
-	score[i] = (mss[i] / (n - intercept)) / (rss[i] / (df + intercept));	\
-	pvalue[i] = 1 - stats_F_F(score[i],(n - intercept), (df + intercept));		\
+	score[i] = (mss[i] / (n - intercept)) / (rss[i] / (df));	\
+	pvalue[i] = 1 - stats_F_F(score[i],(n - intercept), df);		\
       }									\
     									\
 									\
