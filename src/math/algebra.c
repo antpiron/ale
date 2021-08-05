@@ -170,25 +170,32 @@
   alg_transpose##SUFFIX(size_t m, size_t n, const TYPE A[m][n], TYPE res[n][m]) \
   {									\
     size_t min_m_n = (m < n)?m:n;					\
-    if ( (void*) &res != (void*) &A )					\
-      for (size_t i = 0 ; i < min_m_n ; i++)				\
-	res[i][i] = A[i][i];						\
 									\
-    for (size_t i = 0 ; i < m ; i++)					\
+    for (size_t i = 0 ; i < min_m_n ; i++)				\
+      res[i][i] = A[i][i];						\
+									\
+    for (size_t i = 0 ; i < min_m_n ; i++)				\
       {									\
-	for (size_t j = i + 1 ; j < n ; j++)				\
+	for (size_t j = i + 1 ; j < min_m_n ; j++)			\
 	  {								\
-	    if (j < m && i < n)						\
-	      {								\
-		TYPE tmp = A[i][j];					\
-		res[i][j] = A[j][i];					\
-		res[j][i] = tmp;					\
-	      }								\
-	    else							\
-	      res[j][i] = A[i][j];					\
+	    TYPE tmp = A[i][j];						\
+	    res[i][j] = A[j][i];					\
+	    res[j][i] = tmp;						\
+	    res[j][i] = A[i][j];					\
 	  }								\
       }									\
-	    								\
+									\
+    for (size_t i = n ; i < m ; i++)					\
+      for (size_t j = 0 ; j < n ; j++)					\
+	res[j][i] = A[i][j];						\
+    									\
+    if (m < n)								\
+      {									\
+	for (size_t i = 0 ; i < m ; i++)				\
+	  for (size_t j = m ; j < n ; j++)				\
+	    res[j][i] = A[i][j];					\
+      }									\
+									\
     return (TYPE*) res;							\
   }									\
 									\

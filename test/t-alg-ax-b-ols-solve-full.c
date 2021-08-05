@@ -8,6 +8,100 @@
 
 #define MAX_ITER (10)
 
+const double alpha = 0.01;
+const double eps = 0.0000001;
+
+enum {
+      RANDOM_B,
+      PERFECT_B,
+      CORRELATED_B
+};
+
+void
+gen_model(char *name, size_t m, size_t n, size_t p, size_t intercept, int rand_B, double var_e, void *A_param, void *B_param)
+{
+  int ret;
+  struct alg_ols ols;
+  double A[m][n],  X[n][p], B[m][p], X_res[n][p];
+
+  printf("\n\n%s\n", name);
+
+  if (A_param)
+    memcpy(A, A_param, sizeof(double) * m * n);
+  else
+    ALG_INIT_M(m, n, A, (intercept && (0 == j))? 1  : stats_unif_rand(0, 1000) );
+
+  // generate B
+  if ( B_param )
+    memcpy(B, B_param, sizeof(double) * m * p);
+  else
+  if ( RANDOM_B == rand_B )
+    ALG_INIT_M(m, p, B, stats_unif_rand(0, 1000) );
+  else
+    {
+      ALG_INIT_M(n, p, X_res, stats_unif_rand(0, 1000) );
+      
+      alg_mul_m_m(m, n, p, A, X_res, B);
+ 
+      if ( CORRELATED_B  == rand_B)
+	{
+	  ALG_ADD_M(m, p, B, stats_norm_rand(0, var_e) );
+	}
+    }
+
+  printf("\nA=\n");
+  print_m(m, n, A);
+  printf("\nB=\n");
+  print_m(m, p, B);
+  if ( RANDOM_B != rand_B)
+    {
+      printf("\nX_res=\n");
+      print_m(n, p, X_res);
+    }
+
+  ret = alg_AX_B_OLS_init(&ols, m, n, p, A, B, X);
+  ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: %s alg_AX_B_OLS_init ret = %d\n != 0", name, ret);
+
+  printf("\nX=\n");
+  print_m(n, p, X);
+
+  if ( PERFECT_B  == rand_B )
+    {
+      for (size_t i = 0 ; i < n ; i++)
+	for (size_t j = 0; j < p ; j++)
+	  {
+	    ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(X[i][j], X_res[i][j], eps),
+				  "FAIL: %s alg_AX_B_OLS_solve_full() X[%ld, %ld] = %f != %f = X_res[%ld, %ld]\n",
+				  name, i, j, X[i][j], X_res[i][j], i, j);
+	  }
+    }
+
+  
+  ret = alg_AX_B_OLS_statistics(&ols, intercept);
+  ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: %s alg_AX_B_OLS_statistics() ret = %d\n != 0", name, ret);
+
+  printf("\nAX=\n");
+  print_m(m, p, ols.AX);
+  printf("\nmeans=\n");
+  print_v(p, ols.means);
+
+  printf("\nrss=\n");
+  print_v(p, ols.rss);
+  printf("\nmss=\n");
+  print_v(p, ols.mss);
+
+  printf("\nr²=\n");
+  print_v(p, ols.r_squared);
+
+  printf("\nF-stat=\n");
+  print_v(p, ols.score);
+
+  printf("\nF-pval=\n");
+  print_v(p, ols.pvalue);
+
+  alg_AX_B_OLS_destroy(&ols);
+}
+
 int
 main(int argc, char *argv[argc])
 {
@@ -20,6 +114,22 @@ main(int argc, char *argv[argc])
   const double alpha = 0.01;
   const double eps = 0.0000001;
 
+
+  gen_model("random with intercept", 6, 3, 1, 1, RANDOM_B, 0,
+	    (double[6][3]) { {1.000000,	751.411799, 53.406825},	
+			      {1.000000, 878.793326, 184.466027},
+				 {1.000000, 934.970735, 400.979769},
+				   {1.000000, 248.113489, 6.991620 },
+				     {1.000000, 969.135640, 443.855135},
+				     {1.000000, 397.544328, 330.078718 } },
+	    (double[6]) {216.396249, 852.721703, 234.933271, 446.330890, 161.112500, 863.669808});
+
+  /* gen_model("random with intercept", 6, 3, 1, 1, RANDOM_B, 0, NULL, NULL);
+  gen_model("perfect correlation with intercept", 6, 3, 1, 1, PERFECT_B, 0, NULL, NULL);
+  gen_model("correlation with intercept", 6, 3, 1, 1, CORRELATED_B, 10, NULL, NULL); */
+
+  return(0);
+  
   ALG_INIT_M(m, n, A, (i == j)?2:1);
 
   for (size_t i = 0 ; i < m ; i++)
