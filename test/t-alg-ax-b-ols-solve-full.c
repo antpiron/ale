@@ -114,6 +114,30 @@ main(int argc, char *argv[argc])
   const double alpha = 0.01;
   const double eps = 0.0000001;
 
+  /* 
+     A <- rbind(c(751.411799, 53.406825),
+                c(878.793326, 184.466027),
+		c(934.970735, 400.979769),
+		c(248.113489, 6.991620),
+		c(969.135640, 443.855135),
+		c(397.544328, 330.078718))
+     
+     B <- cbind(c(216.396249,
+	          852.721703,
+		  234.933271,
+		  446.330890,
+		  161.112500,
+		  863.669808))
+
+     model <- lm(B ~ A)
+     summary(model)
+     sum(model$residuals^2) 
+
+     meanB <- mean(B)
+     X  <- cbind(model$coefficients)
+     AX  <- (cbind(1, A) %*% X)
+     sum( (AX - meanB)^2 )
+   */
 
   gen_model("random with intercept", 6, 3, 1, 1, RANDOM_B, 0,
 	    (double[6][3]) { {1.000000,	751.411799, 53.406825},	
