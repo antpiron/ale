@@ -56,7 +56,9 @@
     void *Y;                                /* [n][p] */		\
     									\
     void *AX;                               /* [m][p] */		\
-    void *rss, *means, *mss;                /* [p] */			\
+    void *Q;                                /* [m][n] */		\
+    void *Hii;                              /* [m] */		\
+    void *loocv, *rss, *means, *mss;                /* [p] */		\
     void *Rt_inv, *AtA_inv;                 /* [n][n] */		\
     int ret_statistics, custom_ret_statistics;				\
   };									\

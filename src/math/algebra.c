@@ -408,6 +408,9 @@ OLS_INIT_ERROR##SUFFIX:							\
     									\
     TYPE df = m - n;							\
     TYPE (*AX)[p] = ols->AX = mem_malloc(&ols->pool, sizeof(TYPE) * m * p);	\
+    TYPE (*Q)[n] = ols->Q = mem_malloc(&ols->pool, sizeof(TYPE) * m * n);	\
+    TYPE *Hii = ols->Q = mem_malloc(&ols->pool, sizeof(TYPE) * m);	\
+    TYPE *loocv = ols->loocv = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
     TYPE *rss = ols->rss = mem_malloc(&ols->pool, sizeof(TYPE) * p);	\
     TYPE *means = ols->means = mem_malloc(&ols->pool, sizeof(TYPE) * p); \
     TYPE *mss = ols->mss = mem_malloc(&ols->pool, sizeof(TYPE) * p);	\
@@ -421,18 +424,27 @@ OLS_INIT_ERROR##SUFFIX:							\
     if (intercept)							\
       stats_colmeans##SUFFIX(m, p, AX, means);				\
     									\
+    /* LOO https://robjhyndman.com/hyndsight/loocv-linear-models/ */	\
+    alg_identity_init##SUFFIX(m, n, Q);					\
+    householder_proj_QX##SUFFIX(m, n, n, ols->V, Q);			\
+    for (size_t i = 0 ; i < m ; i++)					\
+      Hii[i] = alg_sum_of_squares##SUFFIX(n, Q[i]);			\
+    									\
     for (size_t i = 0 ; i < p ; i++)					\
-      mss[i] = rss[i] = 0;						\
+      mss[i] = rss[i] = loocv[i] = 0;					\
     									\
     for (size_t i = 0 ; i < m ; i++)					\
       for (size_t j = 0 ; j < p ; j++)					\
 	{								\
 	  TYPE e_ij = B[i][j] - AX[i][j];				\
+	  TYPE e_ij_loo = e_ij / (1 - Hii[j]);				\
 	  TYPE f_ij = (intercept) ? AX[i][j] - means[j] : AX[i][j];	\
 	  rss[j] += e_ij * e_ij;					\
+	  loocv[j] += e_ij_loo * e_ij_loo;				\
 	  mss[j] += f_ij * f_ij;					\
 	}								\
-    									\
+									\
+									\
     for (size_t i = 0 ; i < p ; i++)					\
       {									\
 	TYPE denom =  mss[i] + rss[i];					\
@@ -441,7 +453,8 @@ OLS_INIT_ERROR##SUFFIX:							\
 	r_squared[i] = mss[i] / denom;					\
 	/* http://facweb.cs.depaul.edu/sjost/csc423/documents/f-test-reg.htm */	\
 	score[i] = (mss[i] / (n - intercept)) / (rss[i] / (df));	\
-	pvalue[i] = 1 - stats_F_F(score[i],(n - intercept), df);		\
+	pvalue[i] = 1 - stats_F_F(score[i],(n - intercept), df);	\
+	loocv[i] /= m;							\
       }									\
     									\
 									\
