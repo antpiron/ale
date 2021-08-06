@@ -30,6 +30,7 @@ enum {
       ARG_TEST_FSTAT_PVALUE,
       ARG_TEST_BETA_STAT,
       ARG_TEST_BETA_PVALUE,
+      ARG_TEST_LOOCV_LT,
       ARG_END
 };
 
@@ -51,6 +52,7 @@ gen_model(char *name, size_t m, size_t n, size_t p, ...)
   double *pvalue_exp = NULL;
   double (*beta_stat_exp)[p] = NULL;
   double (*beta_pvalue_exp)[p] = NULL;
+  double *loocv_exp = NULL;
 
   va_start(ap, p); 
   for ( int cont = 1 ; cont ; )
@@ -104,6 +106,10 @@ gen_model(char *name, size_t m, size_t n, size_t p, ...)
 
 	case ARG_TEST_BETA_PVALUE:
 	  beta_pvalue_exp = va_arg(ap, void*);
+	  break;
+	  
+	case ARG_TEST_LOOCV_LT:
+	  loocv_exp = va_arg(ap, void*);
 	  break;
 	  
 	default:
@@ -266,7 +272,17 @@ gen_model(char *name, size_t m, size_t n, size_t p, ...)
 	  }
     }
 
-  
+    if ( NULL != loocv_exp )
+    {
+      for (size_t i = 0; i < p ; i++)
+	{
+	  double *loocv = ols.loocv;
+	  ERROR_UNDEF_FATAL_FMT(loocv[i] >= loocv_exp[i],
+				"FAIL: %s alg_AX_B_OLS_solve_full() loocv[%ld] = %e >= %e = loocv_exp[%ld]\n",
+				name, i, loocv[i], loocv_exp[i], i);
+	}
+    }
+
 
   alg_AX_B_OLS_destroy(&ols);
 }
@@ -334,12 +350,13 @@ F-statistic: 0.3053 on 2 and 3 DF,  p-value: 0.7574
 	    ARG_TEST_BETA_PVALUE, (double[3][1]) { {0.1704931}, {0.5076460}, {0.8359707} },
 	    ARG_END);
 
-  gen_model("perfect correlation with intercept", 6, 3, 2,
+  gen_model("perfect with intercept", 6, 3, 2,
 	    ARG_INTERCEPT, 1,
 	    ARG_B_MODE, B_MODE_PERFECT,
 	    ARG_TEST_R2, (double[2]) { 1, 1 },
 	    ARG_TEST_FSTAT_PVALUE, (double[2]) { 0, 0 },
 	    ARG_TEST_BETA_PVALUE, (double[3][2]) { {0, 0}, {0, 0}, {0, 0} },
+	    ARG_TEST_LOOCV_LT, (double[2]) { eps, eps },
 	    ARG_END);
 
   gen_model("correlation with intercept", 20, 3, 3,
