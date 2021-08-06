@@ -181,6 +181,31 @@ gen_model(char *name, size_t m, size_t n, size_t p, ...)
   ret = alg_AX_B_OLS_statistics(&ols, intercept);
   ERROR_UNDEF_FATAL_FMT(ret < 0, "FAIL: %s alg_AX_B_OLS_statistics() ret = %d\n != 0", name, ret);
 
+  printf("\nAX=\n");
+  print_m(m, p, ols.AX);
+  printf("\nmeans=\n");
+  print_v(p, ols.means);
+
+  printf("\nrss=\n");
+  print_v(p, ols.rss);
+  printf("\nmss=\n");
+  print_v(p, ols.mss);
+
+  printf("\nr²=\n");
+  print_v(p, ols.r_squared);
+
+  printf("\nF-stat=\n");
+  print_v(p, ols.score);
+
+  printf("\nF-pval=\n");
+  print_v(p, ols.pvalue);
+
+  printf("\nbeta-stat=\n");
+  print_m(n, p, ols.beta_score);
+
+  printf("\nbeta-pvalue=\n");
+  print_m(n, p, ols.beta_pvalue);
+
   if ( NULL != r2_exp )
     {
       for (size_t i = 0; i < p ; i++)
@@ -239,30 +264,6 @@ gen_model(char *name, size_t m, size_t n, size_t p, ...)
     }
 
   
-  printf("\nAX=\n");
-  print_m(m, p, ols.AX);
-  printf("\nmeans=\n");
-  print_v(p, ols.means);
-
-  printf("\nrss=\n");
-  print_v(p, ols.rss);
-  printf("\nmss=\n");
-  print_v(p, ols.mss);
-
-  printf("\nr²=\n");
-  print_v(p, ols.r_squared);
-
-  printf("\nF-stat=\n");
-  print_v(p, ols.score);
-
-  printf("\nF-pval=\n");
-  print_v(p, ols.pvalue);
-
-  printf("\nbeta-stat=\n");
-  print_m(n, p, ols.beta_score);
-
-  printf("\nbeta-pvalue=\n");
-  print_m(n, p, ols.beta_pvalue);
 
   alg_AX_B_OLS_destroy(&ols);
 }
@@ -319,24 +320,42 @@ F-statistic: 0.3053 on 2 and 3 DF,  p-value: 0.7574
      X  <- cbind(model$coefficients)
      AX  <- (cbind(1, A) %*% X)
      sum( (AX - meanB)^2 )
-   */
+  */
 
-    gen_model("random with intercept", 6, 3, 1,
-	      ARG_INTERCEPT, 1,
-	      ARG_B_MODE, B_MODE_RANDOM, 
-	      ARG_A, (double[6][3]) { {1.000000, 751.411799, 53.406825},	
-				       {1.000000, 878.793326, 184.466027},
-					 {1.000000, 934.970735, 400.979769},
-					   {1.000000, 248.113489, 6.991620 },
-					     {1.000000, 969.135640, 443.855135},
-					       {1.000000, 397.544328, 330.078718 } },
-	      ARG_B, (double[6]) {216.396249, 852.721703, 234.933271, 446.330890, 161.112500, 863.669808},
-	      ARG_TEST_COEF, (double[3][1]) { {752.2431179}, {-0.5003319}, {0.2486852} }, 
-	      ARG_TEST_R2, (double[1]) { 0.1691208 },
-	      ARG_TEST_FSTAT, (double[1]) { 0.3053166 },
-	      ARG_TEST_FSTAT_PVALUE, (double[1]) { 0.7573678 },
-	      ARG_END);
+  gen_model("random with intercept", 6, 3, 1,
+	    ARG_INTERCEPT, 1,
+	    ARG_B_MODE, B_MODE_RANDOM, 
+	    ARG_A, (double[6][3]) { {1.000000, 751.411799, 53.406825},	
+				     {1.000000, 878.793326, 184.466027},
+				       {1.000000, 934.970735, 400.979769},
+					 {1.000000, 248.113489, 6.991620 },
+					   {1.000000, 969.135640, 443.855135},
+					     {1.000000, 397.544328, 330.078718 } },
+	    ARG_B, (double[6]) {216.396249, 852.721703, 234.933271, 446.330890, 161.112500, 863.669808},
+	    ARG_TEST_COEF, (double[3][1]) { {752.2431179}, {-0.5003319}, {0.2486852} }, 
+	    ARG_TEST_R2, (double[1]) { 0.1691208 },
+	    ARG_TEST_FSTAT, (double[1]) { 0.3053166 },
+	    ARG_TEST_FSTAT_PVALUE, (double[1]) { 0.7573678 },
+	    ARG_TEST_BETA_STAT, (double[3][1]) { {1.7952275}, {-0.7501315}, {0.2256522} },
+	    ARG_TEST_BETA_PVALUE, (double[3][1]) { {0.1704931}, {0.5076460}, {0.8359707} },
+	    ARG_END);
 
+  gen_model("perfect correlation with intercept", 6, 3, 2,
+	    ARG_INTERCEPT, 1,
+	    ARG_B_MODE, B_MODE_PERFECT,
+	    ARG_TEST_R2, (double[2]) { 1, 1 },
+	    ARG_TEST_FSTAT_PVALUE, (double[2]) { 0, 0 },
+	    ARG_TEST_BETA_PVALUE, (double[3][2]) { {0, 0}, {0, 0}, {0, 0} },
+	    ARG_END);
+
+  gen_model("correlation with intercept", 20, 3, 3,
+	    ARG_INTERCEPT, 1,
+	    ARG_B_MODE, B_MODE_CORRELATED,
+	    ARG_ERROR_SD, 10.0d,
+	    ARG_TEST_R2, (double[3]) { 1, 1, 1},
+	    ARG_TEST_FSTAT_PVALUE, (double[3]) { 0, 0, 0 },
+	    ARG_END);
+  
   /* gen_model("random with intercept", 6, 3, 1, 1, RANDOM_B, 0, NULL, NULL);
   gen_model("perfect correlation with intercept", 6, 3, 1, 1, PERFECT_B, 0, NULL, NULL);
   gen_model("correlation with intercept", 6, 3, 1, 1, CORRELATED_B, 10, NULL, NULL); */
