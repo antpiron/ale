@@ -44,8 +44,10 @@
     ssize_t dep = p->deps[i];						\
     if ( dep < 0 || bitset_isset(bs, dep) )				\
       return;								\
+									\
     if ( ! bitset_isset(bs, dep) )					\
       recurse_predict##SUFFIX(p, res, bs, dep);				\
+									\
     res[i] = p->predict(i, res[dep], p->cls);				\
     bitset_set(bs, i);							\
   }									\
@@ -66,7 +68,7 @@
 									\
 	for (size_t i = 0 ; i < n ; i++)				\
 	  {								\
-	    if ( bitset_isset(&bs, i) || -1 == p->deps[i] )		\
+	    if ( bitset_isset(&bs, i) || p->deps[i] < 0 )		\
 	      continue;							\
 									\
 	    recurse_predict##SUFFIX(p, res, &bs, i);			\
