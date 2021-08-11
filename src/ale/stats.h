@@ -15,21 +15,9 @@
 #define STATS_EPS (DBL_EPSILON)
 #define STATS_EPSl (LDBL_EPSILON)
 
-enum {
-      STATS_PFLAGS_PREDICT = 1,
-      STATS_PFLAGS_R       = 1 << 1,
-      STATS_PFLAGS_MSE     = 1 << 2,
-      STATS_PFLAGS_PVALUE  = 1 << 3,
-      
-      STATS_PFLAGS_ALL     = STATS_PFLAGS_PREDICT | STATS_PFLAGS_R | STATS_PFLAGS_MSE | STATS_PFLAGS_PVALUE
-};
-
-enum {								
-      STATS_PERMUTATION,
-      STATS_PERMUTATION_CORRELATED
-};
 
 void stats_shuffle(void *vec, size_t nmemb, size_t size);
+void shuffle_n_size_t(size_t n, size_t *vec);
 
 #define STATS_GENERIC_HEADERS(SUFFIX,TYPE)				\
   TYPE stats_mean##SUFFIX(size_t n, const TYPE x[n]);			\
@@ -141,43 +129,27 @@ void stats_shuffle(void *vec, size_t nmemb, size_t size);
 			    TYPE (*cdf)(TYPE x, void *cls), void *cls,	\
 			    TYPE *pval, TYPE *stat);			\
   									\
-  struct stats_predict_results##SUFFIX					\
-  {									\
-    TYPE y, r, mse, pvalue;						\
-  };									\
   									\
   struct stats_permutation##SUFFIX					\
   {									\
     int tag;								\
     size_t n;								\
     TYPE *vec;								\
-    union {								\
-      struct {								\
-	size_t max_uncorrelated;					\
-	size_t n_uncorrelated;						\
-	size_t n_correlated;						\
-	size_t *index_uncorrelated;					\
-	size_t *index_correlated;					\
-	ssize_t *index_best_predictor;					\
-	int (*predict)(size_t i, size_t j, int flags, TYPE x,		\
-		       struct stats_predict_results##SUFFIX *res, void *cls); \
-	void *cls;							\
-      } correlated;							\
-    };									\
+    ssize_t *deps;							\
+    TYPE (*predict)(size_t i, TYPE x, void *cls);			\
+    void *cls;								\
   };									\
   									\
   void stats_permutation_init##SUFFIX(struct stats_permutation##SUFFIX *p, \
-				      size_t n, TYPE vec[n]);		\
-  int stats_permutation_correlated_init##SUFFIX(struct stats_permutation##SUFFIX *p, \
-						size_t n, TYPE vec[n], ssize_t max_uncorrelated,  \
-						int (*predict)(size_t i, size_t j, int flags, TYPE x, \
-							       struct stats_predict_results##SUFFIX *res, void *cls), \
-						void *cls);		\
+  				      size_t n, TYPE vec[n]);		\
   void stats_permutation_destroy##SUFFIX(struct stats_permutation##SUFFIX *p); \
-  int stats_permutation_correlated_prepare##SUFFIX(struct stats_permutation##SUFFIX *p); \
-  void stats_permutation_correlated_get##SUFFIX(struct stats_permutation##SUFFIX *p, ssize_t correlated[p->n]); \
-  void stats_permutation_correlated_set##SUFFIX(struct stats_permutation##SUFFIX *p, ssize_t correlated[p->n]); \
-  int stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, TYPE res[p->n]); 
+  void stats_permutation_dependencies##SUFFIX(struct stats_permutation##SUFFIX *p, \
+  					      ssize_t *deps,		\
+  					      TYPE (*predict)(size_t i, \
+  							      TYPE x,	\
+  							      void *cls), \
+  					      void *cls);		\
+  int stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, TYPE res[p->n]);
 
 
   

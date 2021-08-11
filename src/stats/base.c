@@ -290,3 +290,12 @@ stats_shuffle(void *vec, size_t nmemb, size_t size)
       }
     free(tmp);
 }
+
+void
+shuffle_n_size_t(size_t n, size_t *vec)
+{
+  for (size_t i = 0 ; i < n ; i++)
+    vec[i] = i;
+
+  stats_shuffle(vec, n, sizeof(size_t));
+}
