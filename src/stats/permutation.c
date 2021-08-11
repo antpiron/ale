@@ -41,10 +41,12 @@
 			  TYPE res[p->n], struct bitset *bs,		\
 			  size_t i)					\
   {									\
-    if (0 <= p->deps[i] && ! bitset_isset(bs, p->deps[i]) )		\
-      recurse_predict##SUFFIX(p, res, bs, p->deps[i]);			\
-    									\
-    res[i] = p->predict(i, res[p->deps[i]], p->cls);			\
+    ssize_t dep = p->deps[i];						\
+    if ( dep < 0 || bitset_isset(bs, dep) )				\
+      return;								\
+    if ( ! bitset_isset(bs, dep) )					\
+      recurse_predict##SUFFIX(p, res, bs, dep);				\
+    res[i] = p->predict(i, res[dep], p->cls);				\
     bitset_set(bs, i);							\
   }									\
 									\
@@ -64,7 +66,7 @@
 									\
 	for (size_t i = 0 ; i < n ; i++)				\
 	  {								\
-	    if ( -1 == p->deps[i] || bitset_isset(&bs, i))		\
+	    if ( bitset_isset(&bs, i) || -1 == p->deps[i] )		\
 	      continue;							\
 									\
 	    recurse_predict##SUFFIX(p, res, &bs, i);			\
