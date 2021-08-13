@@ -132,7 +132,6 @@ void shuffle_n_size_t(size_t n, size_t *vec);
   									\
   struct stats_permutation##SUFFIX					\
   {									\
-    int tag;								\
     size_t n;								\
     TYPE *vec;								\
     ssize_t *deps;							\

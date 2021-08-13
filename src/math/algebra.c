@@ -322,7 +322,7 @@
   int									\
   alg_AX_B_OLS_init##SUFFIX(struct alg_ols##SUFFIX *ols,		\
 			    size_t m, size_t n, size_t p,		\
-			    TYPE A[m][n], TYPE B[m][p], TYPE (*X)[p])	\
+			    TYPE A[m][n], TYPE B[m][p], TYPE (*X)[p]) \
   {									\
     int ret = 0;							\
 									\
