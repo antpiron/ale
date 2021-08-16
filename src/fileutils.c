@@ -81,7 +81,9 @@ mkpath(const char *pathname, mode_t mode)
 
   ERROR_RET(-1 == mkpath(next_dir, mode) && EEXIST != errno, -1);
 
-  return mkdir(pathname, mode);
+  ERROR_ERRNO_RET(-1 == mkdir(pathname, mode), -1);
+  
+  return 0;
 }
 
 FILE*
