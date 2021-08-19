@@ -56,6 +56,23 @@ sort_compar_size_t(const void *p1, const void *p2, void *arg)
   return 0;
 }
 
+inline int
+sort_compar_ssize_t(const void *p1, const void *p2, void *arg)
+{
+  const ssize_t *a = p1;
+  const ssize_t *b = p2;
+  // disable unused parameter warning
+  (void)(arg);
+
+  if (*a < *b)
+    return -1;
+  
+  if (*a > *b)
+    return  1;
+  
+  return 0;
+}
+
 
 static int
 indirect_compar(const void *p1, const void *p2, void *arg)
