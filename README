@@ -1,0 +1,9 @@
+autoreconf -i
+
+./configure
+
+make -j4
+
+sudo make install
+
+sudo ldconfig /usr/local/lib/
