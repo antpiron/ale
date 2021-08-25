@@ -148,7 +148,7 @@ void shuffle_n_size_t(size_t n, size_t *vec);
   							      TYPE x,	\
   							      void *cls), \
   					      void *cls);		\
-  int stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, TYPE res[restrict p->n]);
+  int stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, TYPE res[p->n]);
 
 
   
