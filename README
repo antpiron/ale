@@ -1,3 +1,5 @@
+How to compile from the git repository:
+
 autoreconf -i
 
 ./configure
