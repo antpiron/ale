@@ -45,7 +45,10 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 * Fileutils::
 * Stringutils::
 * Process::
+* Statistics::
 * Index::                       Complete index.
+
+
 @end menu
 
 @node Introduction, Error, Top, Top
@@ -230,7 +233,7 @@ The following macro are used to send the error to the logging facility
 Sends to the logging facility an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true. The log entry is sent @code{syslog(...)} with the level @var{level}.
 @end deffn
 
-@node Bitset, Daemon, Error, Top
+@node Bitset, Vector, Error, Top
 @chapter Bitset
 
 @example
@@ -309,7 +312,7 @@ Return the number of ones.
 Set @var{len} bits from position @var{index} of the bitset @var{bs}.
 @end deftypefn
 
-@node Vector, Siphash24, Bitset, Top
+@node Vector, Single linked list, Bitset, Top
 @chapter Vector
 
 
@@ -459,7 +462,7 @@ Puts the first element of the list in @var{data}. Return -1 if the list is empty
 
 
 
-@node Hash, Siphash24, Single linked list, Top
+@node Hash, Skip list, Single linked list, Top
 @chapter Hash
 
 This module provides an hash table. The default hash function is reasonably collision resistant.
@@ -681,7 +684,7 @@ Hash the buffer @var{in} of length @var{inlen} into @var{out} (size @code{SIP_HA
 @end deftypefn
 
 
-@node Daemon, Fileutils, Vector, Top
+@node Daemon, Fileutils, Siphash24, Top
 @chapter Daemon
 
 @example
@@ -785,7 +788,7 @@ Destroy the @var{csv} structure.
 Read one csv line from the @var{csv} structure and sets the @var{vector} to the fields. Return the number of fields on success. Return -1 on error, and sets accordingly the error in ale/error.h.
 @end deftypefn
 
-@node Stringutils, Index, Fileutils, Top
+@node Stringutils, Process, Fileutils, Top
 @chapter Stringsutils
 
 This module defines a utilities for manipulating strings.
@@ -853,7 +856,7 @@ Append @var{src} to @var{dst}.
 Append @var{src} to @var{dst}.
 @end deftypefn
 
-@node Process, Index, Stringutils, Top
+@node Process, Statistics, Stringutils, Top
 @chapter Process
 
 @example
@@ -867,7 +870,8 @@ main(int argc, char *argv[ ])
   FILE *out;
   struct string string;
 
-  out = process_popenvp("echo", (char* [])@{ "echo", "-n", "plop!", NULL @} );
+  out = process_popenvp("echo",
+                        (char* [])@{ "echo", "-n", "plop!", NULL @} );
   ERROR_FATAL(NULL == out, "FAIL: process_popenvp()");
 
   string_init(&string);
@@ -895,8 +899,160 @@ Run the program @var{pathname} with parameters  @var{argv}. The behavior is simi
 Run the program @var{pathname} with variable number of parameters, terminated by NULL. The behavior is similar to execp. Returns NULL on error.
 @end deftypefn
 
+@node Statistics, Index, Process, Top
+@chapter Statistics
 
-@node Index,  , Process, Top
+@section Base functions
+
+@deftypefn {C Function} {long double} stats_meanl (size_t @var{n}, const long double @var{x}[n]);
+@end deftypefn
+@deftypefn {C Function} double stats_mean (size_t @var{n}, const double @var{x}[n]);
+
+Return the mean value of the vector @var{x}.
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_varl (size_t @var{n}, const long double @var{x}[n]);
+@end deftypefn
+@deftypefn {C Function} double stats_var (size_t @var{n}, const double @var{x}[n]);
+
+Return the variance of the vector @var{x}.
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_sdl (size_t @var{n}, const long double @var{x}[n]);
+@end deftypefn
+@deftypefn {C Function} double stats_sd (size_t @var{n}, const double @var{x}[n]);
+
+Return the standard deviation of the vector @var{x}.
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_diff_meanl @
+                        (size_t @var{n}, const long double @var{x}[n], const long double @var{y}[n]);
+@end deftypefn
+@deftypefn {C Function} double stats_diff_mean @
+                        (size_t @var{n}, const double @var{x}[n], const long double @var{y}[n]);
+
+Return the mean value of the pairwise difference @var{y} - @var{x}.
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_diff_varl @
+                        (size_t @var{n}, const long double @var{x}[n], const long double @var{y}[n]);
+@end deftypefn
+@deftypefn {C Function} double stats_diff_var @
+                        (size_t @var{n}, const double @var{x}[n], const long double @var{y}[n]);
+
+Return the variance value of the pairwise difference @var{y} - @var{x}.
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_diff_sdl @
+                        (size_t @var{n}, const long double @var{x}[n], const long double @var{y}[n]);
+@end deftypefn
+@deftypefn {C Function} double stats_diff_sd @
+                        (size_t @var{n}, const double @var{x}[n], const long double @var{y}[n]);
+
+Return the standard deviation of the pairwise difference @var{y} - @var{x}.
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_covl @
+                        (size_t @var{n}, const long double @var{x}[n], const long double @var{y}[n])
+@end deftypefn
+@deftypefn {C Function} double stats_cov (size_t @var{n}, const double @var{x}[n], const double @var{y}[n])
+
+Return the covariance of @var{x} and @var{y}.
+@end deftypefn
+
+
+@section Normalization
+
+@example
+
+#include <stdio.h>
+#include <ale/error.h>
+#include <ale/stats-normalize.h>
+
+int
+main(int argc, char *argv[ ]) 
+@{
+  const size_t m = 4, n = 3, r = 2;
+  size_t ref[r] = @{ 0, 2 @};
+  double beta[n];
+  double mat[m][n] = @{ @{ 0.1 , 2 * 0.1, 3 * 0.1 @},
+                        @{ 0.2 , 2 * 0.2, 3 * 0.2 @},
+                        @{ 0.3 , 2 * 0.3, 3 * 0.3 @},
+                        @{ 0.4 , 2 * 0.4, 3 * 0.4 @} @};
+  double mat_normalized[m][n];
+  int ret;
+
+  ret = stats_normalize_beta(m, n, r, mat, ref, beta, STATS_POISSON);
+  ERROR_FATAL(-1 == ret, "FAIL: stats_normalize_beta()\n");
+
+  stats_normalize_samples(m, n, mat_normalized, mat, beta);
+
+  return EXIT_SUCCESS;
+@}
+
+@end example
+
+@deftypefn {C Function} int stats_normalize_beta @
+                        (size_t @var{m}, size_t @var{n}, size_t @var{r}, @
+			 const double @var{mat}[m][n], const size_t @var{ref}[r], double @var{beta}[n], @
+			 unsigned int @var{mode});
+                        
+Compute the @var{beta} factors for each column of @var{mat} using the observation at rows @var{ref} as references. The @var{mode} can be either @var{STATS_LS_MEAN}, @var{STATS_LS_VARIANCE}, @var{STATS_POISSON}, or @var{STATS_GEOM_MEAN}. Return -1 on error. 
+@end deftypefn
+
+@deftypefn {C Function} void stats_normalize_samples @
+                        (size_t @var{m}, size_t @var{n}, double @var{dst}[m][n], @
+                         const double @var{src}[m][n], const double @var{beta}[n])
+
+Normalize the matrix @var{src} with the @var{beta} factors and store the result in @var{dst}.
+@end deftypefn
+
+@section Distributions
+
+@subsection Normal distribution
+
+@deftypefn {C Function} {long double} stats_norm_std_randl ()
+@end deftypefn
+@deftypefn {C Function} double stats_norm_std_rand ()
+
+Generate normaly distributed random variate. 
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_norm_randl (long double mu, long double sig)
+@end deftypefn
+@deftypefn {C Function} double stats_norm_rand (double mu, double sig)
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_norm_std_Fl (long double x)
+@end deftypefn
+@deftypefn {C Function} double stats_norm_std_F (double x)
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_norm_Fl (long double x, long double mu, long double sig)
+@end deftypefn
+@deftypefn {C Function} double stats_norm_F (double x, double mu,double sig)
+@end deftypefn
+
+@subsection Poisson distribution
+
+@deftypefn {C Function} {unsigned long} stats_poisson_randl (long double lambda)
+@end deftypefn
+@deftypefn {C Function} {unsigned long} stats_poisson_rand (double lambda)
+@end deftypefn
+
+@deftypefn {C Function} {long double} stats_poisson_fl (long k, long double lambda);
+@end deftypefn
+@deftypefn {C Function} double stats_poisson_f (long k, double lambda);
+@end deftypefn
+
+@deftypefn {C Function} long double stats_poisson_Fl (long k, long double lambda);
+@end deftypefn
+@deftypefn {C Function} double stats_poisson_F (long k, double lambda);
+@end deftypefn
+
+
+
+@node Index,  , Statistics, Top
 @unnumbered Index
      
 @printindex fn

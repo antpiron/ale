@@ -100,6 +100,35 @@ int stats_normalize_beta_poisson(size_t m, size_t n, size_t r,
   return ret;
 }
 
+
+// TODO: add test
+int
+stats_normalize_geometric_mean(size_t m, size_t n, size_t r,
+			    const double mat[m][n], const size_t ref[r], double beta[n])
+{
+  for (size_t i = 0 ; i < n ; i++)
+    beta[i] = 0;
+
+  for (size_t i = 0 ; i < r ; i++)
+    {
+      for (size_t j = 0 ; j < n ; j++)
+	{
+	  double x = mat[ ref[i] ] [j];
+	  ERROR_CUSTOM_RET(x <= 0, NORMALIZE_ERANGE, -1);
+	  
+	  beta[j] +=  log(x);
+	}
+    }
+
+  double first =  exp(1.0d / (double) r * beta[0]);
+  beta[0] = 1.0d;
+  for (size_t i = 1 ; i < n ; i++)
+    beta[i] = first / exp(1.0d / (double) r * beta[i]);
+
+  return 0;
+}
+
+
 // TODO: add test
 int
 stats_normalize_beta(size_t m, size_t n, size_t r,
@@ -110,6 +139,8 @@ stats_normalize_beta(size_t m, size_t n, size_t r,
     return stats_normalize_beta_ls(m, n, r, mat, ref, beta, mode);
   else if (STATS_POISSON == mode)
     return stats_normalize_beta_poisson(m, n, r, mat, ref, beta);
+  else if (STATS_GEOM_MEAN == mode)
+    return stats_normalize_geometric_mean(m, n, r, mat, ref, beta);
 
   ERROR_CUSTOM_RET(1, NORMALIZE_INVALID_MODE, -1);
   return 0;

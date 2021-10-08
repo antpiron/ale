@@ -8,6 +8,7 @@
 
 #include <ale/memory.h>
 #include <ale/interpolation.h>
+#include <ale/stats-normalize.h>
 
 #define STATS_LOWER (0)
 #define STATS_UPPER (1)
