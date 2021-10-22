@@ -54,7 +54,7 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 @node Introduction, Error, Top, Top
 @chapter Introduction
 
-libale provides basic error handling, unlimited size bitset, portability layer for posix, daemon creating boiler plate code.
+libale provides basic error handling, unlimited size bitset, portability layer for posix, daemon creating boiler plate code, data structures (growing bitset, hash, lists, growing vector, strings), statistics functions.
 
 
 @node Error, Bitset, Introduction, Top
