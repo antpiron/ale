@@ -960,6 +960,66 @@ Return the standard deviation of the pairwise difference @var{y} - @var{x}.
 Return the covariance of @var{x} and @var{y}.
 @end deftypefn
 
+@deftypefn {C Function} void stats_rowmeansl @
+                        (size_t @var{m}, size_t @var{n}, const long double @var{A}[m][n], long double @var{means}[m])
+@end deftypefn
+@deftypefn {C Function} void stats_rowmeans @
+                        (size_t @var{m}, size_t @var{n}, const double @var{A}[m][n], double @var{means}[m])
+
+Compute the means by rows of matrix @var{A} and set @var{means} to the result.
+@end deftypefn
+
+@deftypefn {C Function} void stats_colmeansl @
+                        (size_t @var{m}, size_t @var{n}, const long double @var{A}[m][n], long double @var{means}[m])
+@end deftypefn
+@deftypefn {C Function} void stats_colmeans @
+                        (size_t @var{m}, size_t @var{n}, const double @var{A}[m][n], double @var{means}[m])
+
+Compute the means by columns of matrix @var{A} and set @var{means} to the result.
+@end deftypefn
+
+@deftypefn {C Function}   void stats_mat_covl @
+                          (size_t @var{m}, size_t @var{n}, long double @var{cov}[m][m], const long double @var{x}[m][n])
+@end deftypefn
+@deftypefn {C Function}   void stats_mat_cov @
+                          (size_t @var{m}, size_t @var{n}, double @var{cov}[m][m], const double @var{x}[m][n])
+@end deftypefn
+
+@deftypefn {C Function}   long double stats_rssl @
+                          (size_t @var{m}, size_t @var{n,} const long double @var{y}[m], const long double @var{x}[m][n], long double (*predict)(const long double @var{x}[n], void *@var{cls}), void *@var{cls})    
+
+@end deftypefn
+@deftypefn {C Function}   double stats_rss @
+                          (size_t @var{m}, size_t @var{n}, const double @var{y}[m], const double @var{x}[m][n], long (*predict)(const double @var{x}[n], void *@var{cls}), void *@var{cls})    
+
+@end deftypefn
+
+@deftypefn {C Function}   int stats_rsquaredl @
+                          (size_t @var{m}, size_t @var{n}, const long double @var{y}[m], const long double @var{x}[m][n], long double (*predict)(const long double @var{x}[n], void *@var{cls}), void *@var{cls}, long double *@var{rsquared})
+
+@end deftypefn
+@deftypefn {C Function}   int stats_rsquared @
+                          (size_t @var{m}, size_t @var{n}, const double @var{y}[m], const double @var{x}[m][n], double (*predict)(const double @var{x}[n], void *@var{cls}), void *@var{cls}, double *@var{rsquared})
+
+@end deftypefn
+
+@deftypefn {C Function}   int stats_p_adjust_fdr_bhl @
+                          (size_t @var{n},  const long double @var{p}[n], long double @var{padj}[n])
+
+@end deftypefn
+@deftypefn {C Function}   int stats_p_adjust_fdr_bh @
+                          (size_t @var{n}, const double @var{p}[n], double @var{padj}[n])
+
+@end deftypefn
+
+@deftypefn {C Function}   int stats_p_adjust_fwer_bonfl @
+                          (size_t @var{n},  const long double @var{p}[n], long double @var{padj}[n])
+
+@end deftypefn
+@deftypefn {C Function}   int stats_p_adjust_fwer_bonf @
+                          (size_t @var{n},  const double @var{p}[n], long @var{padj}[n])
+@end deftypefn
+
 
 @section Normalization
 
@@ -1050,6 +1110,17 @@ Generate normaly distributed random variate.
 @deftypefn {C Function} double stats_poisson_F (long k, double lambda);
 @end deftypefn
 
+@subsection Student distribution
+
+@deftypefn {C Function} long double stats_student_randl (long double df);
+@end deftypefn
+@deftypefn {C Function} double stats_student_rand (double df);
+@end deftypefn
+
+@deftypefn {C Function} long double stats_student_Fl(long double x, long double df)
+@end deftypefn
+@deftypefn {C Function} double stats_student_F (double x, double df)
+@end deftypefn
 
 
 @node Index,  , Statistics, Top
