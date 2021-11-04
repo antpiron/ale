@@ -101,7 +101,6 @@ int stats_normalize_beta_poisson(size_t m, size_t n, size_t r,
 }
 
 
-// TODO: add test
 int
 stats_normalize_geometric_mean(size_t m, size_t n, size_t r,
 			    const double mat[m][n], const size_t ref[r], double beta[n])
@@ -120,10 +119,14 @@ stats_normalize_geometric_mean(size_t m, size_t n, size_t r,
 	}
     }
 
-  double first =  exp(1.0d / (double) r * beta[0]);
+  double frac = 1.0d / (double) r;
+  double log_first =  frac * beta[0];
   beta[0] = 1.0d;
   for (size_t i = 1 ; i < n ; i++)
-    beta[i] = first / exp(1.0d / (double) r * beta[i]);
+    {
+      double log_next = frac * beta[i];
+      beta[i] = exp(log_first - log_next);
+    }
 
   return 0;
 }

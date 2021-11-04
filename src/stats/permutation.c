@@ -54,7 +54,7 @@
 									\
   int									\
   stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p,	\
-			    TYPE res[restrict p->n])			\
+			    TYPE res[p->n])				\
   {									\
     size_t n = p->n;							\
     									\
