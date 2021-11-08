@@ -106,6 +106,8 @@ AC_SUBST(FADVISE_FUNC)
 AC_SUBST(STRCASESTR_FUNC)
 
 AC_OPENMP
+AM_CFLAGS="$AM_CFLAGS $OPENMP_CFLAGS"
+AC_SUBST([AM_CFLAGS])
 
 ## Check size of long long
 AC_CHECK_SIZEOF(long long)
@@ -136,6 +138,7 @@ dnl AC_SEARCH_LIBS([LAPACKE_dgels], [lapacke],,[AC_MSG_ERROR([
 dnl -------------------------
 dnl  liblapacke not found
 dnl -------------------------])])
+
 
 AC_CONFIG_FILES([Makefile src/Makefile test/Makefile perf/Makefile doc/Makefile src/ale/portability.h])
 AC_OUTPUT

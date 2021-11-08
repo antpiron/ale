@@ -4,6 +4,7 @@
 #include "ale/error.h"
 #include "ale/stats.h"
 #include "ale/stats-normalize.h"
+#include "ale/algebra.h"
 
 int
 main(int argc, char *argv[argc])

@@ -154,7 +154,9 @@ void
 stats_normalize_samples(size_t m, size_t n, double dst[m][n],
 			const double src[m][n], const double beta[n])
 {
+#pragma omp parallel for
   for (size_t i = 0 ; i < m ; i++)
+#pragma omp simd
     for (size_t j = 0 ;  j < n ; j++)
       dst[i][j] = beta[j] * src[i][j];     
 }
