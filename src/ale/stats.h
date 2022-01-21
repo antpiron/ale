@@ -22,6 +22,7 @@ void shuffle_n_size_t(size_t n, size_t *vec);
 
 #define STATS_GENERIC_HEADERS(SUFFIX,TYPE)				\
   TYPE stats_mean##SUFFIX(size_t n, const TYPE x[n]);			\
+  TYPE stats_geom_mean##SUFFIX(size_t n, const TYPE x[n]);		\
   TYPE stats_var##SUFFIX(size_t n, const TYPE x[n]);			\
   TYPE stats_sd##SUFFIX(size_t n, const TYPE x[n]);			\
   TYPE stats_diff_mean##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]); \

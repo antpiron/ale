@@ -20,6 +20,17 @@
   }									\
   									\
   TYPE									\
+  stats_geom_mean##SUFFIX(size_t n, const TYPE x[n])			\
+  {									\
+    TYPE s = 0;								\
+									\
+    for (size_t i = 0 ; i < n ; i++)					\
+      s += log##SUFFIX(x[i]);						\
+    									\
+    return exp##SUFFIX(s / n);						\
+  }									\
+  									\
+  TYPE									\
   stats_var##SUFFIX(size_t n, const TYPE x[n])				\
   {									\
     TYPE m = stats_mean##SUFFIX(n, x);					\
