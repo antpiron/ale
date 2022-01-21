@@ -65,8 +65,9 @@ stats_normalize_beta_ls(size_t m, size_t n, size_t r,
   return ret;
 }
 
-int stats_normalize_beta_poisson(size_t m, size_t n, size_t r,
-				 const double mat[m][n], const size_t ref[r], double beta[n])
+int
+stats_normalize_beta_poisson(size_t m, size_t n, size_t r,
+			     const double mat[m][n], const size_t ref[r], double beta[n])
 {
   double *mumu = malloc( r * sizeof(double) );
   int ret = -1;
