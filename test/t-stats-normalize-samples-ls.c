@@ -15,6 +15,7 @@ main(int argc, char *argv[argc])
   size_t ref[M] = {0, 1, 2};
   double eps = 0.0001;
   double res, delta;
+  int ret;
 
   for (int i = 0 ; i < M ; i++)
     (*mat)[i][0] = 2*(i + 100);
@@ -25,7 +26,9 @@ main(int argc, char *argv[argc])
       (*mat)[i][j] =  (*mat)[i][0] * (j+1)  ;
     }
 
-  stats_normalize_beta_ls(M, N, M, *mat, ref, beta, STATS_LS_MEAN);
+  ret = stats_normalize_beta_ls(M, N, M, *mat, ref, beta, STATS_NORM_LS_MEAN);
+  ERROR_FATAL_FMT(0 != ret, "FAIL: stats_normalize_beta_ls() = %d != 0\n", ret);
+  
   for (int i = 0 ; i < M ; i++)
     for (int j = 0 ; j < N ; j++)
       {

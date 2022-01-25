@@ -25,7 +25,7 @@ main(int argc, char *argv[argc])
       (*mat)[i][j] =  (*mat)[i][0] * (j+1);
     }
 
-  stats_normalize_beta_poisson(M, N, M, *mat, ref, beta);
+  stats_normalize_beta_poisson(M, N, M, *mat, ref, beta, 0);
   for (int i = 0 ; i < M ; i++)
     for (int j = 0 ; j < N ; j++)
       {

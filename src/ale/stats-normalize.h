@@ -14,17 +14,20 @@ enum {
 };
 
 enum {
-      STATS_LS_MEAN = 0,
-      STATS_LS_VARIANCE,
-      STATS_POISSON,
-      STATS_GEOM_MEAN
+      STATS_NORM_LS_MEAN = 1,
+      STATS_NORM_LS_VARIANCE = 2,
+      STATS_NORM_POISSON = 4,
+      STATS_NORM_GEOM_MEAN = 8,
+      
+      STATS_PARAM_GEOM_MEAN = 128
 };
 
 int stats_normalize_beta_ls(size_t m, size_t n, size_t r,
 			    const double mat[m][n], const size_t ref[r], double beta[n],
 			    unsigned int options);
 int stats_normalize_beta_poisson(size_t m, size_t n, size_t r,
-				    const double mat[m][n], const size_t ref[r], double beta[n]);
+				 const double mat[m][n], const size_t ref[r], double beta[n],
+				 int options);
 
 int stats_normalize_geometric_mean(size_t m, size_t n, size_t r,
 				   const double mat[m][n], const size_t ref[r], double beta[n]);

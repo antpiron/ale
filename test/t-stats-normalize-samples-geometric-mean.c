@@ -26,7 +26,7 @@ main(int argc, char *argv[argc])
       (*mat)[i][j] =  (*mat)[i][0] * (j+1)  ;
     }
 
-  stats_normalize_beta(M, N, M, *mat, ref, beta, STATS_GEOM_MEAN);
+  stats_normalize_beta(M, N, M, *mat, ref, beta, STATS_NORM_GEOM_MEAN);
   print_v(N, beta);
   for (int i = 0 ; i < M ; i++)
     for (int j = 0 ; j < N ; j++)

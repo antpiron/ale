@@ -11,14 +11,18 @@ stats_normalize_beta_ls(size_t m, size_t n, size_t r,
 			   const double mat[m][n], const size_t ref[r], double beta[n],
 			   unsigned int options)
 {
+  if ( ! ((STATS_NORM_LS_VARIANCE | STATS_NORM_LS_MEAN) & options) )
+    ERROR_CUSTOM_RET(1, -1, NORMALIZE_INVALID_MODE);
+  
   double *w = malloc( r * sizeof(double) );
   double *mu = malloc( r * sizeof(double) );
   int ret = -1;
-    
-  for (size_t i = 0 ; i < r ; i++)
-    mu[i] = stats_mean(n, mat[ref[i]]);
+  double (*mean_func)(size_t n, const double v[n]) = (STATS_PARAM_GEOM_MEAN & options) ? stats_geom_mean : stats_mean;
 
-  if ( STATS_LS_VARIANCE == options )
+  for (size_t i = 0 ; i < r ; i++)
+    mu[i] = mean_func(n, mat[ref[i]]);
+
+  if ( STATS_NORM_LS_VARIANCE & options )
     {
       for (size_t i = 0 ; i < r ; i++)
 	{
@@ -28,7 +32,7 @@ stats_normalize_beta_ls(size_t m, size_t n, size_t r,
 	  // printf("ref[%zu] = %zu ; var = %f\n", i, ref[i], var);
 	}
     }
-  else if ( STATS_LS_MEAN == options )
+  else if ( STATS_NORM_LS_MEAN & options )
     {
       for (size_t i = 0 ; i < r ; i++)
 	{
@@ -67,14 +71,17 @@ stats_normalize_beta_ls(size_t m, size_t n, size_t r,
 
 int
 stats_normalize_beta_poisson(size_t m, size_t n, size_t r,
-			     const double mat[m][n], const size_t ref[r], double beta[n])
+			     const double mat[m][n], const size_t ref[r], double beta[n],
+			     int options)
 {
   double *mumu = malloc( r * sizeof(double) );
   int ret = -1;
+  double (*mean_func)(size_t n, const double v[n]) = (STATS_PARAM_GEOM_MEAN & options) ? stats_geom_mean : stats_mean;
+
     
   for (size_t i = 0 ; i < r ; i++)
     {
-      double mu = stats_mean(n, mat[ref[i]]);
+      double mu = mean_func(n, mat[ref[i]]);
       mumu[i] = mu * mu;
     }
 
@@ -139,11 +146,11 @@ stats_normalize_beta(size_t m, size_t n, size_t r,
 		     const double mat[m][n], const size_t ref[r], double beta[n],
 		     unsigned int mode)
 {
-  if (STATS_LS_MEAN == mode || STATS_LS_VARIANCE == mode)
+  if ( (STATS_NORM_LS_MEAN & mode) || (STATS_NORM_LS_VARIANCE & mode) )
     return stats_normalize_beta_ls(m, n, r, mat, ref, beta, mode);
-  else if (STATS_POISSON == mode)
-    return stats_normalize_beta_poisson(m, n, r, mat, ref, beta);
-  else if (STATS_GEOM_MEAN == mode)
+  else if (STATS_NORM_POISSON & mode)
+    return stats_normalize_beta_poisson(m, n, r, mat, ref, beta, mode);
+  else if (STATS_NORM_GEOM_MEAN & mode)
     return stats_normalize_geometric_mean(m, n, r, mat, ref, beta);
 
   ERROR_CUSTOM_RET(1, NORMALIZE_INVALID_MODE, -1);
