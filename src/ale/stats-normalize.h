@@ -22,6 +22,17 @@ enum {
       STATS_PARAM_GEOM_MEAN = 128
 };
 
+
+int stats_normalize_beta(size_t m, size_t n, size_t r,
+			 const double mat[m][n], const size_t ref[r], double beta[n],
+			 unsigned int mode);
+void stats_normalize_samples(size_t m, size_t n, double dst[m][n],
+			     const double src[m][n], const double beta[n]);
+
+
+/* *****************
+ *  PRIVATE */
+
 int stats_normalize_beta_ls(size_t m, size_t n, size_t r,
 			    const double mat[m][n], const size_t ref[r], double beta[n],
 			    unsigned int options);
@@ -31,11 +42,5 @@ int stats_normalize_beta_poisson(size_t m, size_t n, size_t r,
 
 int stats_normalize_geometric_mean(size_t m, size_t n, size_t r,
 				   const double mat[m][n], const size_t ref[r], double beta[n]);
-
-int stats_normalize_beta(size_t m, size_t n, size_t r,
-			 const double mat[m][n], const size_t ref[r], double beta[n],
-			 unsigned int mode);
-void stats_normalize_samples(size_t m, size_t n, double dst[m][n],
-			     const double src[m][n], const double beta[n]);
 
 #endif
