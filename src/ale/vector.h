@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <inttypes.h>
+#include <ale/error.h>
 
 #define VECTOR_DEFAULT_SIZE (256)
 #define VECTOR_MAX_INCREMENT (1 << 24)
