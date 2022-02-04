@@ -12,6 +12,7 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
 #define EA_INIT(name,matetype,mate_func,mutate_func,fitness_func,clstype) \
   struct ea_##name							\
   {                                                                     \
+    size_t parallel;							\
     size_t pop_min_size;						\
     size_t pop_max_size;						\
     size_t pop_size;							\
@@ -25,6 +26,7 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
 		   size_t pop_min_size, size_t pop_max_size,		\
 		   matetype initial_pop[pop_max_size], clstype cls)	\
   {                                                                     \
+    ea->parallel = 0;							\
     ea->pop_min_size = pop_min_size;					\
     ea->pop_max_size = pop_max_size;					\
     ea->fitness_index = malloc(pop_max_size * sizeof(size_t));		\
@@ -39,6 +41,14 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
 		    sort_compar_double_decreasing, NULL);		\
   }									\
 									\
+  static inline void                                                    \
+  ea_##name##_init_parallel(struct ea_##name *ea,			\
+		   size_t pop_min_size, size_t pop_max_size,		\
+		   matetype initial_pop[pop_max_size], clstype cls)	\
+  {									\
+    ea_##name##_init(ea, pop_min_size, pop_max_size, initial_pop, cls);	\
+    ea->parallel = 1;							\
+  }									\
   static inline void							\
   ea_##name##_destroy(struct ea_##name *ea)				\
   {                                                                     \
@@ -50,6 +60,7 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
   ea_##name##_next_generation(struct ea_##name *ea, clstype cls)	\
   {									\
     double *cumul_fitness = malloc(ea->pop_min_size *sizeof(double));	\
+    int parallel = ea->parallel;					\
     									\
   									\
     cumul_fitness[0] = ea->fitness[ea->fitness_index[0]];		\
@@ -58,6 +69,7 @@ int ea_indirect_compar_double(const void *p1, const void *p2, void *arg);
 	ea->fitness[ ea->fitness_index[i] ];				\
     for (size_t i = 0 ; i < ea->pop_min_size ; i++)			\
       cumul_fitness[i] /= cumul_fitness[ea->pop_min_size-1];		\
+    _Pragma("omp parallel for if(parallel)")				\
     for (size_t i = ea->pop_min_size ; i < ea->pop_max_size ; i++)	\
     {									\
       size_t index1 = stats_categorical_rand(ea->pop_min_size,		\

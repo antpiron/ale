@@ -50,13 +50,10 @@ check_fitness(struct ea_optim ea)
       last_index = index;
     }
 }
-  
-int
-main(int argc, char *argv[argc])
+
+void
+test(int parallel, size_t niter, size_t min_pop_size, size_t max_pop_size)
 {
-#define ITER (5000)
-#define min_pop_size (50)
-#define max_pop_size (500)
   struct params param = {.prob_mutation = 0.1, .sigma = 2.0 };
   struct ea_optim ea;
   double *population = malloc(max_pop_size * sizeof(double));
@@ -65,14 +62,17 @@ main(int argc, char *argv[argc])
   for (size_t i = 0 ; i < max_pop_size ; i++)
     population[i] = stats_unif_rand(-1000, 1000);
   
-  ea_optim_init(&ea, min_pop_size, max_pop_size, population, &param);
+  if (parallel)
+    ea_optim_init_parallel(&ea, min_pop_size, max_pop_size, population, &param);
+  else
+    ea_optim_init(&ea, min_pop_size, max_pop_size, population, &param);
   ERROR_UNDEF_FATAL_FMT(min_pop_size != ea.pop_min_size,
 			"FAIL: pop_min_size = %zu != %zu\n", ea.pop_min_size, min_pop_size);
   ERROR_UNDEF_FATAL_FMT(max_pop_size != ea.pop_max_size,
 			"FAIL: pop_min_size = %zu != %zu\n", ea.pop_max_size, max_pop_size);
   check_fitness(ea);
 
-  for (size_t iter = 0 ; iter < ITER ; iter++)
+  for (size_t iter = 0 ; iter < niter ; iter++)
     {
       ea_optim_next_generation(&ea, &param);
       check_fitness(ea);
@@ -93,5 +93,14 @@ main(int argc, char *argv[argc])
 			"FAIL: fitness[0] = %f != 1|2|3", ea.population[index0]);
   
   free(population);
+}
+
+
+int
+main(int argc, char *argv[argc])
+{
+  test(0, 5000, 50, 500);
+  test(1, 5000, 50, 1000);
+  
   return EXIT_SUCCESS;
 }
