@@ -88,7 +88,7 @@
 	TYPE u1 = stats_unif_std_rand##SUFFIX();			\
 	TYPE x = (alpha - log( (1 - u1) / u1 ) ) / beta;		\
 									\
-	if ( x < -0.5d )						\
+	if ( x < -0.5 )							\
 	  continue;							\
 									\
 	TYPE n = x + 0.5;						\

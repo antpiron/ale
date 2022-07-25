@@ -34,7 +34,7 @@
       {									\
 	TYPE vv = v*v;							\
 	TYPE last_sum = -1;						\
-	prod = sum = vv*v / 3.0d;					\
+	prod = sum = vv*v / 3.0;					\
 	for (int i = 2 ; i < 1024 && last_sum != sum ; i++)		\
 	  {								\
 	    prod *= vv / (2*i);						\
@@ -52,7 +52,7 @@
   stats_stirling_error##SUFFIX(TYPE n)					\
   {									\
     TYPE sq = n*n;							\
-    return (1.0d/12.0d - (1.0d/360.0d - (1.0d/1260.0d) / sq ) / sq  ) / n; \
+    return (1.0 / 12.0 - (1.0 / 360.0 - (1.0 / 1260.0) / sq ) / sq  ) / n; \
   }									\
 									\
   static inline TYPE							\
@@ -69,8 +69,8 @@
     TYPE d = stats_npd0##SUFFIX(k, np) + stats_npd0##SUFFIX(n-k, nq);	\
     TYPE stirling_err = stats_stirling_error##SUFFIX(n) -		\
       stats_stirling_error##SUFFIX(k) - stats_stirling_error##SUFFIX(n-k); \
-    TYPE lroot = 0.5d * ( log##SUFFIX(2.0d*M_PI) + log##SUFFIX(k) +	\
-			  log1p##SUFFIX(- (TYPE) k / (TYPE) n) );	\
+    TYPE lroot = 0.5 * ( log##SUFFIX(2.0 * M_PI) + log##SUFFIX(k) +	\
+			 log1p##SUFFIX(- (TYPE) k / (TYPE) n) );	\
 									\
     return stirling_err - lroot - d;					\
   }									\
@@ -84,7 +84,7 @@
   TYPE									\
   stats_binom_f##SUFFIX(long k, long n, TYPE p)				\
   {									\
-    if (k < 0 || k > n) return 0.0d;					\
+    if (k < 0 || k > n) return 0.0;					\
     									\
     if ( n < 30 )							\
       return stats_binom_f_lgamma##SUFFIX(k, n,  p);			\

@@ -20,9 +20,9 @@
   stats_kolmo_F_approx##SUFFIX(TYPE d, unsigned long n)			\
   {									\
     TYPE ret = 1 - 2 *							\
-      exp##SUFFIX( - (((TYPE) 2.000071d) +				\
-		      ((TYPE) 0.331d) / sqrt##SUFFIX(n) +		\
-		      ((TYPE) 1.409d) / (TYPE) n) *			\
+      exp##SUFFIX( - (((TYPE) 2.000071) +				\
+		      ((TYPE) 0.331) / sqrt##SUFFIX(n) +		\
+		      ((TYPE) 1.409) / (TYPE) n) *			\
 		   n * d * d );						\
     									\
     if (ret < 0)							\

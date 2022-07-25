@@ -40,7 +40,7 @@
       lower = 0;							\
 									\
     if (k > upper || k < lower)						\
-      return 0.0d;							\
+      return 0.0;							\
     									\
     /* TODO: stats_hyper_f_binom seems inaccurate */			\
     /* return stats_hyper_f_binom(k,K,n,N); */				\
@@ -55,10 +55,10 @@
     TYPE res = 0, fk;							\
 									\
     if ( k > upper )							\
-      return 0.0d;							\
+      return 0.0;							\
 									\
     if ( k <  lower)							\
-      return 1.0d;							\
+      return 1.0;							\
 									\
     fk = res = stats_hyper_f##SUFFIX(k, K, n, N);			\
     for (long i = k ; i <= upper ; i++)					\
@@ -78,10 +78,10 @@
     TYPE res = 0, fk;							\
 									\
     if ( k > upper )							\
-      return 1.0d;							\
+      return 1.0;							\
 									\
     if ( k <  lower)							\
-      return 0.0d;							\
+      return 0.0;							\
 									\
     lower = lower < 0?0:lower;						\
 									\

@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.68])
-AC_INIT([ale], [1.1], [BUG-REPORT-ADDRESS])
+AC_PREREQ([2.71])
+AC_INIT([ale],[1.1],[BUG-REPORT-ADDRESS])
 AM_INIT_AUTOMAKE([subdir-objects])
 AM_SILENT_RULES([yes])
 
@@ -22,14 +22,14 @@ AC_CHECK_PROG([FLEX], [flex lex], [flex])
 # Force the use of `missing' to wrap Flex invocations.
 AM_MISSING_PROG([LEX], [$FLEX])
 # Perform all the tests Automake and Autoconf need.
-AC_PROG_LEX
+AC_PROG_LEX([yywrap])
 
 ## Determine if we can use flex -R                                                                                       
 if ! eval "echo %% | $FLEX -R -t > /dev/null 2>&1"; then
   AC_MSG_ERROR([$FLEX does not support -R.  Please get a modern version of gnu flex])
 fi
 
-AC_PROG_LIBTOOL
+LT_INIT
 AM_PROG_CC_C_O
 AC_DEFINE([_POSIX_C_SOURCE], [200809L], [Define the posix version])
 AC_DEFINE([_XOPEN_SOURCE], [500], [Define the XOPEN])
@@ -43,7 +43,7 @@ esac
 
 AC_CHECK_FUNCS([getrandom])
 
-AC_TRY_RUN([
+AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/random.h>
@@ -57,25 +57,23 @@ int main(void)
 	   return EXIT_FAILURE;
         return EXIT_SUCCESS;
 }
-]
-, [ HAVE_GETRANDOM_SYSCALL="yes"
+
+]])],[ HAVE_GETRANDOM_SYSCALL="yes"
     AC_DEFINE([HAVE_GETRANDOM_SYSCALL], [], [Defined if you have the linux getrandom syscall])
-  ]
-,
-)
-AC_TRY_RUN([
+  
+],[],[])
+AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <stdlib.h>
 int main(void)
 {
         __builtin_popcountll(10);
         return EXIT_SUCCESS;
 }
-]
-, [ HAVE_POPCOUNTLL="1"
+
+]])],[ HAVE_POPCOUNTLL="1"
     AC_DEFINE([HAVE_POPCOUNTLL], [], [Defined if you have the popcountll gcc intrinsic])
-  ]
-,
-)
+  
+],[],[])
 
 
 RANDOM_HEADER="#include <sys/random.h>"

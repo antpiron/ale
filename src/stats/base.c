@@ -235,7 +235,7 @@
     for (size_t i = 0 ; i < n ; i++)					\
       {									\
 	TYPE correction = p[i] * (TYPE ) n;				\
-	padj[i] = (correction > 1.0d)? 1.0d : correction;		\
+	padj[i] = (correction > 1.0)? 1.0 : correction;			\
       }									\
 									\
     return 0;								\
@@ -252,8 +252,8 @@
   stats_p_adjust_fdr_bh##SUFFIX(size_t n,  const TYPE p[n], TYPE padj[n]) \
   {									\
     size_t *index = malloc(sizeof(size_t) * n);				\
-    TYPE min_val = 1.0d;						\
-    TYPE last_val = -1;						\
+    TYPE min_val = 1.0;							\
+    TYPE last_val = -1;							\
     size_t last_pos = n-1;						\
 									\
     ERROR_ERRNO_RET(NULL == index, -1);					\
