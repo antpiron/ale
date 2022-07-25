@@ -11,4 +11,6 @@ make -j4
 
 sudo make install
 
+It mights be necessary to update the links and caches to the most recent shared libraries with:
+
 sudo ldconfig /usr/local/lib/
