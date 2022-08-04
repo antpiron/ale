@@ -17,23 +17,6 @@ ALE_AC_PROG_CC_C11
 
 AC_CHECK_LIB([m],[cos])
 
-# Sometimes Flex is installed as Lex, e.g., NetBSD.
-AC_CHECK_PROG([FLEX], [flex lex], [flex])
-if test x"$FLEX" != x""; then
-   AC_DEFINE([HAVE_FLEX], [], [Have flex lexical analyzer])
-fi
-AC_SUBST(HAVE_FLEX)
-
-# Force the use of `missing' to wrap Flex invocations.
-AM_MISSING_PROG([LEX], [$FLEX])
-# Perform all the tests Automake and Autoconf need.
-AC_PROG_LEX([yywrap])
-
-## Determine if we can use flex -R                                                                                       
-if ! eval "echo %% | $FLEX -R -t > /dev/null 2>&1"; then
-  AC_MSG_ERROR([$FLEX does not support -R.  Please get a modern version of gnu flex])
-fi
-
 LT_INIT
 AM_PROG_CC_C_O
 AC_DEFINE([_POSIX_C_SOURCE], [200809L], [Define the posix version])

@@ -2,14 +2,14 @@ LDADD = ../src/libale.la
 AM_LDFLAGS = -static
 AM_CFLAGS = $(OPENMP_CFLAGS) -g -O0 -fsanitize=bounds -I$(top_srcdir)/src
 
-dist_data_DATA = csv-test.csv asntoowner.txt ipv4toasn.txt rir-ripencc.txt plop.gz
+dist_data_DATA = asntoowner.txt ipv4toasn.txt rir-ripencc.txt plop.gz
 ## ls test/t-*.c  | sed 's/.*\/\(t-.*\).c/\1/' | tr '\n' ' '
 check_PROGRAMS = t-alg-ax-b-ols-solve t-alg-ax-b-ols-solve-full t-alg-ax-b-solve t-alg-l-inverse t-alg-lx-b-solve \
 	t-alg-opposite-v t-alg-transpose t-alg-qr-qtb-householder t-alg-u-inverse t-alg-ux-b-solve \
 	t-bitset \
 	t-btree-init t-btree-insert t-btree-mknode t-btree-search t-btree-slice t-btree-split-internal-child \
 	t-btree-split-leaf-child t-btree-split-right-internal t-btree-split-right-leaf t-btree-split-root \
-	t-classifier-sl t-clean-escaped t-csv-readline t-ea t-error-ret t-exparser t-fileutils-gzfopen t-fileutils-isgzip \
+	t-classifier-sl t-ea t-error-ret t-exparser t-fileutils-gzfopen t-fileutils-isgzip \
 	t-hash t-index t-interpolation-linear t-knn \
 	t-math-beta t-math-cmp-double t-math-digamma t-math-gamma t-math-ibeta t-math-lbeta t-math-lgamma t-math-rilgamma \
 	t-math-riugamma t-math-trigamma \

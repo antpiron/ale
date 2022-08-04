@@ -12,10 +12,6 @@
 #include "ale/fileutils.h"
 #include "ale/process.h"
 
-#ifdef HAVE_FLEX
-#include "csv_lexer.h"
-#include "csv_tokens.h"
-#endif
 
 int
 rmpath(const char *dname, const char *pathname)
@@ -147,62 +143,3 @@ gzfopen(const char *pathname, const char *mode)
   return process_popenp("gunzip", "gunzip", "--stdout", pathname, NULL);
 }
 
-#ifdef HAVE_FLEX
-int
-csv_init(struct csv *csv, FILE *file)
-{
-  yyscan_t *scanner = malloc(sizeof(yyscan_t));
-  ERROR_UNDEF_FATAL(NULL == scanner, "Unable to allocate memory in csv_init()\n");
-
-  csvlex_init(scanner);
-  csvset_in(file, *scanner);
-  //csvin = file;
-
-  csv->scanner = scanner;
-  return 0;
-}
-
-void
-csv_destroy(struct csv *csv)
-{
-  csvlex_destroy(*(yyscan_t*) csv->scanner);
-  free(csv->scanner);
-}
-
-int
-csv_readline(struct csv *csv, struct vector_int *vector)
-{
-  yyscan_t *scanner = (yyscan_t*) csv->scanner;
-  size_t fieldnum = 0;
-  int token = csvlex(*scanner);
-
-  while (CSV_EOL == token)
-    token = csvlex(*scanner);
-
-  if (CSV_EOF == token)
-    return 0;
-
-  while (1)
-    {
-      if (CSV_FIELD == token)
-        {
-	  vector_int_set(vector, fieldnum++, strdup(csvlval));
-	  
-	  token = csvlex(*scanner);
-
-	  if (CSV_EOF == token || CSV_EOL == token)
-	    return fieldnum;
-
-	  ERROR_UNDEF_RET(CSV_COMMA != token, -1);
-	}
-      else if (CSV_COMMA == token)
-	{
-	  vector_int_set(vector, fieldnum++, strdup(csvlval));
-	}
-
-      token = csvlex(*scanner);
-    }
-
-  return fieldnum;
-}
-#endif
