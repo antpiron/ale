@@ -1,3 +1,4 @@
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -5,6 +6,8 @@
 
 #include "ale/error.h"
 #include "ale/fileutils.h"
+
+#ifdef HAVE_FLEX
 
 #define CSV "csv-test.csv"
 
@@ -53,3 +56,13 @@ main(int argc, char *argv[argc])
   
   return EXIT_SUCCESS;
 }
+
+#else
+
+int
+main(int argc, char *argv[argc])
+{
+  return EXIT_SUCCESS;
+}
+
+#endif

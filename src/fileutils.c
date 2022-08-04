@@ -12,8 +12,10 @@
 #include "ale/fileutils.h"
 #include "ale/process.h"
 
+#ifdef HAVE_FLEX
 #include "csv_lexer.h"
 #include "csv_tokens.h"
+#endif
 
 int
 rmpath(const char *dname, const char *pathname)
@@ -145,6 +147,7 @@ gzfopen(const char *pathname, const char *mode)
   return process_popenp("gunzip", "gunzip", "--stdout", pathname, NULL);
 }
 
+#ifdef HAVE_FLEX
 int
 csv_init(struct csv *csv, FILE *file)
 {
@@ -202,3 +205,4 @@ csv_readline(struct csv *csv, struct vector_int *vector)
 
   return fieldnum;
 }
+#endif
