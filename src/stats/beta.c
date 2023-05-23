@@ -27,11 +27,10 @@
   TYPE stats_beta_F_inv##SUFFIX(TYPE x, TYPE alpha, TYPE beta)		\
   {									\
     TYPE l = 0, r = 1;							\
-    TYPE half;								\
     									\
     for (size_t i = 0 ; i < 64 && r - l > ALE_EPS##SUFFIX ; i++ )	\
       {									\
-	half = (r + l) / 2;						\
+	TYPE half = (r + l) / 2;					\
 									\
 	TYPE beta_inv = stats_beta_F##SUFFIX(half, alpha, beta);	\
 	if (beta_inv < x)						\
@@ -40,7 +39,7 @@
 	  r = half;							\
       }									\
 									\
-    return half;							\
+    return (r + l) / 2;							\
   }									\
   									\
   void									\
