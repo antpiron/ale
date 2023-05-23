@@ -27,7 +27,8 @@ main(int argc, char *argv[argc])
       {
 	double x = 0;
 	for (size_t k = 0 ; k < n ; k++)
-	  B_copy[i][j] = B[i][j] += (j+1)*A[i][k];
+	  x += (j+1)*A[i][k];
+	B_copy[i][j] = B[i][j] = x;
       }
   
   printf("\nA=\n");
