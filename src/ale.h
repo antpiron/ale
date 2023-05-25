@@ -22,5 +22,6 @@
 #include <ale/memory.h>
 #include <ale/skiplist.h>
 #include <ale/sort.h>
+#include <ale/random.h>
 
 #endif
