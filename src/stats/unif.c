@@ -4,7 +4,7 @@
 #include "ale/stats.h"
 #include "ale/math.h"
 #include "ale/error.h"
-#include "ale/portability.h"
+#include "ale/random.h"
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   TYPE									\
@@ -16,8 +16,7 @@
 									\
     do									\
       {									\
-	ERROR_ERRNO_MSG(-1 == portability_getrandom(&a, sizeof(a), 0),	\
-			"stats_unif_rand_std(): failed");		\
+	a = rd_rand_u64();						\
 	r = (TYPE) a / (TYPE) UINT64_MAX;				\
       }									\
     while ( r <= 0.0 || r >= 1.0 );					\
