@@ -12,19 +12,16 @@
 #include "ale/portability.h"
 #include "ale/error.h"
 #include "ale/siphash24.h"
+#include "ale/random.h"
 
 
-int 
-portability_posix_fadvise(int fd, off_t offset, off_t len, int advice)
-{
-  (void) (fd);
-  (void) (offset);
-  (void) (len);
-  (void) (advice);
 
-  return 0;
-}
-
+static
+struct rd_state state = {
+  .counter = 0,
+  .key = {
+    0xc9,0x74,0x58,0x65,0x60,0xb6,0xb8,0x18,
+    0xe7,0x63,0xd1,0xb2,0xae,0xc4,0x9f,0x8d } } ;
 
 static void*
 memxor (void *restrict dest, const void *restrict src, size_t n)
@@ -101,20 +98,30 @@ gen_key(uint8_t *key)
   return 0;
 }
 
+
+static inline void
+init_state(struct rd_state *state)
+{
+  // should be done only one time (lock?)
+  if (0 == state->counter)
+    {
+      gen_key(state->key);
+      state->counter = 1;
+    }  
+}
+
 // Counter mode generator based on siphash
 int
-portability_getrandom(void *buf, size_t buflen, unsigned int flags)
+rd_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
   (void) (flags);
   // TODO: make it thread safe
   uint8_t *ubuf = buf;
-  static _Atomic uint64_t counter = 0;
+  // static _Atomic uint64_t counter = 0;
   uint8_t sip[SIP_HASHLEN];
-  static uint8_t key[SIP_KEYLEN] = {0};
+  // uint8_t key[SIP_KEYLEN] = {0};
 
-  // should be done only one time (lock?)
-  if (0 == counter)
-    gen_key(key);
+  init_state(&state);
 
   for (size_t i = 0 ; i < buflen ; i += SIP_HASHLEN)
     {
@@ -122,46 +129,51 @@ portability_getrandom(void *buf, size_t buflen, unsigned int flags)
       if (SIP_HASHLEN < min)
 	min = SIP_HASHLEN;
       
-      siphash(sip, (uint8_t*) &counter, sizeof(counter), key);
+      siphash(sip, (uint8_t*) &state.counter, sizeof(state.counter), state.key);
       memcpy(ubuf+i, sip, min);
        
-      counter++;
+      state.counter++;
     }
   
   return buflen;  
 }
 
-#ifdef HAVE_GETRANDOM_SYSCALL
-#include <linux/random.h>
-#include <sys/syscall.h>
-// Where is this fucking declaration in ubuntu???
-long syscall(long number, ...);
-int
-portability_getrandom_syscall(void *buf, size_t buflen, unsigned int flags)
+void
+rd_setseed_r(struct rd_state *state, uint64_t seed)
 {
-  return syscall(SYS_getrandom, buf, buflen, flags);
-}
-#endif
+  uint8_t sip[SIP_HASHLEN];
+  static const uint8_t key[SIP_KEYLEN] = { 0x4f,0xb9,0x14,0x3b,0x80,0xac,0x73,0x7c,
+					   0xfb,0x1e,0xf2,0x03,0xb6,0x7d,0xd8,0x44 };
+  
+  state->counter = 1;
 
-char*
-portability_strcasestr(const char *haystack, const char *needle)
-{
-  char *result = NULL;
-  // TODO: use Knuth–Morris–Pratt algorithm
-  for (char *h = (char*) haystack ; *h ; h++)
-    {
-      char *n = (char*) needle;
-      for (char *hh = (char*) h ; *n && *hh ; n++, hh++)
-	if ( tolower(*hh) != tolower(*n) )
-	  break;
-      
-      if ('\0' == *n)
-	{
-	  result = h;
-	  break;
-	}
-    }
-
-  return result;
+  siphash(sip, (uint8_t *) &seed, sizeof(seed), key);
+  spread(state->key, sip);
+  memxor(state->key, key, SIP_KEYLEN);  
 }
 
+void
+rd_setseed(uint64_t seed)
+{
+  rd_setseed_r(&state, seed);
+}
+
+uint64_t
+rd_rand_u64_r(struct rd_state *state)
+{
+  uint64_t ret;
+  
+  siphash((uint8_t *) &ret, (uint8_t *) & state->counter, sizeof(state->counter), state->key);
+
+  state->counter++;
+  
+  return ret;
+}
+
+uint64_t
+rd_rand_u64()
+{
+  init_state(&state);
+
+  return rd_rand_u64_r(&state);
+}

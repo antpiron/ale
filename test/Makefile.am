@@ -19,6 +19,7 @@ check_PROGRAMS = t-alg-ax-b-ols-solve t-alg-ax-b-ols-solve-full t-alg-ax-b-solve
 	t-optimisation-gradient-descent t-portability-getrandom t-portability-strcasestr t-process-popen \
 	t-rmpath t-skiplist \
 	t-sl-init t-sl-insert-remove-first-next-nth t-sl-mknode t-sl-search t-sl-stack-operations t-sort-q-indirect \
+	t-random-getrandom t-random-rand-u64 \
 	t-stats-beta-F t-stats-beta-F-inv t-stats-beta-fit-mle t-stats-beta-fit-mle-newton t-stats-beta-fit-mm \
 	t-stats-beta-rand t-stats-binom-f t-stats-binom-F t-stats-categorical-rand t-stats-cov t-stats-diff-mean \
 	t-stats-diff-sd t-stats-diff-var t-stats-ecdf-F t-stats-ecdf-F-inv t-stats-ecdf-F-linear t-stats-ecdf-rand \
