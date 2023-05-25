@@ -62,7 +62,7 @@ add_entropy(uint8_t *key, const uint8_t *src, size_t len)
   return 0;
 }
 
-// TODO: find better and PROVEN method to generate entropy
+// TODO: add more entropy: mmap, ...
 static int
 gen_key(uint8_t *key)
 {
@@ -102,7 +102,7 @@ gen_key(uint8_t *key)
 static inline void
 init_state(struct rd_state *state)
 {
-  // should be done only one time (lock?)
+  // TODO: should be done only one time by thread 
   if (0 == state->counter)
     {
       gen_key(state->key);
@@ -117,9 +117,7 @@ rd_getrandom(void *buf, size_t buflen, unsigned int flags)
   (void) (flags);
   // TODO: make it thread safe
   uint8_t *ubuf = buf;
-  // static _Atomic uint64_t counter = 0;
   uint8_t sip[SIP_HASHLEN];
-  // uint8_t key[SIP_KEYLEN] = {0};
 
   init_state(&state);
 

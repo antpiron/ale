@@ -46,6 +46,28 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(rand1 == rand2,
 			"%" PRIu64 " = rand1 == rand2 = %" PRIu64 "\n", rand1, rand2);
 
+  struct rd_state state;
+
+  rd_setseed_r(&state, 57);
+  
+  ERROR_UNDEF_FATAL_FMT(1 != state.counter,
+			"counter == %" PRIu64 " != 1\n", state.counter);
+
+  rand1 = rd_rand_u64_r(&state);
+  rd_setseed_r(&state, 57);
+  rand2 = rd_rand_u64_r(&state);
+
+  ERROR_UNDEF_FATAL_FMT(rand1 != rand2,
+			"%" PRIu64 " = rand1 != rand2 = %" PRIu64 "\n", rand1, rand2);
+
+  rd_setseed_r(&state, 57);
+  rand1 = rd_rand_u64_r(&state);
+  rd_setseed_r(&state, 58);
+  rand2 = rd_rand_u64_r(&state);
+
+  ERROR_UNDEF_FATAL_FMT(rand1 == rand2,
+			"%" PRIu64 " = rand1 == rand2 = %" PRIu64 "\n", rand1, rand2);
+
 
   return EXIT_SUCCESS;
 }
