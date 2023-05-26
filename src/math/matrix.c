@@ -51,12 +51,10 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
       if (-1 == ret && feof(file))
 	break;
       ERROR_GOTO(-1 == ret, ERROR);
+      string_chomp(&str);
       char *current = str.str;
       size_t count = 0;
-
-      
-      string_chomp(&str);
-        
+       
       if (0 == str.len)
 	{
 	  ERROR_CUSTOM_GOTO(0 == (MATRIX_FSKIPEMPTY & params->flags), MATRIX_EEMPTY, ERROR);
@@ -114,8 +112,8 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
 	  ERROR_ERRNO_GOTO(0 != errno, ERROR);
 	  int is_error = params->sep != *current && '\0' != *current;
 	  ERROR_CUSTOM_MSG_FMT(is_error, MATRIX_ECHAR,
-			       "Invalid number of columns at line %zu: sep = %d\n",
-			       nlines, *current);
+			       "Invalid number of columns at line %zu, col %zu: sep = %d\n",
+			       nlines, ncols, *current);
 	  ERROR_CUSTOM_GOTO(is_error, MATRIX_ECHAR, ERROR);
 
 	  matrix_resize(mat, mat->alloc_size_double+1);

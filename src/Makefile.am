@@ -19,7 +19,7 @@ noinst_LTLIBRARIES=libale-debug.la
 #noinst_lib_LTLIBRARIES=libale-debug.la
 libale_la_SOURCES = $(LIBRARY_SOURCES)
 include_HEADERS = ale.h
-pkginclude_HEADERS = ale/error.h ale/daemon.h ale/portability.h ale/bitset.h ale/fileutils.h ale/stringutils.h ale/exparser.h ale/btree.h ale/sl_list.h ale/hash.h ale/siphash24.h ale/knn.h ale/vector.h ale/skiplist.h ale/netutils.h ale/stats.h ale/math.h ale/algebra.h ale/process.h ale/matrix.h ale/index.h ale/memory.h ale/stats-normalize.h ale/ea.h ale/sort.h ale/optimisation.h ale/interpolation.h
+pkginclude_HEADERS = ale/error.h ale/daemon.h ale/portability.h ale/bitset.h ale/fileutils.h ale/stringutils.h ale/exparser.h ale/btree.h ale/sl_list.h ale/hash.h ale/siphash24.h ale/knn.h ale/vector.h ale/skiplist.h ale/netutils.h ale/stats.h ale/math.h ale/algebra.h ale/process.h ale/matrix.h ale/index.h ale/memory.h ale/stats-normalize.h ale/ea.h ale/sort.h ale/optimisation.h ale/interpolation.h ale/random.h
 
 libale_debug_la_SOURCES = $(LIBRARY_SOURCES)
 libale_debug_la_CFLAGS=-g -O0 -fsanitize=bounds

@@ -101,14 +101,13 @@ string_chomp(struct string *dst)
     {
       char c = dst->str[len];
 
-      if ('\n' != c &&  '\r' != c)
+      if ('\n' != c && '\r' != c)
 	break;
-
+      
+      dst->str[len] = 0;
+      dst->len--;
       len--;
     }
-  
-  dst->str[len+1] = 0;
-  dst->len = len+1;
   
   return 0;
 }
