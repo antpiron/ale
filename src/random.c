@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <stdatomic.h>
+#include <pthread.h>
 
 #include "ale/portability.h"
 #include "ale/error.h"
@@ -17,11 +18,13 @@
 
 
 static
-struct rd_state state = {
+struct rd_state global_state = {
   .counter = 0,
   .key = {
     0xc9,0x74,0x58,0x65,0x60,0xb6,0xb8,0x18,
     0xe7,0x63,0xd1,0xb2,0xae,0xc4,0x9f,0x8d } } ;
+
+static pthread_mutex_t lock_global_state = PTHREAD_MUTEX_INITIALIZER;
 
 static void*
 memxor (void *restrict dest, const void *restrict src, size_t n)
@@ -115,11 +118,12 @@ int
 rd_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
   (void) (flags);
-  // TODO: make it thread safe
   uint8_t *ubuf = buf;
   uint8_t sip[SIP_HASHLEN];
-
-  init_state(&state);
+  
+  ERROR_ERRNO_MSG( 0 != pthread_mutex_lock(&lock_global_state), "Failed to lock global state");
+  
+  init_state(&global_state);
 
   for (size_t i = 0 ; i < buflen ; i += SIP_HASHLEN)
     {
@@ -127,12 +131,14 @@ rd_getrandom(void *buf, size_t buflen, unsigned int flags)
       if (SIP_HASHLEN < min)
 	min = SIP_HASHLEN;
       
-      siphash(sip, (uint8_t*) &state.counter, sizeof(state.counter), state.key);
+      siphash(sip, (uint8_t*) &global_state.counter, sizeof(global_state.counter), global_state.key);
       memcpy(ubuf+i, sip, min);
        
-      state.counter++;
+      global_state.counter++;
     }
-  
+
+  ERROR_ERRNO_MSG(0 != pthread_mutex_unlock(&lock_global_state), "Failed to unlock global state" );
+
   return buflen;  
 }
 
@@ -153,7 +159,9 @@ rd_setseed_r(struct rd_state *state, uint64_t seed)
 void
 rd_setseed(uint64_t seed)
 {
-  rd_setseed_r(&state, seed);
+  ERROR_ERRNO_MSG( 0 != pthread_mutex_lock(&lock_global_state), "Failed to lock global state");
+  rd_setseed_r(&global_state, seed);
+  ERROR_ERRNO_MSG(0 != pthread_mutex_unlock(&lock_global_state), "Failed to unlock global state" );
 }
 
 uint64_t
@@ -171,7 +179,14 @@ rd_rand_u64_r(struct rd_state *state)
 uint64_t
 rd_rand_u64()
 {
-  init_state(&state);
+  uint64_t ret;
+  
+  ERROR_ERRNO_MSG( 0 != pthread_mutex_lock(&lock_global_state), "Failed to lock global state");
 
-  return rd_rand_u64_r(&state);
+  init_state(&global_state);
+  ret = rd_rand_u64_r(&global_state);
+
+  ERROR_ERRNO_MSG(0 != pthread_mutex_unlock(&lock_global_state), "Failed to unlock global state" );
+
+  return ret;
 }
