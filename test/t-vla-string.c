@@ -31,6 +31,19 @@ main(int argc, char *argv[argc])
   string_chomp(&str1);
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(str1.str, "aaaa"),
 			"FATAL: %s != 'aaaa'\n", str1.str);
+  ERROR_UNDEF_FATAL_FMT(4 != str1.len,
+			"FATAL: %d != 4\n", str1.len);
+  ERROR_UNDEF_FATAL_FMT(0 != str1.str[str1.len],
+			"FATAL: %c != '\0'\n", str1.str[str1.len]);
+
+  string_set(&str1, "");
+  string_chomp(&str1);
+  ERROR_UNDEF_FATAL_FMT(0 != strcmp(str1.str, ""),
+			"FATAL: %s != ''\n", str1.str);
+  ERROR_UNDEF_FATAL_FMT(0 != str1.len,
+			"FATAL: %d != 0'\n", str1.len);
+  ERROR_UNDEF_FATAL_FMT(0 != str1.str[str1.len],
+			"FATAL: %c != '\0'\n", str1.str[str1.len]);
 
   string_truncate(&str1);
   string_append_c_raw(&str1, "a", 2);

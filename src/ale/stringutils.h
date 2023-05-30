@@ -95,19 +95,18 @@ static inline
 int
 string_chomp(struct string *dst)
 {
-  ssize_t len = dst->len - 1;
+  size_t new_eos = dst->len;
 
-  while ( len >= 0 )
+  for ( ; new_eos > 0 ; new_eos--)
     {
-      char c = dst->str[len];
+      char c = dst->str[new_eos - 1];
 
       if ('\n' != c && '\r' != c)
 	break;
-      
-      dst->str[len] = 0;
-      dst->len--;
-      len--;
     }
+
+  dst->str[new_eos] = 0;
+  dst->len = new_eos;
   
   return 0;
 }
