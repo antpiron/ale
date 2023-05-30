@@ -105,7 +105,6 @@ gen_key(uint8_t *key)
 static inline void
 init_state(struct rd_state *state)
 {
-  // TODO: should be done only one time by thread 
   if (0 == state->counter)
     {
       gen_key(state->key);
@@ -122,7 +121,6 @@ rd_getrandom(void *buf, size_t buflen, unsigned int flags)
   uint8_t sip[SIP_HASHLEN];
   
   ERROR_ERRNO_MSG( 0 != pthread_mutex_lock(&lock_global_state), "Failed to lock global state");
-  
   init_state(&global_state);
 
   for (size_t i = 0 ; i < buflen ; i += SIP_HASHLEN)
