@@ -17,14 +17,15 @@
 
 
 
-static
+static _Thread_local
 struct rd_state global_state = {
   .counter = 0,
+  .seeded = 0,
   .key = {
     0xc9,0x74,0x58,0x65,0x60,0xb6,0xb8,0x18,
     0xe7,0x63,0xd1,0xb2,0xae,0xc4,0x9f,0x8d } } ;
 
-static pthread_mutex_t lock_global_state = PTHREAD_MUTEX_INITIALIZER;
+static pthread_once_t global_state_once = PTHREAD_ONCE_INIT;
 
 static void*
 memxor (void *restrict dest, const void *restrict src, size_t n)
@@ -112,6 +113,15 @@ init_state(struct rd_state *state)
     }  
 }
 
+static inline void
+init_global_state_once()
+{
+  if (0 == global_state.seeded)
+    {
+      init_state(&global_state);
+    }  
+}
+
 // Counter mode generator based on siphash
 int
 rd_getrandom(void *buf, size_t buflen, unsigned int flags)
@@ -120,9 +130,8 @@ rd_getrandom(void *buf, size_t buflen, unsigned int flags)
   uint8_t *ubuf = buf;
   uint8_t sip[SIP_HASHLEN];
   
-  ERROR_ERRNO_MSG( 0 != pthread_mutex_lock(&lock_global_state), "Failed to lock global state");
-  init_state(&global_state);
-
+  pthread_once(&global_state_once, init_global_state_once);
+  
   for (size_t i = 0 ; i < buflen ; i += SIP_HASHLEN)
     {
       size_t min = buflen-i;
@@ -135,8 +144,6 @@ rd_getrandom(void *buf, size_t buflen, unsigned int flags)
       global_state.counter++;
     }
 
-  ERROR_ERRNO_MSG(0 != pthread_mutex_unlock(&lock_global_state), "Failed to unlock global state" );
-
   return buflen;  
 }
 
@@ -147,7 +154,7 @@ rd_setseed_r(struct rd_state *state, uint64_t seed)
   static const uint8_t key[SIP_KEYLEN] = { 0x4f,0xb9,0x14,0x3b,0x80,0xac,0x73,0x7c,
 					   0xfb,0x1e,0xf2,0x03,0xb6,0x7d,0xd8,0x44 };
   
-  state->counter = 1;
+  state->seeded = state->counter = 1;
 
   siphash(sip, (uint8_t *) &seed, sizeof(seed), key);
   spread(state->key, sip);
@@ -157,9 +164,7 @@ rd_setseed_r(struct rd_state *state, uint64_t seed)
 void
 rd_setseed(uint64_t seed)
 {
-  ERROR_ERRNO_MSG( 0 != pthread_mutex_lock(&lock_global_state), "Failed to lock global state");
   rd_setseed_r(&global_state, seed);
-  ERROR_ERRNO_MSG(0 != pthread_mutex_unlock(&lock_global_state), "Failed to unlock global state" );
 }
 
 uint64_t
@@ -179,12 +184,9 @@ rd_rand_u64()
 {
   uint64_t ret;
   
-  ERROR_ERRNO_MSG( 0 != pthread_mutex_lock(&lock_global_state), "Failed to lock global state");
+  pthread_once(&global_state_once, init_global_state_once);
 
-  init_state(&global_state);
   ret = rd_rand_u64_r(&global_state);
-
-  ERROR_ERRNO_MSG(0 != pthread_mutex_unlock(&lock_global_state), "Failed to unlock global state" );
 
   return ret;
 }

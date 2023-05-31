@@ -9,6 +9,7 @@
 struct rd_state
 {
   uint64_t counter;
+  int seeded;
   uint8_t key[SIP_KEYLEN];
 };
 
