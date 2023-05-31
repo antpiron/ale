@@ -3,7 +3,9 @@
 
 #include "ale/error.h"
 #include "ale/stats.h"
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 #define MAX_INSERT (1 << 23)
 
@@ -29,10 +31,12 @@ main(int argc, char *argv[argc])
         
   printf("\nGenerated %12.2F MNumbers/sec, mean = %6.3f\n", rate, res / MAX_INSERT);
 
-  clock_gettime(CLOCK_MONOTONIC, &st);
   res = 0;
   int n_threads = omp_get_max_threads();
   n = MAX_INSERT * n_threads;
+
+#ifdef _OPENMP
+  clock_gettime(CLOCK_MONOTONIC, &st);
 #pragma omp parallel for reduction (+:res)
   for (size_t i = 0 ; i < n ; i++)
     {
@@ -42,7 +46,8 @@ main(int argc, char *argv[argc])
   diff = (et.tv_sec - st.tv_sec) + (et.tv_nsec - st.tv_nsec) / 1e9;
   rate = n / (diff * 1000 * 1000);
         
-  printf("Generated %12.2F MNumbers/sec in parallel (n = %d), by threads %.2F MNumbers/sec, mean = %6.3f\n", rate, n_threads, rate / n_threads, res / n);
+  printf("Generated %12.2F MNumbers/sec in parallel (n = %d), total = %.2F MNumbers/sec, mean = %6.3f\n", rate / n_threads, n_threads, rate, res / n);
+#endif
 
   
   
