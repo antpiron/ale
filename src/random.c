@@ -113,7 +113,6 @@ init_state(struct rd_state *state)
     }  
 }
 
-// TODO: init properly the threads
 static inline void
 init_global_state_once()
 {
