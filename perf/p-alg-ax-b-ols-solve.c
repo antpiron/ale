@@ -11,13 +11,10 @@
 int
 main(int argc, char *argv[argc])
 {
-  size_t m = 8, n = 10, p = 8;;
-  // double A[m][n],  X[n][p], B[m][p];
-  double delta;
+  size_t n = 10, p = 8;;
   int ret;
-  double diff, rate;
+  double diff;
   struct timespec st, et;
-  const double eps = 0.0000001;
 
   printf("%s:\n", argv[0]);
 
@@ -36,7 +33,6 @@ main(int argc, char *argv[argc])
       for (size_t i = 0 ; i < m ; i++)
 	for (size_t j = 0 ; j < p; j++)
 	  {
-	    double x = 0;
 	    for (size_t k = 0 ; k < n ; k++)
 	      (*B)[i][j] += (j+1) * (*A)[i][k];
 	  }
