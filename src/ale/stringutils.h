@@ -103,10 +103,13 @@ string_chomp(struct string *dst)
 
       if ('\n' != c && '\r' != c)
 	break;
+
+      dst->str[new_eos - 1] = 0;
+      dst->len = new_eos - 1;
     }
 
-  dst->str[new_eos] = 0;
-  dst->len = new_eos;
+  // dst->str[new_eos] = 0;
+  // dst->len = new_eos;
   
   return 0;
 }

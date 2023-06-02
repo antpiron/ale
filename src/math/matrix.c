@@ -51,7 +51,11 @@ matrix_read_full(struct matrix *mat, FILE *file, struct matrix_parameters *param
       if (-1 == ret && feof(file))
 	break;
       ERROR_GOTO(-1 == ret, ERROR);
+
+      // printf("|%s|\n", str.str);
       string_chomp(&str);
+      //printf("|%s|\n", str.str);
+      
       char *current = str.str;
       size_t count = 0;
        

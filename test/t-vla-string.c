@@ -27,7 +27,8 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(str1.str, "Hello Plop!"), "FATAL: %s != 'Hello Plop!'\n", str1.str);
   ERROR_UNDEF_FATAL_FMT(str1.len != 11, "FATAL: %zu != 11'\n", str1.len);
 
-  string_set(&str1, "aaaa\n\r\n");
+  // CHOMP
+  string_set(&str1, "aaaa\r\n\r\n");
   string_chomp(&str1);
   ERROR_UNDEF_FATAL_FMT(0 != strcmp(str1.str, "aaaa"),
 			"FATAL: %s != 'aaaa'\n", str1.str);
@@ -35,6 +36,9 @@ main(int argc, char *argv[argc])
 			"FATAL: %d != 4\n", str1.len);
   ERROR_UNDEF_FATAL_FMT(0 != str1.str[str1.len],
 			"FATAL: %c != '\0'\n", str1.str[str1.len]);
+  for (char *c = str1.str ; 0 != *c ; c++)
+    ERROR_UNDEF_FATAL('\r' == *c || '\n' == *c,
+		      "FATAL: string_chomp() '\r' or 'n'\n");
 
   string_set(&str1, "");
   string_chomp(&str1);
@@ -45,6 +49,7 @@ main(int argc, char *argv[argc])
   ERROR_UNDEF_FATAL_FMT(0 != str1.str[str1.len],
 			"FATAL: %c != '\0'\n", str1.str[str1.len]);
 
+  // append_c_raw
   string_truncate(&str1);
   string_append_c_raw(&str1, "a", 2);
   string_append_c_raw(&str1, "b", 2);
