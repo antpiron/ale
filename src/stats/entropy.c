@@ -10,10 +10,17 @@
   TYPE									\
   stats_entropy##SUFFIX(size_t n, TYPE x[n])				\
   {									\
-    struct stats_kd##SUFFIX *kd;					\
+    struct stats_kd##SUFFIX kd;						\
     TYPE sum = 0;							\
+    									\
+    stats_kd_init##SUFFIX(&kd, n, x);					\
 									\
-    return sum / n;							\
+    for (size_t i = 0 ; i < n ; i++)					\
+      sum += log##SUFFIX( stats_kd_f##SUFFIX(&kd, x[i]) );		\
+									\
+    stats_kd_destroy##SUFFIX(&kd);					\
+    									\
+    return - sum / n;							\
   }
 
 

@@ -148,6 +148,9 @@ void shuffle_n_size_t(size_t n, size_t *vec);
 				  size_t n, 				\
 				  TYPE x[n], TYPE h,			\
 				  TYPE (*K)(TYPE));			\
+  void stats_kd_init##SUFFIX(struct stats_kd##SUFFIX *kd,		\
+			     size_t n,					\
+			     TYPE x[n]);				\
   void stats_kd_destroy##SUFFIX(struct stats_kd##SUFFIX *ecdf);		\
   TYPE stats_kd_f##SUFFIX(struct stats_kd##SUFFIX *kd, TYPE x);		\
 									\
