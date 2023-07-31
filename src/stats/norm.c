@@ -45,6 +45,13 @@
   }									\
 									\
   TYPE									\
+  stats_norm_std_f##SUFFIX(TYPE x)					\
+  {									\
+    									\
+    return exp##SUFFIX(- x * x / 2) / sqrt##SUFFIX(2*M_PI);		\
+  }									\
+									\
+  TYPE									\
   stats_norm_std_F##SUFFIX(TYPE x)					\
   {									\
     /* http://www.stat.tamu.edu/~jnewton/604/chap3.pdf */		\

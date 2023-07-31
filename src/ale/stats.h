@@ -23,6 +23,8 @@ void shuffle_n_size_t(size_t n, size_t *vec);
 #define STATS_GENERIC_HEADERS(SUFFIX,TYPE)				\
   TYPE stats_mean##SUFFIX(size_t n, const TYPE x[n]);			\
   TYPE stats_geom_mean##SUFFIX(size_t n, const TYPE x[n]);		\
+  TYPE stats_median##SUFFIX(size_t n, TYPE x[n]);			\
+  TYPE stats_IQR##SUFFIX(size_t n, TYPE x[n]);			\
   TYPE stats_var##SUFFIX(size_t n, const TYPE x[n]);			\
   TYPE stats_sd##SUFFIX(size_t n, const TYPE x[n]);			\
   TYPE stats_diff_mean##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]); \
@@ -59,6 +61,7 @@ void shuffle_n_size_t(size_t n, size_t *vec);
 									\
   TYPE stats_norm_std_rand##SUFFIX();					\
   TYPE stats_norm_rand##SUFFIX(TYPE mu, TYPE sig);			\
+  TYPE stats_norm_std_f##SUFFIX(TYPE x);				\
   TYPE stats_norm_std_F##SUFFIX(TYPE x);				\
   TYPE stats_norm_F##SUFFIX(TYPE x, TYPE mu, TYPE sig);			\
 									\
@@ -131,7 +134,23 @@ void shuffle_n_size_t(size_t n, size_t *vec);
 			    TYPE (*cdf)(TYPE x, void *cls), void *cls,	\
 			    TYPE *pval, TYPE *stat);			\
   									\
+  struct stats_kd##SUFFIX						\
+  {									\
+    size_t n;								\
+    TYPE *x;								\
+    TYPE h;								\
+    size_t *index;							\
+    TYPE (*K)(TYPE);							\
+    /* struct mem_pool pool; */						\
+  };									\
   									\
+  void stats_kd_init_full##SUFFIX(struct stats_kd##SUFFIX *kd,		\
+				  size_t n, 				\
+				  TYPE x[n], TYPE h,			\
+				  TYPE (*K)(TYPE));			\
+  void stats_kd_destroy##SUFFIX(struct stats_kd##SUFFIX *ecdf);		\
+  TYPE stats_kd_f##SUFFIX(struct stats_kd##SUFFIX *kd, TYPE x);		\
+									\
   struct stats_permutation##SUFFIX					\
   {									\
     size_t n;								\
@@ -150,7 +169,9 @@ void shuffle_n_size_t(size_t n, size_t *vec);
   							      TYPE x,	\
   							      void *cls), \
   					      void *cls);		\
-  int stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, TYPE res[p->n]);
+  int stats_permutation##SUFFIX(struct stats_permutation##SUFFIX *p, TYPE res[p->n]); \
+									\
+  TYPE stats_entropy##SUFFIX(size_t n, TYPE x[n]);
 
 
   

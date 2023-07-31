@@ -6,6 +6,7 @@
 #include "ale/math.h"
 #include "ale/error.h"
 #include "ale/algebra.h"
+#include "ale/sort.h"
 
 #define GENERIC_FUNC(SUFFIX,TYPE)					\
   TYPE									\
@@ -29,7 +30,51 @@
     									\
     return exp##SUFFIX(s / n);						\
   }									\
-  									\
+									\
+  TYPE									\
+  stats_median##SUFFIX(size_t n, TYPE x[n])				\
+  {									\
+    size_t *index = malloc(n * sizeof(size_t));				\
+    size_t half_n = n / 2;						\
+    TYPE res;								\
+									\
+    sort_q_indirect(index, x, n, sizeof(TYPE),				\
+		    sort_compar_double##SUFFIX, NULL);			\
+    res = ( 0 == (n % 2) ) ?						\
+      (x[index[half_n - 1]] + x[index[half_n]]) / 2.0 :			\
+      x[index[half_n]];							\
+									\
+    free(index);							\
+									\
+    return res;								\
+  }									\
+									\
+  TYPE									\
+  stats_IQR##SUFFIX(size_t n, TYPE x[n])				\
+  {									\
+    size_t *index = malloc(n * sizeof(size_t));				\
+    size_t Q1_n = n / 2;						\
+    size_t Q3_n = n - Q1_n;						\
+    size_t Q1_half_n = Q1_n / 2;					\
+    size_t Q3_half_n = Q3_n / 2;					\
+    TYPE Q1, Q3;							\
+									\
+    sort_q_indirect(index, x, n, sizeof(TYPE),				\
+		    sort_compar_double##SUFFIX, NULL);			\
+    Q1 = ( 0 == (Q1_n % 2) ) ?						\
+      (x[index[Q1_half_n - 1]] + x[index[Q1_half_n]]) / 2.0 :		\
+      x[index[Q1_half_n]];						\
+    									\
+    size_t Q3_half_n_index = Q1_n + Q3_half_n;				\
+    Q3 = ( 0 == (Q3_n % 2) ) ?						\
+      (x[index[Q3_half_n_index - 1]] + x[index[Q3_half_n_index]]) / 2.0 : \
+      x[index[Q3_half_n_index]];					\
+									\
+    free(index);							\
+									\
+    return Q3 - Q1;							\
+  }									\
+									\
   TYPE									\
   stats_var##SUFFIX(size_t n, const TYPE x[n])				\
   {									\

@@ -7,7 +7,7 @@ LIBRARY_SOURCES=ale/error.h error.c ale/daemon.h daemon.c portability.c ale/port
 	ale/random.h \
 	random.c siphash24.c \
 	ale/knn.h knn.c ale/vector.h ale/skiplist.h netutils.c ale/netutils.h \
-	ale/stats.h stats/base.c stats/categorical.c stats/norm.c stats/student.c stats/binom.c stats/poisson.c stats/unif.c \
+	ale/stats.h stats/base.c stats/categorical.c stats/norm.c stats/student.c stats/binom.c stats/poisson.c stats/unif.c stats/entropy.c stats/kerneldensity.c\
 	stats/hyper.c stats/beta.c stats/gamma.c stats/kolmogorov.c stats/ecdf.c stats/permutation.c stats/F.c \
 	ale/stats-normalize.h stats/normalize.c \
 	ale/math.h math/math.c ale/algebra.h math/algebra.c math/interpolation.c \
