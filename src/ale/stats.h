@@ -141,7 +141,7 @@ void shuffle_n_size_t(size_t n, size_t *vec);
     TYPE h;								\
     size_t *index;							\
     TYPE (*K)(TYPE);							\
-    TYPE K_min_x, K_max_x;						\
+    TYPE K_eps;								\
     struct mem_pool pool;						\
   };									\
   									\
@@ -149,7 +149,7 @@ void shuffle_n_size_t(size_t n, size_t *vec);
 				  size_t n, 				\
 				  TYPE x[n], TYPE h,			\
 				  TYPE (*K)(TYPE),			\
-				  TYPE K_min_x, TYPE K_max_x);		\
+				  TYPE K_eps);		\
   void stats_kd_init##SUFFIX(struct stats_kd##SUFFIX *kd,		\
 			     size_t n,					\
 			     TYPE x[n]);				\

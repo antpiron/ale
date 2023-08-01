@@ -12,14 +12,13 @@
   stats_kd_init_full##SUFFIX(struct stats_kd##SUFFIX *kd, size_t n,	\
 			     TYPE x[n], TYPE h,				\
 			     TYPE (*K)(TYPE),				\
-			     TYPE K_min_x, TYPE K_max_x)		\
+			     TYPE K_eps)				\
   {									\
     kd->n= n;								\
     kd->x = x;								\
     kd->h = h;								\
     kd->K = K;								\
-    kd->K_min_x = K_min_x;						\
-    kd->K_max_x = K_max_x;						\
+    kd->K_eps = K_eps;							\
     mem_init(&kd->pool);						\
     kd->index = mem_malloc(&kd->pool, n * sizeof(size_t) );		\
 									\
@@ -39,7 +38,7 @@
 									\
     stats_kd_init_full##SUFFIX(kd, n, x, h,				\
 			       &stats_norm_std_f##SUFFIX,		\
-			       -4, 4);					\
+			       0.001);					\
   }									\
   void									\
   stats_kd_destroy##SUFFIX(struct stats_kd##SUFFIX *kd)			\
@@ -70,21 +69,23 @@
     for (size_t i = above ; i < kd->n ; i++)				\
       {									\
 	TYPE param_x = (x - kd->x[kd->index[i]] ) / kd->h;		\
+	TYPE K_val =  kd->K(param_x);					\
 									\
-	if (param_x < kd->K_min_x)					\
+	sum += K_val;							\
+									\
+	if (fabs##SUFFIX(K_val) < kd->K_eps)				\
 	  break;							\
-									\
-	sum += kd->K(param_x);						\
       }									\
 									\
     for (ssize_t i = below ; i >= 0 ; i--)				\
       {									\
 	TYPE param_x = (x - kd->x[kd->index[i]] ) / kd->h;		\
+	TYPE K_val =  kd->K(param_x);					\
 									\
-	if (param_x > kd->K_max_x)					\
+	sum += K_val;							\
+									\
+	if (fabs##SUFFIX(K_val) < kd->K_eps)				\
 	  break;							\
-									\
-	sum += kd->K(param_x);						\
       }									\
 									\
     return 1.0 / (kd->n * kd->h) * sum;					\
