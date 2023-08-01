@@ -24,7 +24,7 @@ void shuffle_n_size_t(size_t n, size_t *vec);
   TYPE stats_mean##SUFFIX(size_t n, const TYPE x[n]);			\
   TYPE stats_geom_mean##SUFFIX(size_t n, const TYPE x[n]);		\
   TYPE stats_median##SUFFIX(size_t n, TYPE x[n]);			\
-  TYPE stats_IQR##SUFFIX(size_t n, TYPE x[n]);			\
+  TYPE stats_IQR##SUFFIX(size_t n, TYPE x[n]);				\
   TYPE stats_var##SUFFIX(size_t n, const TYPE x[n]);			\
   TYPE stats_sd##SUFFIX(size_t n, const TYPE x[n]);			\
   TYPE stats_diff_mean##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n]); \
@@ -141,13 +141,15 @@ void shuffle_n_size_t(size_t n, size_t *vec);
     TYPE h;								\
     size_t *index;							\
     TYPE (*K)(TYPE);							\
-    /* struct mem_pool pool; */						\
+    TYPE K_min_x, K_max_x;						\
+    struct mem_pool pool;						\
   };									\
   									\
   void stats_kd_init_full##SUFFIX(struct stats_kd##SUFFIX *kd,		\
 				  size_t n, 				\
 				  TYPE x[n], TYPE h,			\
-				  TYPE (*K)(TYPE));			\
+				  TYPE (*K)(TYPE),			\
+				  TYPE K_min_x, TYPE K_max_x);		\
   void stats_kd_init##SUFFIX(struct stats_kd##SUFFIX *kd,		\
 			     size_t n,					\
 			     TYPE x[n]);				\

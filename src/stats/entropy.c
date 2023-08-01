@@ -16,7 +16,10 @@
     stats_kd_init##SUFFIX(&kd, n, x);					\
 									\
     for (size_t i = 0 ; i < n ; i++)					\
-      sum += log##SUFFIX( stats_kd_f##SUFFIX(&kd, x[i]) );		\
+      {									\
+	TYPE px = stats_kd_f##SUFFIX(&kd, x[i]);			\
+	sum += log##SUFFIX( stats_kd_f##SUFFIX(&kd, x[i]) );		\
+      }									\
 									\
     stats_kd_destroy##SUFFIX(&kd);					\
     									\

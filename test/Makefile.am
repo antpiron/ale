@@ -26,8 +26,9 @@ check_PROGRAMS = t-alg-ax-b-ols-solve t-alg-ax-b-ols-solve-full t-alg-ax-b-solve
 	t-stats-gamma-F t-stats-gamma-fit-mm t-stats-gamma-rand t-stats-hyper-f t-stats-hyper-F t-stats-hyper-tail \
 	t-stats-kolmo-F t-stats-ks-test t-stats-mat-cov t-stats-mean t-stats-geom-mean t-stats-median \
 	t-stats-iqr \
+	t-stats-kerneldensity \
 	t-stats-normalize-samples-ls t-stats-normalize-samples-poisson t-stats-normalize-samples-geometric-mean t-stats-normalize-samples \
-	t-stats-norm-F t-stats-norm-rand t-stats-norm-std-F t-stats-norm-std-rand \
+	t-stats-norm-F t-stats-norm-rand t-stats-norm-std-F t-stats-norm-std-f t-stats-norm-std-rand \
 	t-stats-F-F t-stats-p-adjust-fdr-bh t-stats-p-adjust-fwer-bonf t-stats-pearson-corr t-stats-permutation-bootstrap \
 	t-stats-permutation t-stats-poisson-f t-stats-poisson-F t-stats-poisson-rand-its t-stats-poisson-rand-pa \
 	t-stats-rowmeans t-stats-colmeans t-stats-sd t-stats-shuffle t-stats-student-F t-stats-student-rand \

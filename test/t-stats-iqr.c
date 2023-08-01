@@ -9,7 +9,7 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN (100)
+#define LEN (1000)
   double x[LEN] = {0.0};
   double res, exp, delta;
   double eps = 0.0001;
@@ -25,7 +25,11 @@ main(int argc, char *argv[argc])
   delta = fabs(exp - res);
   ERROR_UNDEF_FATAL_FMT(delta >= eps, "FAIL: stats_IQR() == %f != %f. delta = %f\n",
 			res, exp, delta);
-  
+
+  for (int i = 0 ; i < LEN ; i++)
+    x[i] = stats_norm_std_rand();
+
+  res = stats_IQR(LEN, x);
   
   return EXIT_SUCCESS;
 }
