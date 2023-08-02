@@ -86,7 +86,9 @@
   int householder_proj_QX##SUFFIX(size_t m, size_t n, size_t p, TYPE V[n][m], TYPE X[m][p]); \
 									\
   int alg_LLt_cholesky##SUFFIX(size_t n, const TYPE A[n][n], TYPE L[n][n]); \
-  TYPE alg_symmetric_definite_det##SUFFIX(size_t n, const TYPE A[n][n]);
+  TYPE alg_symmetric_definite_det##SUFFIX(size_t n, const TYPE A[n][n]); \
+  int  alg_symmetric_definite_inv##SUFFIX(size_t n, const TYPE A[n][n],	\
+					  TYPE X[n][n]);
 
 
 ALG_GENERIC_HEADERS(,double)

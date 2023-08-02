@@ -627,6 +627,7 @@ OLS_INIT_ERROR##SUFFIX:							\
   alg_LLt_cholesky##SUFFIX(size_t n, const TYPE A[n][n],		\
 			   TYPE L[n][n])				\
   {									\
+    /* TODO: add test */						\
     for (size_t i = 0 ; i < n ; i++)					\
       for (size_t j = 0 ; j <= i ; j++)					\
 	{								\
@@ -664,6 +665,7 @@ OLS_INIT_ERROR##SUFFIX:							\
   alg_symmetric_definite_inv##SUFFIX(size_t n, const TYPE A[n][n],	\
 				     TYPE X[n][n])			\
   {									\
+    /* TODO: add test */						\
     int ret = 0;							\
     struct mem_pool pool;					        \
     mem_init_size(&pool, sizeof(TYPE) * n * n * 3);			\
