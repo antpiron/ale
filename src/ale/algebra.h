@@ -83,7 +83,11 @@
   									\
   int alg_QR_householder##SUFFIX(size_t m, size_t n, TYPE A[m][n], TYPE V[n][m]); \
   int householder_proj_QtB##SUFFIX(size_t m, size_t n, size_t p, TYPE V[n][m], TYPE B[m][p]); \
-  int householder_proj_QX##SUFFIX(size_t m, size_t n, size_t p, TYPE V[n][m], TYPE X[m][p]);
+  int householder_proj_QX##SUFFIX(size_t m, size_t n, size_t p, TYPE V[n][m], TYPE X[m][p]); \
+									\
+  int alg_LLt_cholesky##SUFFIX(size_t n, const TYPE A[n][n], TYPE L[n][n]); \
+  TYPE alg_symmetric_definite_det##SUFFIX(size_t n, const TYPE A[n][n]);
+
 
 ALG_GENERIC_HEADERS(,double)
 ALG_GENERIC_HEADERS(l,long double)

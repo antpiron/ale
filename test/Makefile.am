@@ -6,6 +6,7 @@ dist_data_DATA = asntoowner.txt ipv4toasn.txt rir-ripencc.txt plop.gz
 ## ls test/t-*.c  | sed 's/.*\/\(t-.*\).c/\1/' | tr '\n' ' '
 check_PROGRAMS = t-alg-ax-b-ols-solve t-alg-ax-b-ols-solve-full t-alg-ax-b-solve t-alg-l-inverse t-alg-lx-b-solve \
 	t-alg-opposite-v t-alg-transpose t-alg-qr-qtb-householder t-alg-u-inverse t-alg-ux-b-solve \
+	t-alg-symmetric-definite-det \
 	t-bitset \
 	t-btree-init t-btree-insert t-btree-mknode t-btree-search t-btree-slice t-btree-split-internal-child \
 	t-btree-split-leaf-child t-btree-split-right-internal t-btree-split-right-leaf t-btree-split-root \

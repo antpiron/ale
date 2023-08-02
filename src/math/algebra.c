@@ -566,7 +566,7 @@ OLS_INIT_ERROR##SUFFIX:							\
     TYPE (*vX)[p] = malloc(sizeof(*vX));				\
 									\
     for (ssize_t k = n-1 ; k >= 0 ; k--)				\
-      householder_proj##SUFFIX(m, p, k, V[k], X, *vX);				\
+      householder_proj##SUFFIX(m, p, k, V[k], X, *vX);			\
 									\
     free(vX);								\
 									\
@@ -620,7 +620,78 @@ OLS_INIT_ERROR##SUFFIX:							\
     free(vA);								\
 									\
     return ret;								\
+    }									\
+									\
+  /* https://en.wikipedia.org/wiki/Cholesky_decomposition */		\
+  int									\
+  alg_LLt_cholesky##SUFFIX(size_t n, const TYPE A[n][n],		\
+			   TYPE L[n][n])				\
+  {									\
+    for (size_t i = 0 ; i < n ; i++)					\
+      for (size_t j = 0 ; j <= i ; j++)					\
+	{								\
+	  TYPE sum = 0;							\
+									\
+	  for (size_t k = 0 ; k < j ; k++)				\
+	    sum += L[i][k] * L[j][k];					\
+	  								\
+	  if (i == j)							\
+	    L[i][j] = sqrt##SUFFIX(A[i][i] - sum);			\
+	  else								\
+	    L[i][j] = (1.0 / L[j][j] * (A[i][j] - sum));		\
+	}								\
+    									\
+    return 0;								\
+  }									\
+									\
+  TYPE									\
+  alg_symmetric_definite_det##SUFFIX(size_t n, const TYPE A[n][n])	\
+  {									\
+    TYPE (*L)[n] =  malloc(sizeof(*L) * n);				\
+    TYPE res = 1;							\
+    									\
+    alg_LLt_cholesky##SUFFIX(n, A, L);					\
+    									\
+    for (size_t i = 0 ; i < n ; i++)					\
+      res *= L[i][i] * L[i][i];						\
+    									\
+    free(L);								\
+    									\
+    return res;								\
+  }									\
+									\
+  int									\
+  alg_symmetric_definite_inv##SUFFIX(size_t n, const TYPE A[n][n],	\
+				     TYPE X[n][n])			\
+  {									\
+    int ret = 0;							\
+    struct mem_pool pool;					        \
+    mem_init_size(&pool, sizeof(TYPE) * n * n * 3);			\
+    TYPE (*L)[n] =  mem_malloc(&pool, sizeof(TYPE) * n * n);		\
+    TYPE (*B)[n] =  mem_malloc(&pool, sizeof(TYPE) * n * n);		\
+    TYPE (*I)[n] = mem_malloc(&pool, sizeof(TYPE) * n * n);		\
+									\
+    alg_identity_init##SUFFIX(n, n, I);					\
+    alg_LLt_cholesky##SUFFIX(n, A, L);					\
+									\
+    ret = alg_LX_B_solve##SUFFIX(n, n, L, I, B);			\
+    if (0 == ret)							\
+      {									\
+	/* transpose in place */					\
+	TYPE (*U)[n] = L;						\
+	for (size_t i = 1 ; i < n ; i++)				\
+	  for (size_t j = 0 ; j < i ; j++)				\
+	    U[j][i] = L[i][j];						\
+									\
+	ret = alg_UX_B_solve##SUFFIX(n, n, U, B, X);			\
+      }									\
+									\
+    mem_destroy(&pool);							\
+    									\
+    return ret;								\
   }
+ 
+  
 
 GENERIC_FUNC(,double)
 GENERIC_FUNC(l,long double)

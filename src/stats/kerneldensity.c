@@ -91,5 +91,6 @@
     return 1.0 / (kd->n * kd->h) * sum;					\
   }
 
+
 GENERIC_FUNC(,double)
 GENERIC_FUNC(l,long double)
