@@ -662,10 +662,9 @@ OLS_INIT_ERROR##SUFFIX:							\
   }									\
 									\
   int									\
-  alg_symmetric_definite_inv##SUFFIX(size_t n, const TYPE A[n][n],	\
+  alg_symmetric_definite_inv ##SUFFIX(size_t n, const TYPE A[n][n],	\
 				     TYPE X[n][n])			\
   {									\
-    /* TODO: add test */						\
     int ret = 0;							\
     struct mem_pool pool;					        \
     mem_init_size(&pool, sizeof(TYPE) * n * n * 3);			\
