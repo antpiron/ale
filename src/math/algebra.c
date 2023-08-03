@@ -636,6 +636,7 @@ OLS_INIT_ERROR##SUFFIX:							\
 	  for (size_t k = 0 ; k < j ; k++)				\
 	    sum += L[i][k] * L[j][k];					\
 	  								\
+	  /* TODO: add error check for division and sqrt */		\
 	  if (i == j)							\
 	    L[i][j] = sqrt##SUFFIX(A[i][i] - sum);			\
 	  else								\
