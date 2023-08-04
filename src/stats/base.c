@@ -149,12 +149,30 @@
   }									\
   									\
   void									\
+  stats_rowvars##SUFFIX(size_t m, size_t n, const TYPE A[m][n], TYPE vars[m]) \
+  {									\
+    for (size_t i = 0 ; i < m ; i++)					\
+      vars[i] = stats_var##SUFFIX(n, A[i]);				\
+  }									\
+  									\
+  void									\
   stats_colmeans##SUFFIX(size_t m, size_t n, const TYPE A[m][n], TYPE means[n]) \
   {									\
     TYPE (*At)[m] = malloc(sizeof(TYPE) * m * n);			\
 									\
     alg_transpose##SUFFIX(m, n, A, At);					\
     stats_rowmeans##SUFFIX(n, m, At, means);				\
+    									\
+    free(At);								\
+  }									\
+									\
+  void									\
+  stats_colvars##SUFFIX(size_t m, size_t n, const TYPE A[m][n], TYPE vars[n]) \
+  {									\
+    TYPE (*At)[m] = malloc(sizeof(TYPE) * m * n);			\
+									\
+    alg_transpose##SUFFIX(m, n, A, At);					\
+    stats_rowvars##SUFFIX(n, m, At, vars);				\
     									\
     free(At);								\
   }									\

@@ -34,7 +34,11 @@ void shuffle_n_size_t(size_t n, size_t *vec);
 									\
   void stats_rowmeans##SUFFIX(size_t m, size_t n,			\
 			      const TYPE A[m][n], TYPE means[m]);	\
+  void stats_rowvars##SUFFIX(size_t m, size_t n,			\
+			      const TYPE A[m][n], TYPE means[m]);	\
   void stats_colmeans##SUFFIX(size_t m, size_t n,			\
+			      const TYPE A[m][n], TYPE means[n]);	\
+  void stats_colvars##SUFFIX(size_t m, size_t n,			\
 			      const TYPE A[m][n], TYPE means[n]);	\
 									\
   int stats_pearson_corr##SUFFIX(size_t n, const TYPE x[n], const TYPE y[n], \

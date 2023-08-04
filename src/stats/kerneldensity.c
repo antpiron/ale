@@ -80,12 +80,25 @@
     int ret = 0;							\
     mem_init(&kd->pool);						\
     TYPE (*H)[d] = mem_malloc(&kd->pool, d * d * sizeof(TYPE));		\
+    TYPE *vars = malloc(sizeof(TYPE) * d);				\
 									\
-    /* TODO: initialize with Silverman's rule of thumb */		\
+    /* TODO: test */		\
+    stats_colvars##SUFFIX(n, d, x, vars);				\
     for (size_t i = 0 ; i < kd->d ; i++)				\
       for (size_t j = 0 ; j < kd->d ; j++)				\
-	H[i][j] = 0;							\
+	{								\
+	  if (i == j)							\
+	    {								\
+	      TYPE var = vars[i];					\
+	      H[i][j] = pow##SUFFIX(4.0 / (TYPE) (n * (d + 2)),		\
+				    2.0 / (TYPE) (d + 4)) * var;	\
+	    }								\
+	  else								\
+	    H[i][j] = 0;						\
+	}								\
 									\
+    free(vars);								\
+    									\
     ret = stats_kd_multi_init_full##SUFFIX(kd, n, n, x, H, 0); 		\
     if (0 != ret)							\
       mem_destroy(&kd->pool);						\
