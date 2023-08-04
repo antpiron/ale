@@ -82,7 +82,7 @@
     TYPE (*H)[d] = mem_malloc(&kd->pool, d * d * sizeof(TYPE));		\
     TYPE *vars = malloc(sizeof(TYPE) * d);				\
 									\
-    /* TODO: test */		\
+    /* TODO: test */							\
     stats_colvars##SUFFIX(n, d, x, vars);				\
     for (size_t i = 0 ; i < kd->d ; i++)				\
       for (size_t j = 0 ; j < kd->d ; j++)				\
