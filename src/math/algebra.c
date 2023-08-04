@@ -84,7 +84,7 @@
     									\
     return res;								\
   }									\
-  									\
+									\
   TYPE*									\
   alg_opposite_v##SUFFIX(size_t n, TYPE v[n], TYPE res[n])		\
   {									\
@@ -627,7 +627,6 @@ OLS_INIT_ERROR##SUFFIX:							\
   alg_LLt_cholesky##SUFFIX(size_t n, const TYPE A[n][n],		\
 			   TYPE L[n][n])				\
   {									\
-    /* TODO: add test */						\
     for (size_t i = 0 ; i < n ; i++)					\
       for (size_t j = 0 ; j <= i ; j++)					\
 	{								\

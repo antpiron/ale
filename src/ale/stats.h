@@ -137,12 +137,24 @@ void shuffle_n_size_t(size_t n, size_t *vec);
   struct stats_kd##SUFFIX						\
   {									\
     size_t n;								\
-    TYPE *x;								\
-    TYPE h;								\
-    size_t *index;							\
-    TYPE (*K)(TYPE);							\
-    TYPE K_eps;								\
     struct mem_pool pool;						\
+    TYPE *x;								\
+    union								\
+    {									\
+      struct {								\
+	TYPE h;								\
+	size_t *index;							\
+	TYPE (*K)(TYPE);						\
+	TYPE K_eps;							\
+      };								\
+      struct								\
+      {									\
+	size_t d;							\
+	TYPE *H;							\
+	TYPE *H_inv;							\
+	TYPE det;							\
+      };								\
+    };									\
   };									\
   									\
   void stats_kd_init_full##SUFFIX(struct stats_kd##SUFFIX *kd,		\
