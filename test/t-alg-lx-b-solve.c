@@ -15,16 +15,19 @@ main(int argc, char *argv[argc])
 
   alg_identity_init(n, p, B);
   for (size_t i = 0 ; i < n ; i++)
-    for (size_t j = 0 ; j < i+1 ; j++)
-      L[i][j] = (i == j)?2:1;
+    for (size_t j = 0 ; j < n ; j++)
+      if (j < i + 1)
+	L[i][j] = (i == j)?2:1;
+      else
+	L[i][j] = 0;
 
-  printf("U=\n");
+  printf("L=\n");
   print_m(n,n,L);
   alg_LX_B_solve(n, p, L, B, X);
   printf("X=\n");
   print_m(n,p,X);
   alg_mul_m_m(n,n,n, L, X, I);
-  printf("UX=\n");
+  printf("LX=\n");
   print_m(n,n,I);
   
 

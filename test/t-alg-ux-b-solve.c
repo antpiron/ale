@@ -15,8 +15,11 @@ main(int argc, char *argv[argc])
 
   alg_identity_init(n, p, B);
   for (size_t i = 0 ; i < n ; i++)
-    for (size_t j = i ; j < n ; j++)
-      U[i][j] = (i == j)?2:1;
+    for (size_t j = 0 ; j < n ; j++)
+      if (j >= i)
+	U[i][j] = (i == j)?2:1;
+      else
+	U[i][j] = 0;
 
   printf("U=\n");
   print_m(n,n,U);
