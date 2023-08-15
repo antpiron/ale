@@ -122,10 +122,16 @@
   stats_ecdf_F_inv##SUFFIX(struct stats_ecdf##SUFFIX *ecdf, TYPE p)	\
   {									\
     TYPE res;								\
+    const size_t n = ecdf->n;						\
+    const TYPE *x = ecdf->x;						\
+    const TYPE pos_float = p * n - 1;					\
+    size_t ceil_pos = (pos_float < 0.0) ? 0 : ceil##SUFFIX(pos_float);	\
 									\
-    res = interpolation_linear_f##SUFFIX(&ecdf->inter_inv, p,		\
-					 NULL, NULL);			\
+    if (ceil_pos >= n)							\
+      ceil_pos = n - 1;							\
 									\
+    res = x[ecdf->index[ceil_pos]];					\
+    									\
     return res;								\
   }									\
 									\
