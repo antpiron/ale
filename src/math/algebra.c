@@ -654,10 +654,11 @@ OLS_INIT_ERROR##SUFFIX:							\
     alg_LLt_cholesky##SUFFIX(n, A, L);					\
     									\
     for (size_t i = 0 ; i < n ; i++)					\
-      res *= L[i][i] * L[i][i];						\
+      res *= L[i][i];							\
     									\
     free(L);								\
-    									\
+    res = res * res;							\
+     									\
     return res;								\
   }									\
 									\
