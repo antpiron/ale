@@ -299,9 +299,10 @@
     return ret;								\
   }									\
 									\
-  int alg_LUP_pivoting##SUFFIX(size_t m, size_t n,			\
-			       TYPE A[m][n],				\
-			       size_t perm[m], size_t *s)		\
+  int									\
+  alg_LUP_pivoting##SUFFIX(size_t m, size_t n,				\
+			   TYPE A[m][n],				\
+			   size_t perm[m], size_t *s)			\
   {									\
     /* https://en.wikipedia.org/wiki/LU_decomposition */		\
     /* TODO: test */							\
