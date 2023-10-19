@@ -303,6 +303,7 @@
 			       TYPE A[m][n],				\
 			       size_t perm[m], size_t *s)		\
   {									\
+    /* https://en.wikipedia.org/wiki/LU_decomposition */		\
     /* TODO: test */							\
     *s = 0;								\
     ALG_INIT_V(m, perm, i);						\
