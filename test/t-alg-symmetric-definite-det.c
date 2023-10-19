@@ -13,16 +13,14 @@ main(int argc, char *argv[argc])
   double A[n][n];
   double det, exp;
   const double eps = 0.0000001;
-
-  for (size_t i = 0 ; i < n ; i++)
-    for (size_t j = 0 ; j < n ; j++)
-      A[i][j] = (i == j)?2:0;
-
- det = alg_symmetric_definite_det(n, A);
- exp = pow(2, n);
+  
+  ALG_INIT_M(n, n, A, (i == j)?2:0 );
+	   
+  det = alg_symmetric_definite_det(n, A);
+  exp = pow(2, n);
  
- ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(det, exp ,eps), "FAIL: alg_det_symmetric_definite() == %f != %f", det, exp);
+  ERROR_UNDEF_FATAL_FMT(0 != ale_cmp_double(det, exp ,eps), "FAIL: alg_det_symmetric_definite() == %f != %f", det, exp);
  
  
- return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
