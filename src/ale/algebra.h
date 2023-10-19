@@ -10,6 +10,11 @@
 	(A)[i][j] = (value);			\
   } while (0)
 
+#define ALG_INIT_V(n, v, value) do {		\
+    for (size_t i = 0 ; i < (n) ; i++)		\
+	(v)[i] = (value);			\
+  } while (0)
+
 #define ALG_ADD_M(m, n, A, value) do {		\
     for (size_t i = 0 ; i < (m) ; i++)		\
       for (size_t j = 0 ; j < (n) ; j++)	\
@@ -34,7 +39,11 @@
 									\
   int alg_U_inverse##SUFFIX(size_t n, const TYPE U[n][n], TYPE X[n][n]); \
   int alg_L_inverse##SUFFIX(size_t n, const TYPE L[n][n], TYPE X[n][n]); \
-									\
+  									\
+  int alg_LUP_pivoting##SUFFIX(size_t m, size_t n,			\
+			       TYPE A[m][n],				\
+			       size_t perm[m], size_t *s);		\
+  									\
   int alg_AX_B_solve##SUFFIX(size_t n, size_t p, TYPE A[n][n], TYPE B[n][p], TYPE X[n][p]); \
 									\
   struct alg_ols##SUFFIX						\

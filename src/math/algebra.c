@@ -299,6 +299,52 @@
     return ret;								\
   }									\
 									\
+  int alg_LUP_pivoting##SUFFIX(size_t m, size_t n,			\
+			       TYPE A[m][n],				\
+			       size_t perm[m], size_t *s)		\
+  {									\
+    /* TODO: test */							\
+    *s = 0;								\
+    ALG_INIT_V(m, perm, i);						\
+    									\
+    for (size_t i = 0 ; i < n ; i++)					\
+      {									\
+        TYPE maxA = 0.0;						\
+        size_t imax = i;						\
+									\
+        for (size_t k = i ; k < m ; k++)				\
+	  {								\
+	    TYPE absA = fabs##SUFFIX(A[perm[k]][i]);			\
+	    if (absA > maxA)						\
+	      {								\
+		maxA = absA;						\
+		imax = k;						\
+	      }								\
+	  }								\
+									\
+        ERROR_CUSTOM_RET(maxA < ALE_EPS##SUFFIX, 1, -1);		\
+									\
+        if (imax != i)							\
+	  {								\
+	    size_t index = perm[i];					\
+	    perm[i] = perm[imax];					\
+	    perm[imax] = index;						\
+	    								\
+	    (*s)++;							\
+	  }								\
+									\
+        for (size_t j = i + 1 ; j < n ; j++)				\
+	  {								\
+            A[perm[j]][i] /= A[perm[i]][i];				\
+									\
+            for (size_t k = i + 1 ; k < m ; k++)			\
+	      A[perm[j]][k] -= A[perm[j]][i] * A[perm[i]][k];		\
+	  }								\
+      }									\
+									\
+    return 0;								\
+  }									\
+									\
   int									\
   alg_AX_B_solve##SUFFIX(size_t n, size_t p, TYPE A[n][n], TYPE B[n][p], TYPE X[n][p]) \
   {									\
