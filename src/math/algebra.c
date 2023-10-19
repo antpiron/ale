@@ -306,7 +306,8 @@
   {									\
     /* https://en.wikipedia.org/wiki/LU_decomposition */		\
     /* TODO: test */							\
-    *s = 0;								\
+    size_t ss = 0;							\
+    									\
     ALG_INIT_V(m, perm, i);						\
     									\
     for (size_t i = 0 ; i < n ; i++)					\
@@ -332,7 +333,7 @@
 	    perm[i] = perm[imax];					\
 	    perm[imax] = index;						\
 	    								\
-	    (*s)++;							\
+	    ss++;							\
 	  }								\
 									\
         for (size_t j = i + 1 ; j < n ; j++)				\
@@ -344,6 +345,8 @@
 	  }								\
       }									\
 									\
+    *s = ss;								\
+    									\
     return 0;								\
   }									\
 									\
