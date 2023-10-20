@@ -305,7 +305,6 @@
 			   size_t perm[m], size_t *s)			\
   {									\
     /* https://en.wikipedia.org/wiki/LU_decomposition */		\
-    /* TODO: test */							\
     size_t ss = 0;							\
     									\
     ALG_INIT_V(m, perm, i);						\
@@ -336,11 +335,11 @@
 	    ss++;							\
 	  }								\
 									\
-        for (size_t j = i + 1 ; j < n ; j++)				\
+        for (size_t j = i + 1 ; j < m ; j++)				\
 	  {								\
             A[perm[j]][i] /= A[perm[i]][i];				\
 									\
-            for (size_t k = i + 1 ; k < m ; k++)			\
+            for (size_t k = i + 1 ; k < n ; k++)			\
 	      A[perm[j]][k] -= A[perm[j]][i] * A[perm[i]][k];		\
 	  }								\
       }									\
