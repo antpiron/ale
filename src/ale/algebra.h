@@ -43,7 +43,8 @@
   int alg_LUP_pivoting##SUFFIX(size_t m, size_t n,			\
 			       TYPE A[m][n],				\
 			       size_t perm[m], size_t *s);		\
-  									\
+  TYPE alg_det##SUFFIX(size_t n, const TYPE A[n][n]);			\
+									\
   int alg_AX_B_solve##SUFFIX(size_t n, size_t p, TYPE A[n][n], TYPE B[n][p], TYPE X[n][p]); \
 									\
   struct alg_ols##SUFFIX						\

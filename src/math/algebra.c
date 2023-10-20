@@ -349,6 +349,30 @@
     return 0;								\
   }									\
 									\
+  TYPE									\
+  alg_det##SUFFIX(size_t n, const TYPE A[n][n])				\
+  {									\
+    struct mem_pool pool;					        \
+    mem_init_size(&pool, sizeof(TYPE) * n * n + sizeof(size_t) * n);	\
+    TYPE (*A_cpy)[n] = mem_malloc(&pool, sizeof(TYPE) * n * n);		\
+    size_t *perm = mem_malloc(&pool, sizeof(size_t) * n);		\
+    size_t s;								\
+    TYPE det = 1.0;							\
+									\
+    memcpy(A_cpy, A, sizeof(TYPE) * n * n);				\
+									\
+    int ret = alg_LUP_pivoting##SUFFIX(n, n, A_cpy, perm, &s);		\
+    if (0 != ret)							\
+      return 0.0;							\
+									\
+    for (size_t i = 0 ; i < n ; i++)					\
+      det *= A_cpy[perm[i]][i];						\
+									\
+    mem_destroy(&pool);							\
+									\
+    return (0 == (s % 2)) ? det : -det;					\
+  }									\
+									\
   int									\
   alg_AX_B_solve##SUFFIX(size_t n, size_t p, TYPE A[n][n], TYPE B[n][p], TYPE X[n][p]) \
   {									\
