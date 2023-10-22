@@ -344,7 +344,8 @@
 	  }								\
       }									\
 									\
-    *s = ss;								\
+    if (NULL != s)							\
+      *s = ss;								\
     									\
     return 0;								\
   }									\

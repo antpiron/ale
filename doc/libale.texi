@@ -46,6 +46,7 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 * Stringutils::
 * Process::
 * Statistics::
+* Algebra::
 * Index::                       Complete index.
 
 
@@ -1112,18 +1113,184 @@ Generate normaly distributed random variate.
 
 @subsection Student distribution
 
-@deftypefn {C Function} long double stats_student_randl (long double df);
+@deftypefn {C Function} {long double} stats_student_randl (long double df);
 @end deftypefn
 @deftypefn {C Function} double stats_student_rand (double df);
 @end deftypefn
 
-@deftypefn {C Function} long double stats_student_Fl(long double x, long double df)
+@deftypefn {C Function} {long double} stats_student_Fl(long double x, long double df)
 @end deftypefn
 @deftypefn {C Function} double stats_student_F (double x, double df)
 @end deftypefn
 
+@node Algebra, Statistics, Index, Top
+@chapter Algebra
 
-@node Index,  , Statistics, Top
+@section Base functions
+
+@deftypefn {C Function} {long double*} alg_add_v_vl (size_t @var{n}, long double @var{v1}[n], long double @var{v2}[n], long double @var{res}[n]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_add_v_v (size_t @var{n}, double @var{v1}[n], double @var{v2}[n], double @var{res}[n]);
+
+Add vectors @var{v1} and @var{v2} and store the result in @var{res}. Return a pointer to the result array.
+@end deftypefn
+
+@deftypefn {C Function} {long double*} alg_sub_v_vl (size_t @var{n}, long double @var{v1}[n], long double @var{v2}[n], long double @var{res}[n]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_sub_v_v (size_t @var{n}, double @var{v1}[n], double @var{v2}[n], double @var{res}[n]);
+
+Substract vectors @var{v2} to @var{v1} and store the result in @var{res}. Return a pointer to the result array.
+@end deftypefn
+
+@deftypefn {C Function} {long double*} alg_mul_v_cl(size_t @var{n}, const long double @var{vec}[n], long double @var{d}, long double @var{res}[n]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_mul_v_c(size_t @var{n}, const double @var{vec}[n], double @var{d}, double @var{res}[n]);
+@end deftypefn
+
+@deftypefn {C Function} {long double*} alg_mul_m_vl(size_t @var{m}, size_t @var{n}, const long double @var{A}[m][n], const long double @var{vec}[n], long double @var{res}[n]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_mul_m_v(size_t @var{m}, size_t @var{n}, const double @var{A}[m][n], const double @var{vec}[n], double @var{res}[n]);
+@end deftypefn
+
+@deftypefn {C Function} {long double*} alg_div_v_cl(size_t @var{n}, const long double @var{vec}[n], long double @var{d}, long double @var{res}[n]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_div_v_c(size_t @var{n}, const double @var{vec}[n], double @var{d}, double @var{res}[n]);
+@end deftypefn
+
+@deftypefn {C Function} {long double*} alg_opposite_vl(size_t @var{n}, long double @var{v}[n], long double @var{res}[n]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_opposite_v(size_t @var{n}, double @var{v}[n], double @var{res}[n]);
+@end deftypefn
+
+@deftypefn {C Function} {long double*} alg_mul_m_vl(size_t @var{m}, size_t @var{n}, const long double @var{A}[m][n], const long double @var{vec}[n], long double @var{res}[n]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_mul_m_v(size_t @var{m}, size_t @var{n}, const double @var{A}[m][n], const double @var{vec}[n], double @var{res}[n]);
+@end deftypefn
+
+@deftypefn {C Function} {long double*} alg_identity_initl(size_t @var{m}, size_t @var{n}, long double @var{A}[m][n]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_identity_init(size_t @var{m}, size_t @var{n}, double @var{A}[m][n]);
+@end deftypefn
+
+@deftypefn {C Function} {long double*} alg_transposel(size_t @var{m}, size_t @var{n}, const long double @var{A}[m][n], long double @var{res}[n][m]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_transpose(size_t @var{m}, size_t @var{n}, const double @var{A}[m][n], double @var{res}[n][m]);
+@end deftypefn
+
+@deftypefn {C Function} {long double*} alg_mul_m_ml(size_t @var{m}, size_t @var{n}, size_t @var{p}, const long double @var{A}[m][n], const long double @var{B}[n][p], long double @var{res}[m][p]);
+@end deftypefn
+@deftypefn {C Function} {double*} alg_mul_m_m(size_t @var{m}, size_t @var{n}, size_t @var{p}, const double @var{A}[m][n], const double @var{B}[n][p], double @var{res}[m][p]);
+@end deftypefn
+
+@deftypefn {C Function} {long double} alg_norml(size_t @var{n}, const long double @var{vec}[n]);
+@end deftypefn
+@deftypefn {C Function} double alg_norm(size_t @var{n}, const double @var{vec}[n]);
+@end deftypefn
+
+@deftypefn {C Function} {long double} alg_dotl(size_t @var{n}, const long double @var{v1}[n], const long double @var{v2}[n]);
+@end deftypefn
+@deftypefn {C Function} double alg_dot(size_t @var{n}, const double @var{v1}[n], const double @var{v2}[n]);
+@end deftypefn
+
+@section Determinants
+
+@deftypefn {C Function} {long double} alg_detl(size_t @var{n}, const long double @var{A}[n][n]);
+@end deftypefn
+@deftypefn {C Function} double alg_det(size_t @var{n}, const double @var{A}[n][n]);
+@end deftypefn
+
+@deftypefn {C Function} {long double} alg_symmetric_definite_detl(size_t @var{n}, const long double @var{A}[n][n]);
+@end deftypefn
+@deftypefn {C Function} double alg_symmetric_definite_det(size_t @var{n}, const double @var{A}[n][n]);
+@end deftypefn
+
+
+@section Linear system functions
+
+@deftypefn {C Function} int alg_UX_B_solvel(size_t @var{n}, size_t @var{p}, const long double @var{U}[n][n], const long double @var{B}[n][p], long double @var{X}[n][p]);
+@end deftypefn
+@deftypefn {C Function} int alg_UX_B_solve(size_t @var{n}, size_t @var{p}, const double @var{U}[n][n], const double @var{B}[n][p], double @var{X}[n][p]);
+@end deftypefn
+
+@deftypefn {C Function} int alg_LX_B_solvel(size_t @var{n}, size_t @var{p}, const long double @var{L}[n][n], const long double @var{B}[n][p], long double @var{X}[n][p]);
+@end deftypefn
+@deftypefn {C Function} int alg_LX_B_solve(size_t @var{n}, size_t @var{p}, const double @var{L}[n][n], const double @var{B}[n][p], double @var{X}[n][p]);
+@end deftypefn
+
+@deftypefn {C Function} int alg_U_inversel(size_t @var{n}, const long double @var{U}[n][n], long double @var{X}[n][n]);
+@end deftypefn
+@deftypefn {C Function} int alg_U_inverse(size_t @var{n}, const double @var{U}[n][n], double @var{X}[n][n]);
+@end deftypefn
+
+@deftypefn {C Function} int alg_L_inversel(size_t @var{n}, const long double @var{L}[n][n], long double @var{X}[n][n]);
+@end deftypefn
+@deftypefn {C Function} int alg_L_inverse(size_t @var{n}, const double @var{L}[n][n], double @var{X}[n][n]);
+@end deftypefn
+
+@deftypefn {C Function} int alg_symmetric_definite_invl(size_t @var{n}, const long double @var{A}[n][n], long double @var{X}[n][n]);
+@end deftypefn
+@deftypefn {C Function} int alg_symmetric_definite_inv(size_t @var{n}, const double @var{A}[n][n], double @var{X}[n][n]);
+@end deftypefn
+
+@deftypefn {C Function} int alg_AX_B_solvel(size_t @var{n}, size_t @var{p}, long double @var{A}[n][n], long double @var{B}[n][p], long double @var{X}[n][p]);
+@end deftypefn
+@deftypefn {C Function} int alg_AX_B_solve(size_t @var{n}, size_t @var{p}, double @var{A}[n][n], double @var{B}[n][p], double @var{X}[n][p]);
+@end deftypefn
+
+@deftypefn {C Function} int alg_AX_B_OLS_initl(struct alg_ols @var{*ols}, size_t @var{m}, size_t @var{n}, size_t @var{p}, long double @var{A}[m][n], long double @var{B}[m][p], long double @var{(*X)}[p]);
+@end deftypefn
+@deftypefn {C Function} int alg_AX_B_OLS_init(struct alg_ols##SUFFIX @var{*ols}, size_t @var{m}, size_t @var{n}, size_t @var{p}, double @var{A}[m][n], double @var{B}[m][p], double @var{(*X)}[p]);
+@end deftypefn
+
+@deftypefn {C Function} int alg_AX_B_OLS_solvel(size_t @var{m}, size_t @var{n}, size_t @var{p}, long double @var{A}[m][n], long double @var{B}[m][p], long double @var{X}[n][p]);
+@end deftypefn
+
+@deftypefn {C Function} int alg_AX_B_OLS_solve(size_t @var{m}, size_t @var{n}, size_t @var{p}, double @var{A}[m][n], double @var{B}[m][p], double @var{X}[n][p]);
+@end deftypefn
+
+
+@deftypefn {C Function} void print_ml(size_t @var{m}, size_t @var{n}, const long double @var{A}[m][n]);
+@end deftypefn
+@deftypefn {C Function} void print_m(size_t @var{m}, size_t @var{n}, const double @var{A}[m][n]);
+@end deftypefn
+
+@deftypefn {C Function} void print_vl(size_t @var{n}, const long double @var{v}[n]);
+@end deftypefn
+@deftypefn {C Function} void print_v(size_t @var{n}, const double @var{v}[n]);
+@end deftypefn
+
+
+@section Decompositions
+
+@deftypefn {C Function} int alg_LUP_pivotingl(size_t @var{m}, size_t @var{n}, long double @var{A}[m][n], size_t @var{perm}[m], size_t @var{*s});
+@end deftypefn
+@deftypefn {C Function} int alg_LUP_pivoting(size_t @var{m}, size_t @var{n}, double @var{A}[m][n], size_t @var{perm}[m], size_t @var{*s});
+@end deftypefn
+
+@deftypefn {C Function} int alg_QR_householderl(size_t @var{m}, size_t @var{n}, long double @var{A}[m][n], long double @var{V}[n][m]);
+@end deftypefn
+@deftypefn {C Function} int alg_QR_householder(size_t @var{m}, size_t @var{n}, double @var{A}[m][n], double @var{V}[n][m]);
+@end deftypefn
+
+@deftypefn {C Function} int householder_proj_QtBl(size_t @var{m}, size_t @var{n}, size_t @var{p}, long double @var{V}[n][m], long double @var{B}[m][p]);
+@end deftypefn
+@deftypefn {C Function} int householder_proj_QtB(size_t @var{m}, size_t @var{n}, size_t @var{p}, double @var{V}[n][m], double @var{B}[m][p]);
+@end deftypefn
+
+@deftypefn {C Function} int householder_proj_QXl(size_t @var{m}, size_t @var{n}, size_t @var{p}, long double @var{V}[n][m], long double @var{X}[m][p]);
+@end deftypefn
+@deftypefn {C Function} int householder_proj_QX(size_t @var{m}, size_t @var{n}, size_t @var{p}, double @var{V}[n][m], double @var{X}[m][p]);
+@end deftypefn
+
+@deftypefn {C Function} int alg_LLt_choleskyl(size_t @var{n}, const long double @var{A}[n][n], long double @var{L}[n][n]);
+@end deftypefn
+@deftypefn {C Function} int alg_LLt_cholesky(size_t @var{n}, const double @var{A}[n][n], double @var{L}[n][n]);
+@end deftypefn
+
+
+
+
+@node Index,  , Algebra, Top
 @unnumbered Index
      
 @printindex fn
