@@ -148,6 +148,7 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
 	  void  *val = NULL;
 	  if (NULL != action->reduce.callback)
 	    {
+	      // TODO: allocate dynamicaly
 	      void* ptr[action->reduce.rhs_n];
 	      struct stack_elem *elems = stack_topn(&stack, action->reduce.rhs_n);
 
