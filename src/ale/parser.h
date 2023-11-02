@@ -1,0 +1,133 @@
+#ifndef __PARSER_H
+#define __PARSER_H
+
+#include <stdlib.h>
+#include <stddef.h>
+#include <ale/memory.h>
+#include <ale/stringutils.h>
+
+
+/* ============ */
+/* Grammar */
+
+enum { PARSER_GRAMMAR_EOR, PARSER_GRAMMAR_STR, PARSER_GRAMMAR_REGEX, PARSER_GRAMMAR_NONTERMINAL };
+
+struct parser_terminal_string
+{
+  char *str;
+};
+
+struct parser_terminal_regex
+{
+  char *str;
+};
+
+struct parser_rule;
+struct parser_nonterminal
+{
+  struct parser_rule *rule;
+};
+
+
+struct parser_grammar_node
+{
+  int type;
+  union
+  {
+    struct parser_terminal_string string;
+    struct parser_terminal_regex regex;
+    struct parser_nonterminal terminal;
+  };
+};
+
+struct parser_rule_rhs
+{
+  size_t n;
+  struct parser_grammar_node *node;
+};
+
+struct parser_rule
+{
+  struct string name;
+  size_t n;
+  struct parser_rule_rhs *rhs;
+};
+
+struct parser_grammar
+{
+  size_t n;
+  struct parser_rule *rules;
+};
+
+struct parser_rule_item
+{
+  struct parser_rule *rule;
+  size_t dot;
+  size_t n;
+  int *follow;
+};
+
+
+/* ============ */
+/* Shift-Reduce automata */
+
+enum {
+  PARSER_ACTION_ERROR,
+  PARSER_ACTION_SHIFT,
+  PARSER_ACTION_REDUCE,
+  PARSER_ACTION_ACCEPT
+};
+
+enum {
+  PARSER_TOKEN_EOF,
+  PARSER_TOKEN_STRING,
+  PARSER_TOKEN_REGEX
+};
+
+struct parser_shift_action
+{
+  size_t next_state;
+};
+
+struct parser_reduce_action
+{
+  size_t lhs;
+  size_t rhs_n;
+  void* (*callback)(size_t n, void* rhs[n]);
+};
+
+struct parser_action
+{
+  int type;
+  union
+  {
+    struct parser_shift_action shift;
+    struct parser_reduce_action reduce;
+  };
+};
+
+void parser_shift_init(struct parser_action *pa, size_t next_state);
+struct parser_action* parser_shift_new(size_t next_state);
+struct parser_action* parser_shift_pool_new(struct mem_pool *pool, size_t next_state);
+
+
+struct parser_token
+{
+  int id;
+  char *str;
+};
+
+struct parser_shift_reduce
+{
+  size_t **goto_table;
+  struct parser_action **action_table;
+  void *cls;
+  struct parser_token* (*next_token)(size_t state, void *cls);
+};
+
+
+enum { PARSER_ERROR_EMPTY_STACK = 1 };
+
+void* parser_shift_reduce(struct parser_shift_reduce *sr);
+
+#endif
