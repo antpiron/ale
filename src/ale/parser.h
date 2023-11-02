@@ -119,9 +119,9 @@ struct parser_token
 
 struct parser_shift_reduce
 {
-  size_t **goto_table;
-  struct parser_action **action_table;
   void *cls;
+  ssize_t (*goto_table)(size_t state, size_t lhs, void *cls);
+  struct parser_action* (*action_table)(size_t state, size_t token, void *cls);
   struct parser_token* (*next_token)(size_t state, void *cls);
 };
 

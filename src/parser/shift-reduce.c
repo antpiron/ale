@@ -134,7 +134,7 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
       
       ERROR_CUSTOM_RET(NULL == top, PARSER_ERROR_EMPTY_STACK, NULL);
 
-      struct parser_action *action = &sr->action_table[top->state][token->id];
+      struct parser_action *action = sr->action_table(top->state, token->id, sr->cls);
       switch (action->type)
 	{
 	case PARSER_ACTION_SHIFT:
@@ -160,7 +160,7 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
 	  stack_popn(&stack, action->reduce.rhs_n);
 	  top = stack_top(&stack);
 	  ERROR_CUSTOM_RET(NULL == top, PARSER_ERROR_EMPTY_STACK, NULL);
-	  stack_push(&stack, (struct stack_elem) { .state = sr->goto_table[top->state][action->reduce.lhs], .value = val} );
+	  stack_push(&stack, (struct stack_elem) { .state = sr->goto_table(top->state, action->reduce.lhs, sr->cls), .value = val} );
 	  
 	  break;
 	  
