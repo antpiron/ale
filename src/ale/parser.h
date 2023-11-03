@@ -72,7 +72,7 @@ struct parser_rule_item
 
 struct lexer_token
 {
-  int id;
+  size_t id;
   char *str;
 };
 
