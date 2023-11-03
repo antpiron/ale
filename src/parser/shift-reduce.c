@@ -5,11 +5,26 @@
 
 
 
+inline
 void
 parser_shift_init(struct parser_action *pa, size_t next_state)
 {
   pa->type = PARSER_ACTION_SHIFT; 
   pa->shift.next_state = next_state;
+}
+
+inline
+void
+parser_shift_destroy(__attribute__((unused)) struct parser_action *pa)
+{
+
+}
+
+void
+parser_shift_free(struct parser_action *pa)
+{
+  parser_shift_destroy(pa);
+  free(pa);
 }
 
 struct parser_action*
@@ -30,6 +45,16 @@ parser_shift_pool_new(struct mem_pool *pool, size_t next_state)
   parser_shift_init(pa,  next_state);
 
   return pa;
+}
+
+inline
+void
+parser_reduce_init(struct parser_action *pa, size_t lhs, size_t rhs_n, void* (*callback)(size_t n, void* rhs[n]))
+{
+  pa->type = PARSER_ACTION_REDUCE;
+  pa->reduce.lhs = lhs;
+  pa->reduce.rhs_n = rhs_n;
+  pa->reduce.callback = callback;
 }
 
 
@@ -120,7 +145,7 @@ void*
 parser_shift_reduce(struct parser_shift_reduce *sr)
 {
   struct stack stack;
-  struct parser_token *token;
+  struct lexer_token *token;
   void *ret = NULL;
   
   stack_init(&stack);
@@ -158,9 +183,12 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
 	      val = action->reduce.callback(action->reduce.rhs_n, ptr);
 	    }
 	  
-	  stack_popn(&stack, action->reduce.rhs_n);
+	  int err = stack_popn(&stack, action->reduce.rhs_n);
+	  ERROR_CUSTOM_GOTO(err < 0, PARSER_ERROR_STACK_TOO_SMALL, OUT_OF_LOOP);
+	  
 	  top = stack_top(&stack);
-	  ERROR_CUSTOM_RET(NULL == top, PARSER_ERROR_EMPTY_STACK, NULL);
+	  ERROR_CUSTOM_GOTO(NULL == top, PARSER_ERROR_EMPTY_STACK, OUT_OF_LOOP);
+	  
 	  stack_push(&stack, (struct stack_elem) { .state = sr->goto_table(top->state, action->reduce.lhs, sr->cls), .value = val} );
 	  
 	  break;

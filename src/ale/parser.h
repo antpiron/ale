@@ -67,6 +67,15 @@ struct parser_rule_item
   int *follow;
 };
 
+/* ============ */
+/* Lexer */
+
+struct lexer_token
+{
+  int id;
+  char *str;
+};
+
 
 /* ============ */
 /* Shift-Reduce automata */
@@ -107,26 +116,24 @@ struct parser_action
 };
 
 void parser_shift_init(struct parser_action *pa, size_t next_state);
+void parser_shift_destroy(struct parser_action *pa);
+void parser_shift_free(struct parser_action *pa);
 struct parser_action* parser_shift_new(size_t next_state);
 struct parser_action* parser_shift_pool_new(struct mem_pool *pool, size_t next_state);
 
-
-struct parser_token
-{
-  int id;
-  char *str;
-};
+void* parser_tree_callback(size_t n, void* rhs[n]);
+void parser_reduce_init(struct parser_action *pa, size_t lhs, size_t rhs_n, void* (*callback)(size_t n, void* rhs[n]));
 
 struct parser_shift_reduce
 {
   void *cls;
   ssize_t (*goto_table)(size_t state, size_t lhs, void *cls);
   struct parser_action* (*action_table)(size_t state, size_t token, void *cls);
-  struct parser_token* (*next_token)(size_t state, void *cls);
+  struct lexer_token* (*next_token)(size_t state, void *cls);
 };
 
 
-enum { PARSER_ERROR_EMPTY_STACK = 1 };
+enum { PARSER_ERROR_EMPTY_STACK = 1, PARSER_ERROR_STACK_TOO_SMALL };
 
 void* parser_shift_reduce(struct parser_shift_reduce *sr);
 
