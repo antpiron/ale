@@ -36,7 +36,8 @@ check_PROGRAMS = t-alg-ax-b-ols-solve t-alg-ax-b-ols-solve-full t-alg-ax-b-solve
 	t-stats-sd t-stats-shuffle t-stats-student-F t-stats-student-rand \
 	t-stats-t-test t-stats-t-test-paired t-stats-t-test-welch t-stats-unif-F t-stats-unif-rand t-stats-unif-std-F \
 	t-stats-unif-std-rand t-stats-var t-strjoin t-strtolower t-unlink-path t-vector t-vla-string t-vla-string-split \
-	t-stats-entropy
+	t-stats-entropy \
+	t-shift-reduce
 
 TESTS = $(check_PROGRAMS)
 

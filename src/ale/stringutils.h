@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/types.h>
-#include "ale/error.h"
+#include <ale/error.h>
 
 char* strjoin(const char *sep, const char **str); 
 void strtolower(char *dst, const char *src); 
@@ -33,6 +33,7 @@ void string_free(struct string *string);
 // Internal usage
 static inline void string_resize(struct string *dst, size_t len);
 
+// Main functions
 int string_set(struct string *dst, const char *str);
 int string_append(struct string *dst, struct string *src);
 int string_append_c(struct string *dst, const char *src);

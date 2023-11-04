@@ -126,6 +126,7 @@ void parser_reduce_init(struct parser_action *pa, size_t lhs, size_t rhs_n, void
 
 struct parser_shift_reduce
 {
+  struct mem_pool pool;
   void *cls;
   ssize_t (*goto_table)(size_t state, size_t lhs, void *cls);
   struct parser_action* (*action_table)(size_t state, size_t token, void *cls);
@@ -134,6 +135,13 @@ struct parser_shift_reduce
 
 
 enum { PARSER_ERROR_EMPTY_STACK = 1, PARSER_ERROR_STACK_TOO_SMALL };
+
+void parser_shift_reduce_init(struct parser_shift_reduce *sr,
+			      ssize_t (*goto_table)(size_t state, size_t lhs, void *cls),
+			      struct parser_action* (*action_table)(size_t state, size_t token, void *cls),
+			      struct lexer_token* (*next_token)(size_t state, void *cls),
+			      void *cls);
+void parser_shift_reduce_destroy(struct parser_shift_reduce *sr);
 
 void* parser_shift_reduce(struct parser_shift_reduce *sr);
 

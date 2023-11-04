@@ -2,6 +2,8 @@
 #include "ale/vector.h"
 #include "ale/parser.h"
 #include "ale/error.h"
+#include "ale/stringutils.h"
+#include "ale/memory.h"
 
 
 
@@ -64,7 +66,7 @@ struct stack_elem
   void *value;
 };
 
-VECTOR_INIT_FULL(stack, struct stack_elem, sizeof(struct stack_elem) * (1u << 16));
+VECTOR_INIT_FULL(stack, struct stack_elem, (1u << 16));
 
 struct stack
 {
@@ -141,14 +143,38 @@ stack_popn(struct stack *stack, size_t n)
 /*    else error(); */
 /* } */
 
+void parser_shift_reduce_init(struct parser_shift_reduce *sr,
+			      ssize_t (*goto_table)(size_t state, size_t lhs, void *cls),
+			      struct parser_action* (*action_table)(size_t state, size_t token, void *cls),
+			      struct lexer_token* (*next_token)(size_t state, void *cls),
+			      void *cls)
+{
+  mem_init(&sr->pool);
+  sr->goto_table = goto_table;
+  sr->action_table = action_table;
+  sr->next_token = next_token;
+  sr->cls = cls;
+}
+
+void
+parser_shift_reduce_destroy(struct parser_shift_reduce *sr)
+{
+  mem_destroy(&sr->pool);
+}
+
+VECTOR_INIT_FULL(voidptr, void*, (1u << 5));
+
+
 void*
 parser_shift_reduce(struct parser_shift_reduce *sr)
 {
   struct stack stack;
   struct lexer_token *token;
   void *ret = NULL;
+  struct vector_voidptr voidptr;
   
   stack_init(&stack);
+  vector_voidptr_init(&voidptr);
 
   stack_push(&stack, (struct stack_elem) {.state = 0} );
   token = sr->next_token(0, sr->cls); 
@@ -163,8 +189,12 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
       switch (action->type)
 	{
 	case PARSER_ACTION_SHIFT:
+	  size_t alloc_size = sizeof(char) * (strlen(token->str) + 1);
+	  char *str = mem_malloc(&sr->pool, alloc_size);
+	  memcpy(str, token->str, alloc_size);
 	  
-	  stack_push(&stack, (struct stack_elem) { .state = action->shift.next_state, .value = token->str });
+	  stack_push(&stack, (struct stack_elem) { .state = action->shift.next_state,
+						   .value = str});
 	  token = sr->next_token(top->state, sr->cls);
 	  
 	  break;
@@ -173,14 +203,12 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
 	  void  *val = NULL;
 	  if (NULL != action->reduce.callback)
 	    {
-	      // TODO: allocate dynamicaly
-	      void* ptr[action->reduce.rhs_n];
 	      struct stack_elem *elems = stack_topn(&stack, action->reduce.rhs_n);
 
 	      for (size_t i = 0 ; i <  action->reduce.rhs_n ; i++)
-		ptr[i] = elems[i].value;
+		vector_voidptr_set(&voidptr, i, elems[i].value);
 	      
-	      val = action->reduce.callback(action->reduce.rhs_n, ptr);
+	      val = action->reduce.callback(action->reduce.rhs_n, voidptr.data);
 	    }
 	  
 	  int err = stack_popn(&stack, action->reduce.rhs_n);
@@ -189,7 +217,9 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
 	  top = stack_top(&stack);
 	  ERROR_CUSTOM_GOTO(NULL == top, PARSER_ERROR_EMPTY_STACK, OUT_OF_LOOP);
 	  
-	  stack_push(&stack, (struct stack_elem) { .state = sr->goto_table(top->state, action->reduce.lhs, sr->cls), .value = val} );
+	  stack_push(&stack,
+		     (struct stack_elem) { .state = sr->goto_table(top->state, action->reduce.lhs, sr->cls),
+					   .value = val } );
 	  
 	  break;
 	  
@@ -207,6 +237,7 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
 
  OUT_OF_LOOP:
   stack_destroy(&stack);
-  
+  vector_voidptr_destroy(&voidptr);
+
   return ret;
 }
