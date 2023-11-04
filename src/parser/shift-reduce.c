@@ -183,7 +183,7 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
     {
       struct stack_elem *top = stack_top(&stack);
       
-      ERROR_CUSTOM_RET(NULL == top, PARSER_ERROR_EMPTY_STACK, NULL);
+      ERROR_CUSTOM_GOTO(NULL == top, PARSER_ERROR_EMPTY_STACK, OUT_OF_LOOP);
 
       struct parser_action *action = sr->action_table(top->state, token->id, sr->cls);
       switch (action->type)
