@@ -68,6 +68,7 @@ struct parser_grammar_node* grammar_node_string(char *str);
 struct parser_grammar_node* grammar_node_nonterminal(size_t id);
 
 ssize_t grammar_add_rule(struct parser_grammar *g, size_t lhs, ...);
+ssize_t grammar_set_start(struct parser_grammar *g, size_t lhs);
 
 /* ============ */
 /* Lexer */
