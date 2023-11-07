@@ -52,12 +52,20 @@ struct parser_grammar
   struct parser_rule *rules;
 };
 
-struct parser_rule_item
+struct parser_item
 {
-  struct parser_rule *rule;
+  size_t rule;
   size_t dot;
   size_t n;
-  int *follow;
+  size_t *follow;
+};
+
+struct parser_item_set
+{
+  size_t n;
+  struct parser_item *item;
+  size_t n_next;
+  struct parser_item_set **next;
 };
 
 void grammar_init(struct parser_grammar *g);
@@ -69,6 +77,9 @@ struct parser_grammar_node* grammar_node_nonterminal(size_t id);
 
 ssize_t grammar_add_rule(struct parser_grammar *g, size_t lhs, ...);
 ssize_t grammar_set_start(struct parser_grammar *g, size_t lhs);
+
+
+// grammar_item_first(struct parser_grammar *g, struct parser_item);
 
 /* ============ */
 /* Lexer */
