@@ -60,6 +60,15 @@ struct parser_rule_item
   int *follow;
 };
 
+void grammar_init(struct parser_grammar *g);
+void grammar_destroy(struct parser_grammar *g);
+
+struct parser_grammar_node* grammar_node_regex(char *regex);
+struct parser_grammar_node* grammar_node_string(char *str);
+struct parser_grammar_node* grammar_node_nonterminal(size_t id);
+
+ssize_t grammar_add_rule(struct parser_grammar *g, size_t lhs, ...);
+
 /* ============ */
 /* Lexer */
 
