@@ -22,13 +22,6 @@ struct parser_terminal_regex
   char *str;
 };
 
-struct parser_rule;
-struct parser_nonterminal
-{
-  struct parser_rule *rule;
-};
-
-
 struct parser_grammar_node
 {
   int type;
@@ -36,7 +29,7 @@ struct parser_grammar_node
   {
     struct parser_terminal_string string;
     struct parser_terminal_regex regex;
-    struct parser_nonterminal terminal;
+    size_t nonterminal;
   };
 };
 
