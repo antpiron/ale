@@ -51,7 +51,8 @@ parser_shift_pool_new(struct mem_pool *pool, size_t next_state)
 
 inline
 void
-parser_reduce_init(struct parser_action *pa, size_t lhs, size_t rhs_n, void* (*callback)(size_t n, void* rhs[n]))
+parser_reduce_init(struct parser_action *pa, size_t lhs, size_t rhs_n,
+		   void* (*callback)(size_t n, void* rhs[n], void *cls))
 {
   pa->type = PARSER_ACTION_REDUCE;
   pa->reduce.lhs = lhs;
@@ -146,14 +147,12 @@ stack_popn(struct stack *stack, size_t n)
 void parser_shift_reduce_init(struct parser_shift_reduce *sr,
 			      ssize_t (*goto_table)(size_t state, size_t lhs, void *cls),
 			      struct parser_action* (*action_table)(size_t state, size_t token, void *cls),
-			      struct lexer_token* (*next_token)(size_t state, void *cls),
-			      void *cls)
+			      struct lexer_token* (*next_token)(size_t state, void *cls))
 {
   mem_init(&sr->pool);
   sr->goto_table = goto_table;
   sr->action_table = action_table;
   sr->next_token = next_token;
-  sr->cls = cls;
 }
 
 void
@@ -165,42 +164,43 @@ parser_shift_reduce_destroy(struct parser_shift_reduce *sr)
 VECTOR_INIT_FULL(voidptr, void*, (1u << 5));
 
 
-void*
-parser_shift_reduce(struct parser_shift_reduce *sr)
+int
+parser_shift_reduce(struct parser_shift_reduce *sr, void *value, void *cls)
 {
   struct stack stack;
   struct lexer_token *token;
-  void *ret = NULL;
+  int ret = -1;
   struct vector_voidptr voidptr;
-  
+
+  value = NULL;
   stack_init(&stack);
   vector_voidptr_init(&voidptr);
 
   stack_push(&stack, (struct stack_elem) {.state = 0} );
-  token = sr->next_token(0, sr->cls); 
+  token = sr->next_token(0, cls); 
 
   while (1)
     {
       struct stack_elem *top = stack_top(&stack);
       
-      ERROR_CUSTOM_GOTO(NULL == top, PARSER_ERROR_EMPTY_STACK, OUT_OF_LOOP);
+      ERROR_CUSTOM_GOTO(NULL == top, PARSER_ERROR_EMPTY_STACK, ERROR_OUT_OF_LOOP);
 
-      struct parser_action *action = sr->action_table(top->state, token->id, sr->cls);
+      struct parser_action *action = sr->action_table(top->state, token->id, cls);
       switch (action->type)
 	{
 	case PARSER_ACTION_SHIFT:
 	  size_t alloc_size = sizeof(char) * (strlen(token->str) + 1);
 	  char *str = mem_malloc(&sr->pool, alloc_size);
 	  memcpy(str, token->str, alloc_size);
-	  
+
 	  stack_push(&stack, (struct stack_elem) { .state = action->shift.next_state,
 						   .value = str});
-	  token = sr->next_token(top->state, sr->cls);
-	  
+	  token = sr->next_token(top->state, cls);
+
+	  // printf("%zu: S%zu <<< %s\n", top->state, action->shift.next_state, str);
 	  break;
 	  
 	case PARSER_ACTION_REDUCE:
-	  void  *val = NULL;
 	  if (NULL != action->reduce.callback)
 	    {
 	      struct stack_elem *elems = stack_topn(&stack, action->reduce.rhs_n);
@@ -208,33 +208,41 @@ parser_shift_reduce(struct parser_shift_reduce *sr)
 	      for (size_t i = 0 ; i <  action->reduce.rhs_n ; i++)
 		vector_voidptr_set(&voidptr, i, elems[i].value);
 	      
-	      val = action->reduce.callback(action->reduce.rhs_n, voidptr.data);
+	      value = action->reduce.callback(action->reduce.rhs_n, voidptr.data, cls);
 	    }
 	  
 	  int err = stack_popn(&stack, action->reduce.rhs_n);
-	  ERROR_CUSTOM_GOTO(err < 0, PARSER_ERROR_STACK_TOO_SMALL, OUT_OF_LOOP);
+	  ERROR_CUSTOM_GOTO(err < 0, PARSER_ERROR_STACK_TOO_SMALL, ERROR_OUT_OF_LOOP);
+
+	  // printf("%zu: R%zu goto ", top->state, action->reduce.lhs);
 	  
 	  top = stack_top(&stack);
-	  ERROR_CUSTOM_GOTO(NULL == top, PARSER_ERROR_EMPTY_STACK, OUT_OF_LOOP);
-	  
+	  ERROR_CUSTOM_GOTO(NULL == top, PARSER_ERROR_EMPTY_STACK, ERROR_OUT_OF_LOOP);
+
+	  ssize_t goto_dst = sr->goto_table(top->state, action->reduce.lhs, cls);
+	  ERROR_CUSTOM_GOTO(goto_dst < 0, PARSER_ERROR_REDUCE, ERROR_OUT_OF_LOOP);
 	  stack_push(&stack,
-		     (struct stack_elem) { .state = sr->goto_table(top->state, action->reduce.lhs, sr->cls),
-					   .value = val } );
-	  
+		     (struct stack_elem) { .state = goto_dst,
+					   .value = value } );
+	  // printf("%zu\n", goto_dst);
 	  break;
 	  
 	case PARSER_ACTION_ACCEPT:
-	  ret = top->value;
+	  ret = 0;
+	  value = top->value;
 	  goto OUT_OF_LOOP;
 	  
 	  break;
 
 	default:
-	  ret = NULL;
-	  goto OUT_OF_LOOP;
+	  // ret = -1;
+	  ERROR_CUSTOM_GOTO(1, PARSER_ERROR, ERROR_OUT_OF_LOOP);
 	}
     }
 
+ ERROR_OUT_OF_LOOP:
+  ret = -1;
+  
  OUT_OF_LOOP:
   stack_destroy(&stack);
   vector_voidptr_destroy(&voidptr);

@@ -22,10 +22,16 @@
   4 	| 	 r1 	r1 	r1	|
 */
 
+enum { NT_S = 0, NT_R };
 ssize_t
 goto_table(size_t state, size_t lhs, void *cls)
 {
+  ssize_t ret = -1;
+
+  if (0 == state && NT_R == lhs)
+    return 1;
   
+  return ret;
 }
 
 
@@ -65,7 +71,7 @@ action_table(size_t state, size_t token, void *cls)
       if ( 3 == state )
 	{
 	  pa.type = PARSER_ACTION_REDUCE;
-	  pa.reduce.lhs = RULE_R_a;
+	  pa.reduce.lhs = NT_R; // RULE_R_a;
 	  pa.reduce.rhs_n = 1;
 	  pa.reduce.callback = NULL;
 	}
@@ -73,7 +79,7 @@ action_table(size_t state, size_t token, void *cls)
       if ( 4 == state )
 	{
 	  pa.type = PARSER_ACTION_REDUCE;
-	  pa.reduce.lhs = RULE_R_a;
+	  pa.reduce.lhs = NT_R; // RULE_R_a;
 	  pa.reduce.rhs_n = 2;
 	  pa.reduce.callback = NULL;
 	}
@@ -91,12 +97,13 @@ struct input
 struct lexer_token*
 next_token(size_t state, void *cls)
 {
-  static char *str = "a";
+  static char str[2] = "a";
   static struct lexer_token tok;
   struct input *in = cls;
 
   tok.str = str;
-  
+
+  // printf("%zu: %c\n", in->pos,  in->str[in->pos]);
   switch (in->str[in->pos])
     {
       
@@ -106,14 +113,31 @@ next_token(size_t state, void *cls)
       break;
 
     default:
-      tok.id = tok.str[0] =in->str[in->pos++];
+      tok.id = tok.str[0] = in->str[in->pos++];
       break;      
     }
+
+  return &tok;
 }
 
 int
 main(int argc, char *argv[argc])
 {
+  struct input in = { .pos = 0, .str = "abbbbbbbbbbbbbb" };
+  struct input in_error = { .pos = 0, .str = "abbbbbcbbbbbbbbb" };
+  struct parser_shift_reduce sr;
+  void *value;
+  int ret;
+
+  parser_shift_reduce_init(&sr, goto_table, action_table, next_token);
+
+  ret = parser_shift_reduce(&sr, value, &in);
+  ERROR_FATAL_FMT(0 != ret, "parser_shift_reduce() returner %d != 0\n", ret);
+
+  ret = parser_shift_reduce(&sr, value, &in_error);
+  ERROR_FATAL_FMT(0 == ret, "parser_shift_reduce() returner %d instead of error\n", ret);
+ 
+  parser_shift_reduce_destroy(&sr);
 
   
   return EXIT_SUCCESS;
