@@ -6,7 +6,7 @@
 #include "ale/memory.h"
 
 
-
+/*
 inline
 void
 parser_shift_init(struct parser_action *pa, size_t next_state)
@@ -60,6 +60,7 @@ parser_reduce_init(struct parser_action *pa, size_t lhs, size_t rhs_n,
   pa->reduce.callback = callback;
 }
 
+*/
 
 struct stack_elem
 {

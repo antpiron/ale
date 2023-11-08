@@ -5,51 +5,24 @@
 #include <stddef.h>
 #include <ale/memory.h>
 #include <ale/stringutils.h>
-
+#include <ale/index.h>
 
 /* ============ */
 /* Grammar */
 
-enum { PARSER_GRAMMAR_EOR, PARSER_GRAMMAR_STR, PARSER_GRAMMAR_REGEX, PARSER_GRAMMAR_NONTERMINAL };
+enum { GRAMMAR_TERMINAL, GRAMMAR_NON_TERMINAL };
 
-struct parser_terminal_string
-{
-  char *str;
-};
-
-struct parser_terminal_regex
-{
-  char *str;
-};
-
-struct parser_grammar_node
+struct grammar_node
 {
   int type;
-  union
-  {
-    struct parser_terminal_string string;
-    struct parser_terminal_regex regex;
-    size_t nonterminal;
-  };
-};
-
-struct parser_rule_rhs
-{
-  size_t n;
-  struct parser_grammar_node *node;
-};
-
-struct parser_rule
-{
-  struct string name;
-  size_t n;
-  struct parser_rule_rhs *rhs;
+  size_t index;
 };
 
 struct parser_grammar
 {
-  size_t n;
-  struct parser_rule *rules;
+  struct mem_pool pool;
+  size_t n_terminals, n_nonterminals;
+  struct index terminals, nonterminals;
 };
 
 struct parser_item
@@ -71,12 +44,21 @@ struct parser_item_set
 void grammar_init(struct parser_grammar *g);
 void grammar_destroy(struct parser_grammar *g);
 
-struct parser_grammar_node* grammar_node_regex(char *regex);
-struct parser_grammar_node* grammar_node_string(char *str);
-struct parser_grammar_node* grammar_node_nonterminal(size_t id);
+/* struct parser_grammar_node* grammar_node_regex(char *regex); */
+/* struct parser_grammar_node* grammar_node_string(char *str); */
+/* struct parser_grammar_node* grammar_node_nonterminal(size_t id); */
 
-ssize_t grammar_add_rule(struct parser_grammar *g, size_t lhs, ...);
-ssize_t grammar_set_start(struct parser_grammar *g, size_t lhs);
+ssize_t grammar_add_nonterminal(struct parser_grammar *g, const char *name);
+ssize_t grammar_add_terminal(struct parser_grammar *g, const char *str);
+
+#define G_NT(G, NAME) &(struct grammar_node) { .type = GRAMMAR_NON_TERMINAL, .index = grammar_add_nonterminal(G, NAME) }
+#define G_T(G, STR) &(struct grammar_node) { .type = GRAMMAR_TERMINAL, .index = grammar_add_terminal(G, STR) }
+
+ssize_t grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...);
+ssize_t grammar_set_start(struct parser_grammar *g, size_t lhs, size_t n, size_t follow[n]);
+ssize_t grammar_set_start_va(struct parser_grammar *g, size_t lhs, ...);
+
+
 
 
 // grammar_item_first(struct parser_grammar *g, struct parser_item);
@@ -129,6 +111,7 @@ struct parser_action
   };
 };
 
+/*
 void parser_shift_init(struct parser_action *pa, size_t next_state);
 void parser_shift_destroy(struct parser_action *pa);
 void parser_shift_free(struct parser_action *pa);
@@ -138,6 +121,7 @@ struct parser_action* parser_shift_pool_new(struct mem_pool *pool, size_t next_s
 void* parser_tree_callback(size_t n, void* rhs[n], void *cls);
 void parser_reduce_init(struct parser_action *pa, size_t lhs, size_t rhs_n,
 			void* (*callback)(size_t n, void* rhs[n], void *cls));
+*/
 
 struct parser_shift_reduce
 {
