@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "ale/error.h"
 #include "ale/parser.h"
@@ -56,6 +57,29 @@ grammar_add_nonterminal(struct parser_grammar *g, const char *name)
   return index_lookup_or_add(&g->nonterminals, name, &g->n_nonterminals);
 }
 
+
+ssize_t
+grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...)
+{
+  va_list ap;
+  struct rule rule;
   
+  rule.lhs = lhs;
+  rule.n_rhs = 0;
+
+  vector_grammar_node_init(&rule.rhs);
   
+  va_start(ap, lhs);
   
+  for (struct grammar_node *node = va_arg(ap, struct grammar_node *) ;
+       NULL != node ;
+       node = va_arg(ap, struct grammar_node *) )
+    {
+      vector_grammar_node_set(&rule.rhs, rule.n_rhs, *node);
+    }
+  
+  va_end(ap);
+
+  return 0;
+}
+

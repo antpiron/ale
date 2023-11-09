@@ -6,6 +6,7 @@
 #include <ale/memory.h>
 #include <ale/stringutils.h>
 #include <ale/index.h>
+#include <ale/vector.h>
 
 /* ============ */
 /* Grammar */
@@ -18,6 +19,15 @@ struct grammar_node
   size_t index;
 };
 
+VECTOR_INIT(grammar_node, struct grammar_node)
+
+struct rule
+{
+  size_t lhs;
+  size_t n_rhs;
+  struct vector_grammar_node rhs;
+};
+  
 struct parser_grammar
 {
   struct mem_pool pool;
