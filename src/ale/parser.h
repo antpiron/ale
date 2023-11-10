@@ -7,6 +7,7 @@
 #include <ale/stringutils.h>
 #include <ale/index.h>
 #include <ale/vector.h>
+#include <ale/symbols.h>
 
 /* ============ */
 /* Grammar */
