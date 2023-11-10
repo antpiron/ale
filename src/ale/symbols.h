@@ -28,7 +28,7 @@ struct ale_symbols
 };
 
 void ale_symbols_init(struct ale_symbols *s);
-struct ale_symbols* ale_symbols_init();
+struct ale_symbols* ale_symbols_new();
 void ale_symbols_destroy(struct ale_symbols *s);
 void ale_symbols_free(struct ale_symbols *s);
 
