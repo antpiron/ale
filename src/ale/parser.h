@@ -13,26 +13,29 @@
 
 enum { GRAMMAR_TERMINAL, GRAMMAR_NON_TERMINAL };
 
-struct grammar_node
+struct grammar_rule_node
 {
   int type;
   size_t index;
 };
 
-VECTOR_INIT(grammar_node, struct grammar_node)
+VECTOR_INIT(grammar_rule_node, struct grammar_rule_node)
 
-struct rule
+struct grammar_rule
 {
   size_t lhs;
   size_t n_rhs;
-  struct vector_grammar_node rhs;
+  struct vector_grammar_rule_node rhs;
 };
-  
+
+VECTOR_INIT(grammar_rule, struct grammar_rule)
+
 struct parser_grammar
 {
   struct mem_pool pool;
-  size_t n_terminals, n_nonterminals;
+  size_t n_terminals, n_nonterminals, n_rules;
   struct index terminals, nonterminals;
+  struct vector_grammar_rule rules;
 };
 
 struct parser_item
@@ -61,8 +64,8 @@ void grammar_destroy(struct parser_grammar *g);
 ssize_t grammar_add_nonterminal(struct parser_grammar *g, const char *name);
 ssize_t grammar_add_terminal(struct parser_grammar *g, const char *str);
 
-#define G_NT(G, NAME) &(struct grammar_node) { .type = GRAMMAR_NON_TERMINAL, .index = grammar_add_nonterminal(G, NAME) }
-#define G_T(G, STR) &(struct grammar_node) { .type = GRAMMAR_TERMINAL, .index = grammar_add_terminal(G, STR) }
+#define G_NT(G, NAME) &(struct grammar_rule_node) { .type = GRAMMAR_NON_TERMINAL, .index = grammar_add_nonterminal(G, NAME) }
+#define G_T(G, STR) &(struct grammar_rule_node) { .type = GRAMMAR_TERMINAL, .index = grammar_add_terminal(G, STR) }
 
 ssize_t grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...);
 ssize_t grammar_set_start(struct parser_grammar *g, size_t lhs, size_t n, size_t follow[n]);

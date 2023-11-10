@@ -14,9 +14,10 @@ grammar_init(struct parser_grammar *g)
 {
    mem_init(&g->pool);
 
-   g->n_terminals = g->n_nonterminals = 0;
+   g->n_terminals = g->n_nonterminals = g->n_rules = 0;
    index_init(&g->terminals);
    index_init(&g->nonterminals);
+   vector_grammar_rule_init(&g->rules);
 }
 
 void
@@ -25,6 +26,7 @@ grammar_destroy(struct parser_grammar *g)
   mem_destroy(&g->pool);
   index_destroy(&g->terminals);
   index_destroy(&g->nonterminals);
+  vector_grammar_rule_destroy(&g->rules);
 }
 
 inline
@@ -62,23 +64,25 @@ ssize_t
 grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...)
 {
   va_list ap;
-  struct rule rule;
+  struct grammar_rule rule;
   
   rule.lhs = lhs;
   rule.n_rhs = 0;
 
-  vector_grammar_node_init(&rule.rhs);
+  vector_grammar_rule_node_init(&rule.rhs);
   
   va_start(ap, lhs);
   
-  for (struct grammar_node *node = va_arg(ap, struct grammar_node *) ;
+  for (struct grammar_rule_node *node = va_arg(ap, struct grammar_rule_node *) ;
        NULL != node ;
-       node = va_arg(ap, struct grammar_node *) )
+       node = va_arg(ap, struct grammar_rule_node *) )
     {
-      vector_grammar_node_set(&rule.rhs, rule.n_rhs, *node);
+      vector_grammar_rule_node_set(&rule.rhs, rule.n_rhs, *node);
     }
   
   va_end(ap);
+
+  // rp
 
   return 0;
 }

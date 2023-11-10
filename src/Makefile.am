@@ -13,7 +13,7 @@ LIBRARY_SOURCES=ale/error.h error.c ale/daemon.h daemon.c portability.c ale/port
 	ale/math.h math/math.c ale/algebra.h math/algebra.c math/interpolation.c \
 	ale/process.h process.c ale/matrix.h math/matrix.c ale/index.h index.c ale/memory.h memory.c \
 	ale/ea.h ea.c ale/sort.h sort.c math/optimisation.c ale/optimisation.h ale/interpolation.h  \
-	parser/grammar.c parser/shift-reduce.c ale/parser.h
+	parser/grammar.c parser/shift-reduce.c ale/parser.h ale/symbols.h
 
 lib_LTLIBRARIES = libale.la 
 noinst_LTLIBRARIES=libale-debug.la
