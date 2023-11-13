@@ -21,14 +21,17 @@ VECTOR_INIT(ale_symbol, struct ale_symbol)
 
 struct ale_symbols
 {
+  struct mem_pool pool;
   struct index index;
   size_t n;
   struct vector_ale_symbol symbols;
-  struct symbols *parent;
+  struct ale_symbols *parent, *next;
 };
 
 void ale_symbols_init(struct ale_symbols *s);
-struct ale_symbols* ale_symbols_new();
+struct ale_symbols* ale_symbols_new(struct ale_symbols *parent);
+
+
 void ale_symbols_destroy(struct ale_symbols *s);
 void ale_symbols_free(struct ale_symbols *s);
 
