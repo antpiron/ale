@@ -25,13 +25,13 @@ sl_init(struct sl_node *node)
   return 0;
 }
 
-int
+void
 sl_destroy(struct sl_node *node)
 {
-  return sl_destroy_full(node, NULL);
+  sl_destroy_full(node, NULL);
 }
 
-int
+void
 sl_destroy_full(struct sl_node *node, void (*destroy_data)(void *))
 {
   struct sl_node *cur = node->next;
@@ -46,7 +46,6 @@ sl_destroy_full(struct sl_node *node, void (*destroy_data)(void *))
     }
 
   node->next = NULL;
-  return 0;
 }
 
 
