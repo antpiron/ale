@@ -12,11 +12,11 @@
 struct ale_symbol
 {
   int type;
-  char *str;
+  char *name;
   void *data;
 };
 
-VECTOR_INIT(ale_symbol, struct ale_symbol);
+VECTOR_INIT(ale_symbol, struct ale_symbol)
 
 struct ale_symbol_table
 {
@@ -33,18 +33,20 @@ struct ale_symbols
   struct mem_pool pool;
   struct ale_symbol_table *top;
   struct sl_node tables;
+  void (*free_symbol_data)(void *);
 };
 
 void symbols_init(struct ale_symbols *s);
+void symbols_init_full(struct ale_symbols *s, void (*free_symbol_data)(void *));
 void symbols_destroy(struct ale_symbols *s);
 
-struct ale_symbol_table* ale_symbols_new_table(struct ale_symbols *s, const char *name, struct ale_symbol_table *parent);
-struct ale_symbol_table* ale_symbols_push_table(struct ale_symbols *s, const char *name);
-struct ale_symbol_table* ale_symbols_pop_table(struct ale_symbols *s);
-struct ale_symbol_table* ale_symbols_top_table(struct ale_symbols *s);
+struct ale_symbol_table* symbols_new_table(struct ale_symbols *s, const char *name, struct ale_symbol_table *parent);
+struct ale_symbol_table* symbols_push_table(struct ale_symbols *s, const char *name);
+struct ale_symbol_table* symbols_pop_table(struct ale_symbols *s);
+struct ale_symbol_table* symbols_top_table(struct ale_symbols *s);
 
-struct ale_symbol* ale_symbols_add(struct ale_symbols *s, const char *str, int type, void *ptr);
-struct ale_symbol* ale_symbols_get(struct ale_symbols *s, const char *str);
+struct ale_symbol* symbols_add(struct ale_symbols *s, const char *name, int type, void *ptr);
+struct ale_symbol* symbols_get(struct ale_symbols *s, const char *str);
 
 
 #endif

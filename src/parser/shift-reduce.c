@@ -76,7 +76,7 @@ struct stack
   struct vector_stack data;
 };
 
-void
+static void
 stack_init(struct stack *stack)
 {
   stack->n = 0;
@@ -84,19 +84,19 @@ stack_init(struct stack *stack)
 }
 
 
-void
+static void
 stack_destroy(struct stack *stack)
 {
   vector_stack_destroy(&stack->data);
 }
 
-void
+static void
 stack_push(struct stack *stack, struct stack_elem elem)
 {
   vector_stack_set(&stack->data, stack->n++, elem);
 }
 
-struct stack_elem*
+static struct stack_elem*
 stack_top(struct stack *stack)
 {
   if (0 == stack->n)
@@ -105,7 +105,7 @@ stack_top(struct stack *stack)
   return stack->data.data + stack->n - 1;
 }
 
-struct stack_elem*
+static struct stack_elem*
 stack_topn(struct stack *stack, size_t n)
 {
   if (stack->n < n)
@@ -114,7 +114,7 @@ stack_topn(struct stack *stack, size_t n)
   return stack->data.data - stack->n;
 }
 
-int
+static int
 stack_popn(struct stack *stack, size_t n)
 {
   if (stack->n < n)
