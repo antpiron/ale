@@ -66,17 +66,40 @@ symbols_push_table(struct ale_symbols *s, const char *name)
 struct ale_symbol*
 symbols_add(struct ale_symbols *s, const char *name, int type, void *ptr)
 {
-  struct ale_symbol *symbol = mem_malloc(&s->pool, sizeof(struct ale_symbol));
+  struct ale_symbol symbol;
 
-  symbol->type = type;
+  symbol.type = type;
 
   size_t len = strlen(name);
-  symbol->name = mem_malloc(&s->pool, len + 1);
-  strcpy(symbol->name, name);
+  symbol.name = mem_malloc(&s->pool, len + 1);
+  strcpy(symbol.name, name);
   
-  symbol->data = ptr;
+  symbol.data = ptr;
   if (NULL != s->free_symbol_data)
     mem_callback(&s->pool, ptr, s->free_symbol_data);
+
+  vector_ale_symbol_set(&s->top->symbols, s->top->n, symbol);
+
+  index_set(&s->top->index, name, s->top->n);
+    
+  return &s->top->symbols.data[s->top->n++];
+}
+
+struct ale_symbol*
+symbols_get(struct ale_symbols *s, const char *name)
+{
+  struct ale_symbol *symbol = NULL;
+
+  for (struct ale_symbol_table *top = s->top ; NULL != top ; top = top->parent)
+    {
+      ssize_t index = index_get(&top->index, name);
+
+      if (index >= 0)
+	{
+	  symbol = top->symbols.data + index;
+	  break;
+	}
+    }
   
   return symbol;
 }
