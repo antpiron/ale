@@ -45,8 +45,8 @@ struct ale_symbol_table* symbols_push_table(struct ale_symbols *s, const char *n
 struct ale_symbol_table* symbols_pop_table(struct ale_symbols *s);
 struct ale_symbol_table* symbols_top_table(struct ale_symbols *s);
 
-struct ale_symbol* symbols_add(struct ale_symbols *s, const char *name, int type, void *ptr);
-struct ale_symbol* symbols_get(struct ale_symbols *s, const char *str);
+struct ale_symbol* symbols_add(struct ale_symbols *s, const char *name, int type, void *data);
+struct ale_symbol* symbols_get(struct ale_symbols *s, const char *name);
 
 
 #endif
