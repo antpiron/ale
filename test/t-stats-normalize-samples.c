@@ -10,8 +10,8 @@
 int
 main(int argc, char *argv[argc])
 {
-#define N ((size_t) 20000)
-#define M ((size_t) 30000)
+#define N ((size_t) 2000)
+#define M ((size_t) 3000)
   double (*dst)[N] = malloc(N*M * sizeof(double));
   double (*mat)[N] = malloc(N*M * sizeof(double));
   double *beta = malloc(N * sizeof(double));

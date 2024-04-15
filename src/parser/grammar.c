@@ -63,9 +63,6 @@ grammar_add_nonterminal(struct parser_grammar *g, const char *name)
 ssize_t
 grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...)
 {
-  // TODO: write proper function, then remove this hack to prevent
-  // warning: unused parameter 'g' [-Wunused-parameter]
-  (void)(g);
   va_list ap;
   struct grammar_rule rule;
   
@@ -85,6 +82,7 @@ grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...)
   
   va_end(ap);
 
+  vector_grammar_rule_set(&g->rules, g->n_rules++, rule);
   // rp
 
   return 0;
