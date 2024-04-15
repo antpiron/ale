@@ -72,7 +72,7 @@ ssize_t grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...);
 ssize_t grammar_set_start(struct parser_grammar *g, size_t lhs, size_t n, size_t follow[n]);
 ssize_t grammar_set_start_va(struct parser_grammar *g, size_t lhs, ...);
 
-
+// void grammar_print(struct parser_grammar *g);
 
 
 // grammar_item_first(struct parser_grammar *g, struct parser_item);

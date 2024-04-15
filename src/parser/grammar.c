@@ -82,9 +82,8 @@ grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...)
   
   va_end(ap);
 
-  vector_grammar_rule_set(&g->rules, g->n_rules++, rule);
-  // rp
+  vector_grammar_rule_set(&g->rules, g->n_rules, rule);
 
-  return 0;
+  return g->n_rules++;
 }
 
