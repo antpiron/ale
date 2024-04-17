@@ -9,7 +9,7 @@ int
 main(int argc, char *argv[argc])
 {
   struct parser_grammar g;
-  ssize_t rule_S, rule_T, S, E;
+  ssize_t S, E, T, F, ID, NUMBER;
 
   grammar_init(&g);
 
@@ -20,17 +20,67 @@ main(int argc, char *argv[argc])
 
   S = grammar_add_nonterminal(&g, "S");
   E = grammar_add_nonterminal(&g, "E");
-  rule_S = grammar_add_rule_va(&g,
-			       S,
-			       G_NT(&g, "E"), G_T(&g, "+"),  G_NT(&g, "E"),
-			       NULL);
-  rule_T = grammar_add_rule_va(&g,
-			       E,
-			       G_NT(&g, "ID"),
-			       NULL);
+  T = grammar_add_nonterminal(&g, "T");
+  F = grammar_add_nonterminal(&g, "F");
+  ID = grammar_add_nonterminal(&g, "ID");
+  NUMBER = grammar_add_nonterminal(&g, "NUMBER");
+  
+  grammar_add_rule_va(&g,
+		      S,
+		      G_NT(&g, "E"),
+		      NULL);
+
   grammar_add_rule_va(&g,
 		      E,
+		      G_NT(&g, "E"), G_T(&g, "+"),  G_NT(&g, "T"),
+		      NULL);
+  grammar_add_rule_va(&g,
+		      E,
+		      G_NT(&g, "E"), G_T(&g, "-"),  G_NT(&g, "T"),
+		      NULL);
+   grammar_add_rule_va(&g,
+		      E,
+		      G_NT(&g, "T"),
+		      NULL);
+ 
+  grammar_add_rule_va(&g,
+		      T,
+		      G_NT(&g, "T"), G_T(&g, "*"),  G_NT(&g, "F"),
+		      NULL);
+  grammar_add_rule_va(&g,
+		      T,
+		      G_NT(&g, "T"), G_T(&g, "/"),  G_NT(&g, "F"),
+		      NULL);
+
+  grammar_add_rule_va(&g,
+		      T,
+		      G_NT(&g, "F"),
+		      NULL);
+  
+  grammar_add_rule_va(&g,
+		      F,
+		      G_NT(&g, "ID"),
+		      NULL);
+  grammar_add_rule_va(&g,
+		      F,
 		      G_NT(&g, "NUMBER"),
+		      NULL);
+  grammar_add_rule_va(&g,
+		      F,
+		      G_T(&g, "-"), G_NT(&g, "F"),
+		      NULL);
+  grammar_add_rule_va(&g,
+		      F,
+		      G_T(&g, "("), G_NT(&g, "E"),  G_T(&g, ")"),
+		      NULL);
+
+  grammar_add_rule_va(&g,
+		      ID,
+		      G_T(&g, "/[a-zA-Z][a-zA-Z0-9_]*/"),
+		      NULL);
+  grammar_add_rule_va(&g,
+		      NUMBER,
+		      G_T(&g, "/[0-9]+(\\.[0-9]+)?/"),
 		      NULL);
 
   grammar_print(&g);

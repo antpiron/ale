@@ -43,7 +43,7 @@ grammar_print(struct parser_grammar *g)
   for (size_t i = 0 ; i < g->n_rules ; i++)
     {
       struct grammar_rule *rule = g->rules.data + i;
-      printf("%s ::=", index_rget(&g->nonterminals, rule->lhs));
+      printf("%3zu. %s ::=", i, index_rget(&g->nonterminals, rule->lhs));
       for (size_t j = 0 ; j < rule->n_rhs ; j++)
 	{
 	  struct grammar_rule_node *node = rule->rhs.data + j;
