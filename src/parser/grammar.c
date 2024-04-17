@@ -15,10 +15,18 @@ grammar_init(struct parser_grammar *g)
    mem_init(&g->pool);
 
    g->n_terminals = g->n_nonterminals = g->n_rules = 0;
+   g->start_nt = -1;
    index_init(&g->terminals);
    index_init(&g->nonterminals);
    vector_grammar_rule_init(&g->rules);
 }
+
+void
+grammar_set_start(struct parser_grammar *g, size_t start_nt)
+{
+  g->start_nt = start_nt;
+}
+
 
 void
 grammar_destroy(struct parser_grammar *g)
@@ -28,6 +36,26 @@ grammar_destroy(struct parser_grammar *g)
   index_destroy(&g->nonterminals);
   vector_grammar_rule_destroy(&g->rules);
 }
+
+void
+grammar_print(struct parser_grammar *g)
+{
+  for (size_t i = 0 ; i < g->n_rules ; i++)
+    {
+      struct grammar_rule *rule = g->rules.data + i;
+      printf("%s ::=", index_rget(&g->nonterminals, rule->lhs));
+      for (size_t j = 0 ; j < rule->n_rhs ; j++)
+	{
+	  struct grammar_rule_node *node = rule->rhs.data + j;
+	  if (GRAMMAR_NON_TERMINAL == node->type)
+	    printf(" %s", index_rget(&g->nonterminals, node->index));
+	  else if (GRAMMAR_TERMINAL == node->type)
+	    printf(" '%s'", index_rget(&g->terminals, node->index));
+	}
+      printf("\n");
+    }
+}
+
 
 inline
 static
@@ -78,6 +106,7 @@ grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...)
        node = va_arg(ap, struct grammar_rule_node *) )
     {
       vector_grammar_rule_node_set(&rule.rhs, rule.n_rhs, *node);
+      rule.n_rhs++;
     }
   
   va_end(ap);
