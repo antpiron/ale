@@ -172,6 +172,9 @@ bitset_iterate(struct bitset *bs, ssize_t lastpos)
 {
   ssize_t startpos = lastpos + 1;
 
+  if (startpos < 0 )
+    startpos = 0;
+
   /* TODO: optimize */
   for (size_t i = startpos ; i < bs->n ; i++)
     {

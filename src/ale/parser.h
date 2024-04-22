@@ -8,6 +8,7 @@
 #include <ale/index.h>
 #include <ale/vector.h>
 #include <ale/symbols.h>
+#include <ale/bitset.h>
 
 /* ============ */
 /* Grammar */
@@ -40,20 +41,25 @@ struct parser_grammar
   struct vector_grammar_rule rules;
 };
 
+/* ============ */
+/* Items */
+
 struct parser_item
 {
   size_t rule;
   size_t dot;
-  size_t n;
-  size_t *follow;
+  struct bitset follow;
 };
 
+VECTOR_INIT(parser_item, struct parser_item)
+  
 struct parser_item_set
 {
   size_t n;
-  struct parser_item *item;
-  size_t n_next;
-  struct parser_item_set **next;
+  struct vector_parser_item items;
+  // TODO: use a graph structure
+  // size_t n_next;
+  // struct parser_item_set **next;
 };
 
 void grammar_init(struct parser_grammar *g);

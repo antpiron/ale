@@ -297,9 +297,31 @@ Test the bit at position @var{index} from the bitset @var{bs}. Return 1 if the b
 Test if the bitset @var{bs} is empty. Return 1 on emptiness, 0 otherwise.
 @end deftypefn
 
+@deftypefn {C Function} {static inline ssize_t} @
+           bitset_iterate (struct bitset *@var{bs}, ssize_t @var{lastpos})
+
+Iterate over the bitset @var{bs}. Return -1 if there is no more any bit set to one, otherwise return the first bit set after @var{lastpos}. If @var{lastpos} is negative, return the first bit set.
+@end deftypefn
+
+
 @deftypefn {C Function} {static inline void} @
                         bitset_xor (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
 Performs @var{dst} = @var{a} xor @var{b} on n bits, n being the minimum number of bits between @var{dst}, @var{a} and @var{b}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline void} @
+                        bitset_and (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
+Performs @var{dst} = @var{a} and @var{b} on n bits, n being the minimum number of bits between @var{dst}, @var{a} and @var{b}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline void} @
+                        bitset_or (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
+Performs @var{dst} = @var{a} or @var{b} on n bits, n being the minimum number of bits between @var{dst}, @var{a} and @var{b}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline void} @
+                        bitset_not (struct bitset @var{dst}, struct bitset @var{a})
+Performs @var{dst} = not @var{a}.
 @end deftypefn
 
 @deftypefn {C Function} {static inline size_t} @
