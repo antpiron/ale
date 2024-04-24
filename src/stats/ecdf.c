@@ -124,7 +124,7 @@
     TYPE res;								\
     const size_t n = ecdf->n;						\
     const TYPE *x = ecdf->x;						\
-    const TYPE pos_float = p * n - 1.0;					\
+    const TYPE pos_float = p * n - 1.5;					\
     size_t ceil_pos = (pos_float < 0.0) ? 0 : ceil##SUFFIX(pos_float);	\
 									\
     if (ceil_pos >= n)							\
