@@ -25,7 +25,8 @@ parser_first_init(struct parser_first *pf, struct parser_grammar *g)
 
   for (size_t i = 0 ; i < g->n_nonterminals ; i++)
     bitset_init(first + i, g->n_terminals);
-    
+
+  // TODO: loop until no more changes
   for (size_t r = 0 ; r < g->n_rules ; r++)
     {
       struct grammar_rule *rule = g->rules.data + r;
@@ -75,6 +76,7 @@ parser_first_destroy(struct parser_first *pf)
 {
   for (size_t i = 0 ; i < pf->g->n_nonterminals ; i++)
     bitset_destroy(pf->first + i);
+  free(pf->first)
 }
 
 /* int */
