@@ -41,6 +41,20 @@ struct parser_grammar
   struct vector_grammar_rule rules;
 };
 
+
+/* ===========
+   First/follow
+ */
+
+struct parser_first
+{
+  struct parser_grammar *g;
+  struct bitset *first;
+};
+
+int parser_first_init(struct parser_first *pf, struct parser_grammar *g);
+void parser_first_destroy(struct parser_first *pf);
+
 /* ============ */
 /* Items */
 

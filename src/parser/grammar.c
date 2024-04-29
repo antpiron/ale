@@ -17,6 +17,8 @@ grammar_init(struct parser_grammar *g)
    g->n_terminals = g->n_nonterminals = g->n_rules = 0;
    g->start_nt = -1;
    index_init(&g->terminals);
+   /* Add epsilon at index 0 */
+   grammar_add_terminal(g, "");
    index_init(&g->nonterminals);
    vector_grammar_rule_init(&g->rules);
 }

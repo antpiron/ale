@@ -14,7 +14,7 @@ main(int argc, char *argv[argc])
   grammar_init(&g);
 
   ERROR_UNDEF_FATAL_FMT(-1 != g.start_nt, "grammar_init(): start_nt == %zd != -1\n", g.start_nt);
-  ERROR_UNDEF_FATAL_FMT(0 != g.n_terminals, "grammar_init(): n_terminals == %zd != 0\n", g.n_terminals);
+  ERROR_UNDEF_FATAL_FMT(1 != g.n_terminals, "grammar_init(): n_terminals == %zd != 1\n", g.n_terminals);
   ERROR_UNDEF_FATAL_FMT(0 != g.n_nonterminals, "grammar_init(): n_nonterminals == %zd != 0\n", g.n_nonterminals);
   ERROR_UNDEF_FATAL_FMT(0 != g.n_rules, "grammar_init(): n_rules == %zd != 0\n", g.n_rules);
 

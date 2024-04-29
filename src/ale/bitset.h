@@ -167,10 +167,10 @@ bitset_isempty(struct bitset *bs)
   return !ret;
 }
 
-static inline ssize_t
-bitset_iterate(struct bitset *bs, ssize_t lastpos)
+static inline int
+bitset_iterate(struct bitset *bs, ssize_t *state)
 {
-  ssize_t startpos = lastpos + 1;
+  ssize_t startpos = *state + 1;
 
   if (startpos < 0 )
     startpos = 0;
@@ -179,9 +179,12 @@ bitset_iterate(struct bitset *bs, ssize_t lastpos)
   for (size_t i = startpos ; i < bs->n ; i++)
     {
       if ( bitset_isset(bs, i) )
-	return i;
+	{
+	  *state = (ssize_t) i;
+	  return 1;
+	}
     }
-  return -1;
+  return 0;
 }
 
 static inline void

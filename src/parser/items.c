@@ -16,53 +16,6 @@ parser_item_init(struct parser_item *item, size_t rule, size_t dot, struct bitse
   return 0;
 }
 
-int
-parser_item_first(struct parser_item *item, struct parser_grammar *g, struct bitset *first)
-{
-  struct grammar_rule *rule = g->rules.data + item->rule;
-  size_t dot = item->dot;
-
-  // skip anything that is not a terminal or non-terminal
-  for ( ; dot < rule->n_rhs ; dot++)
-    {
-      struct grammar_rule_node *node = rule->rhs.data + dot;
-      if (GRAMMAR_TERMINAL == node->type || GRAMMAR_NON_TERMINAL == node->type)
-	break;
-    }
-  
-  if (dot < rule->n_rhs)
-    {
-      struct grammar_rule_node *node = rule->rhs.data + dot;
-      // TODO: recursively call first on all non-terminal rules
-      if (GRAMMAR_TERMINAL == node->type)
-	{
-	  bitset_set(first, node->index);
-	}
-      else if (GRAMMAR_NON_TERMINAL == node->type)
-	{
-	  /*
-	    do
-	      empty = false
-	      for all unprocessed rules, A ::= rhs such that lhs ::= [...] . A [...]
-	        ret += recurse(lhs ::= . rhs)
-		if ret is empty
-		  empty = true
-		first += ret
-	      dot++
-	    while (dot < rule->n_rhs && empty )
-	    if (dot == rule->n_rhs && empty)
-	      first += follow
-	      
-	   */
-	}
-    }
-  else if (dot == rule->n_rhs)
-    {
-      bitset_cpy(first, &item->follow);
-    }	
-
-  return 0;
-}
 
 void
 parser_item_destroy(struct parser_item *item)

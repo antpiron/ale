@@ -125,10 +125,11 @@ main(int argc, char *argv[argc])
   while (1)
     {
       ssize_t old_value = value;
-      value = bitset_iterate(&bs, value);
-      if (value < 0)
+      int ret = bitset_iterate(&bs, &value);
+      if (! ret)
 	break;
-      ERROR_FATAL_FMT(! ( ( value >= 62 && value < 72) || 1201 == value || 1202 == value ), "FAIL: bitset_iterate(%zd) = %zd\n", old_value, value);
+      ERROR_FATAL_FMT(! ( ( value >= 62 && value < 72) || 1201 == value || 1202 == value ),
+		      "FAIL: bitset_iterate(%zd) = %zd\n", old_value, value);
       ones++;
     }
   ERROR_FATAL_FMT(12 != ones, "FAIL: bitset_iterate() ones = %zu != 12\n", ones);
@@ -156,8 +157,8 @@ main(int argc, char *argv[argc])
   while (1)
     {
       ssize_t old_value = value;
-      value = bitset_iterate(&bs, value);
-      if (value < 0)
+      int ret = bitset_iterate(&bs, &value);
+      if (! ret)
 	break;
       /* ERROR_FATAL_FMT(! ( ( value >= 62 && value < 72) || 1201 == value || 1202 == value ), */
       /* 		      "FAIL: bitset_iterate(%zd) = %zd\n", old_value, value); */
