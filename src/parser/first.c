@@ -76,7 +76,7 @@ parser_first_destroy(struct parser_first *pf)
 {
   for (size_t i = 0 ; i < pf->g->n_nonterminals ; i++)
     bitset_destroy(pf->first + i);
-  free(pf->first)
+  free(pf->first);
 }
 
 /* int */
