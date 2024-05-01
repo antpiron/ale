@@ -19,6 +19,7 @@ int
 parser_first_init(struct parser_first *pf, struct parser_grammar *g)
 {
   struct bitset *first = malloc(sizeof(struct bitset) * g->n_nonterminals);
+  int change;
 
   pf->g = g;
   pf->first = first;
@@ -27,46 +28,71 @@ parser_first_init(struct parser_first *pf, struct parser_grammar *g)
     bitset_init(first + i, g->n_terminals);
 
   // TODO: loop until no more changes
-  for (size_t r = 0 ; r < g->n_rules ; r++)
+  do
     {
-      struct grammar_rule *rule = g->rules.data + r;
-      struct bitset *rule_first = first + rule->lhs;
-      
-      if (0 == rule->n_rhs)
+      change = 0;
+      for (size_t r = 0 ; r < g->n_rules ; r++)
 	{
-	  /* empty rule, add epsilon */
-	  bitset_set(rule_first, 0);
-	}
-      else
-	{
-	  size_t dot = 0;
+	  struct grammar_rule *rule = g->rules.data + r;
+	  struct bitset *rule_first = first + rule->lhs;
 	  
-	  for ( dot = 0 ; dot < rule->n_rhs ; dot++)
+	  if (0 == rule->n_rhs)
 	    {
-	      struct grammar_rule_node *node = rule->rhs.data + dot;
-	      
-	      if (GRAMMAR_TERMINAL == node->type)
+	      /* empty rule, add epsilon */
+	      if ( ! bitset_isset(rule_first, 0) )
 		{
-		  bitset_set(rule_first, node->index);
-		  break;
+		  bitset_set(rule_first, 0);
+		  change = 1;
+		}
+	    }
+	  else
+	    {
+	      size_t dot = 0;
+	      size_t ones = bitset_ones(rule_first);
+
+	      for ( dot = 0 ; dot < rule->n_rhs ; dot++)
+		{
+		  struct grammar_rule_node *node = rule->rhs.data + dot;
+		  
+		  if (GRAMMAR_TERMINAL == node->type)
+		    {
+		      if (! bitset_isset(rule_first, node->index) )
+			{
+			  bitset_set(rule_first, node->index);
+			  change = 1;
+			}
+		      break;
+		    }
+		  
+		  if (GRAMMAR_NON_TERMINAL == node->type)
+		    {
+		      struct bitset *node_first = first + node->index;
+		      int isset = bitset_isset(rule_first, 0);
+
+		      bitset_or(rule_first, rule_first, node_first);
+		      
+		      if (! bitset_isset(node_first, 0))
+			break;
+
+		      // Remove EPS if not previously set and node_first contains EPS
+		      if (! isset )
+			bitset_unset(rule_first, 0);
+		    }
 		}
 	      
-	       if (GRAMMAR_NON_TERMINAL == node->type)
-		 {
-		   struct bitset *node_first = first + node->index;
-		   
-		   bitset_or(rule_first, rule_first, node_first);
-		   
-		   if (! bitset_isset(node_first, 0))
-		     break;
-		 }
+	      if (dot == rule->n_rhs && ! bitset_isset(rule_first, 0) )
+		{
+		  bitset_set(rule_first, 0);
+		  change = 1;
+		}
+
+	      if (! change && (bitset_ones(rule_first) - ones) != 0)
+		change = 1;
 	    }
 	  
-	  if (dot == rule->n_rhs)
-	    bitset_set(first + rule->lhs, 0);
 	}
-      
     }
+  while (change);
 
   return 0;
 }
@@ -76,9 +102,29 @@ parser_first_destroy(struct parser_first *pf)
 {
   for (size_t i = 0 ; i < pf->g->n_nonterminals ; i++)
     bitset_destroy(pf->first + i);
+  
   free(pf->first);
 }
 
+void
+parser_first_print(struct parser_first *pf)
+{
+  struct parser_grammar *g = pf->g;
+  
+  for (size_t i = 0 ; i < g->n_nonterminals ; i++)
+    {
+      struct bitset *first = pf->first + i;
+      
+      printf("%3zu. first(%s) = {", i, index_rget(&g->nonterminals, i));
+
+      for (ssize_t j = 0, terminal = -1 ;  bitset_iterate(first, &terminal) ; j++ )
+	{
+	  printf((0 == j)?"\"%s\"":", \"%s\"", index_rget(&g->terminals, terminal) );
+	}
+      
+      printf("}\n");
+    }
+}
 /* int */
 /* parser_first(struct parser_grammar *g, */
 /* 	     size_t n, struct grammar_rule_node nodes[n], */
