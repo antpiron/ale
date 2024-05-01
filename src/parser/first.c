@@ -27,7 +27,6 @@ parser_first_init(struct parser_first *pf, struct parser_grammar *g)
   for (size_t i = 0 ; i < g->n_nonterminals ; i++)
     bitset_init(first + i, g->n_terminals);
 
-  // TODO: loop until no more changes
   do
     {
       change = 0;
