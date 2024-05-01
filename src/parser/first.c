@@ -106,6 +106,21 @@ parser_first_destroy(struct parser_first *pf)
 }
 
 void
+parser_terminals_print(struct parser_first *pf, struct bitset *first)
+{
+  struct parser_grammar *g = pf->g;
+
+  printf("{");
+
+  for (ssize_t j = 0, terminal = -1 ;  bitset_iterate(first, &terminal) ; j++ )
+    	{
+	  printf((0 == j)?"\"%s\"":", \"%s\"", index_rget(&g->terminals, terminal) );
+	}
+      
+  printf("}");
+}
+  
+void
 parser_first_print(struct parser_first *pf)
 {
   struct parser_grammar *g = pf->g;
@@ -114,29 +129,27 @@ parser_first_print(struct parser_first *pf)
     {
       struct bitset *first = pf->first + i;
       
-      printf("%3zu. first(%s) = {", i, index_rget(&g->nonterminals, i));
+      printf("%3zu. first(%s) = ", i, index_rget(&g->nonterminals, i));
 
-      for (ssize_t j = 0, terminal = -1 ;  bitset_iterate(first, &terminal) ; j++ )
-	{
-	  printf((0 == j)?"\"%s\"":", \"%s\"", index_rget(&g->terminals, terminal) );
-	}
-      
-      printf("}\n");
+      parser_terminals_print(pf, first);
+      printf("\n");
     }
 }
 
 void
-parser_first(struct parser_first *pf, struct bitset *first, size_t n, struct grammar_rule_node *nodes, struct bitset *follow)
+parser_first(struct parser_first *pf, struct bitset *first,
+	     size_t n, struct grammar_rule_node *nodes, struct bitset *follow)
 {
   bitset_reset(first);
-
+  bitset_set(first, 0);
+ 
   for (size_t i = 0 ; i < n ; i++)
     {
       struct grammar_rule_node *node = nodes + i;
 
+      bitset_unset(first, 0);
       if (GRAMMAR_TERMINAL == node->type)
 	{
-	  bitset_unset(first, 0);
 	  bitset_set(first, node->index);
 	  break;
 	}
@@ -149,7 +162,7 @@ parser_first(struct parser_first *pf, struct bitset *first, size_t n, struct gra
 	}
     }
 
-  if ( bitset_isset(first, 0) )
+  if ( bitset_isset(first, 0) && NULL != follow)
     {
       bitset_unset(first, 0);
       bitset_or(first, first, follow);
