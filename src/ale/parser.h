@@ -56,6 +56,8 @@ int parser_first_init(struct parser_first *pf, struct parser_grammar *g);
 void parser_first_destroy(struct parser_first *pf);
 void parser_first_print(struct parser_first *pf);
 
+void parser_first(struct parser_first *pf, struct bitset *first, size_t n, struct grammar_rule_node *nodes, struct bitset *follow);
+
 /* ============ */
 /* Items */
 

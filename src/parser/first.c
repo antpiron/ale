@@ -125,6 +125,38 @@ parser_first_print(struct parser_first *pf)
       printf("}\n");
     }
 }
+
+void
+parser_first(struct parser_first *pf, struct bitset *first, size_t n, struct grammar_rule_node *nodes, struct bitset *follow)
+{
+  bitset_reset(first);
+
+  for (size_t i = 0 ; i < n ; i++)
+    {
+      struct grammar_rule_node *node = nodes + i;
+
+      if (GRAMMAR_TERMINAL == node->type)
+	{
+	  bitset_unset(first, 0);
+	  bitset_set(first, node->index);
+	  break;
+	}
+      
+      if (GRAMMAR_NON_TERMINAL == node->type)
+	{
+	  bitset_or(first, first, pf->first + node->index);
+	  if (! bitset_isset(first, 0))
+	    break;
+	}
+    }
+
+  if ( bitset_isset(first, 0) )
+    {
+      bitset_unset(first, 0);
+      bitset_or(first, first, follow);
+    }
+}
+
 /* int */
 /* parser_first(struct parser_grammar *g, */
 /* 	     size_t n, struct grammar_rule_node nodes[n], */
