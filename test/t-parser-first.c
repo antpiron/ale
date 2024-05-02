@@ -75,7 +75,7 @@ main(int argc, char *argv[argc])
 		      G_T(&g, "b"),
 		      NULL);
   grammar_add_rule_va(&g,
-		      ,
+		      B,	
 		      NULL);
 
   grammar_add_rule_va(&g,
@@ -115,7 +115,7 @@ main(int argc, char *argv[argc])
   parser_first(&pf, &first, g.rules.data[0].n_rhs, g.rules.data[0].rhs.data, NULL);
   count = bitset_ones(&first);
   printf("first(E D) = ");
-  parser_terminals_print(&pf, &first);
+  parser_terminals_print(&g, &first);
   printf("\n");
   ERROR_UNDEF_FATAL_FMT(4 != count, "parser_first(): |first(A B C D)| == %zu != 4\n", count);
 
