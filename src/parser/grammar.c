@@ -59,19 +59,27 @@ grammar_print(struct parser_grammar *g)
 }
 
 void
-parser_terminals_print(struct parser_grammar *g, struct bitset *first)
+parser_terminals_print_full(struct parser_grammar *g, struct bitset *bs, int isEOF)
 {
   printf("{");
 
-  for (ssize_t j = 0, terminal = -1 ;  bitset_iterate(first, &terminal) ; j++ )
+  for (ssize_t j = 0, terminal = -1 ;  bitset_iterate(bs, &terminal) ; j++ )
        {
-         printf((0 == j)?"\"%s\"":", \"%s\"", index_rget(&g->terminals, terminal) );
+	 if (isEOF && 0 == terminal)
+	   printf((0 == j)?"$":", $");
+	 else
+	   printf((0 == j)?"\"%s\"":", \"%s\"", index_rget(&g->terminals, terminal));
        }
       
   printf("}");
 }
 
-
+void
+parser_terminals_print(struct parser_grammar *g, struct bitset *bs)
+{
+  parser_terminals_print_full(g, bs, 0);
+}
+  
 inline
 static
 ssize_t

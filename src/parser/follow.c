@@ -1,5 +1,6 @@
 #include "ale/error.h"
 #include "ale/parser.h"
+#include "ale/parser.h"
 
 int
 parser_follow_init(struct parser_follow *pfollow, struct parser_first *pfirst)
@@ -8,6 +9,7 @@ parser_follow_init(struct parser_follow *pfollow, struct parser_first *pfirst)
   struct bitset *follow = malloc(sizeof(struct bitset) * g->n_nonterminals);
   struct bitset first;
   int change;
+  size_t start_nt = g->start_nt < 0 ? 0 :  g->start_nt;
 
   pfollow->pfirst = pfirst;
   pfollow->follow = follow;
@@ -16,6 +18,9 @@ parser_follow_init(struct parser_follow *pfollow, struct parser_first *pfirst)
     bitset_init(follow + i, g->n_terminals);
 
   bitset_init(&first, g->n_terminals);
+
+  bitset_set(follow + start_nt,  GRAMMAR_EOF);
+    
   
   do
     {
@@ -38,11 +43,11 @@ parser_follow_init(struct parser_follow *pfollow, struct parser_first *pfirst)
 		  
 		  parser_first(pfirst, &first, rule->n_rhs - dot + 1, rule->rhs.data + dot + 1, NULL);
 
-		  if ( bitset_isset(&first, 0) )
+		  if ( bitset_isset(&first, GRAMMAR_EPS) )
 		    {
 		      struct bitset *rule_follow = follow + rule->lhs;
 		      
-		      bitset_unset(&first, 0);
+		      bitset_unset(&first, GRAMMAR_EPS);
 		      bitset_or(nt_follow, nt_follow, rule_follow);
 		    }
 		  
@@ -84,7 +89,7 @@ parser_follow_print(struct parser_follow *pfollow)
       
       printf("%3zu. follow(%s) = ", i, index_rget(&g->nonterminals, i));
 
-      parser_terminals_print(g, follow);
+      parser_terminals_print_full(g, follow, 1);
       printf("\n");
     }
 }

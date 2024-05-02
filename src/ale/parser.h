@@ -15,6 +15,14 @@
 
 enum { GRAMMAR_TERMINAL, GRAMMAR_NON_TERMINAL };
 
+#define GRAMMAR_EPS_STR ""
+#define GRAMMAR_EPS 0
+/* EOF is used in follow and is the same code as EPS, since EPS is never in follow */ 
+#define GRAMMAR_EOF_STR ""
+#define GRAMMAR_EOF 0
+
+
+
 struct grammar_rule_node
 {
   int type;
@@ -41,7 +49,27 @@ struct parser_grammar
   struct vector_grammar_rule rules;
 };
 
-void parser_terminals_print(struct parser_grammar *g, struct bitset *first);
+void grammar_init(struct parser_grammar *g);
+void grammar_destroy(struct parser_grammar *g);
+
+/* struct parser_grammar_node* grammar_node_regex(char *regex); */
+/* struct parser_grammar_node* grammar_node_string(char *str); */
+/* struct parser_grammar_node* grammar_node_nonterminal(size_t id); */
+
+ssize_t grammar_add_nonterminal(struct parser_grammar *g, const char *name);
+ssize_t grammar_add_terminal(struct parser_grammar *g, const char *str);
+
+#define G_NT(G, NAME) &(struct grammar_rule_node) { .type = GRAMMAR_NON_TERMINAL, .index = grammar_add_nonterminal(G, NAME) }
+#define G_T(G, STR) &(struct grammar_rule_node) { .type = GRAMMAR_TERMINAL, .index = grammar_add_terminal(G, STR) }
+
+ssize_t grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...);
+void grammar_set_start(struct parser_grammar *g, size_t start_nt);
+
+
+void grammar_print(struct parser_grammar *g);
+
+void parser_terminals_print_full(struct parser_grammar *g, struct bitset *bs, int isfollow);
+void parser_terminals_print(struct parser_grammar *g, struct bitset *bs);
 
 
 /* ===========
@@ -92,25 +120,6 @@ struct parser_item_set
   // size_t n_next;
   // struct parser_item_set **next;
 };
-
-void grammar_init(struct parser_grammar *g);
-void grammar_destroy(struct parser_grammar *g);
-
-/* struct parser_grammar_node* grammar_node_regex(char *regex); */
-/* struct parser_grammar_node* grammar_node_string(char *str); */
-/* struct parser_grammar_node* grammar_node_nonterminal(size_t id); */
-
-ssize_t grammar_add_nonterminal(struct parser_grammar *g, const char *name);
-ssize_t grammar_add_terminal(struct parser_grammar *g, const char *str);
-
-#define G_NT(G, NAME) &(struct grammar_rule_node) { .type = GRAMMAR_NON_TERMINAL, .index = grammar_add_nonterminal(G, NAME) }
-#define G_T(G, STR) &(struct grammar_rule_node) { .type = GRAMMAR_TERMINAL, .index = grammar_add_terminal(G, STR) }
-
-ssize_t grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...);
-void grammar_set_start(struct parser_grammar *g, size_t start_nt);
-
-
-void grammar_print(struct parser_grammar *g);
 
 
 // grammar_item_first(struct parser_grammar *g, struct parser_item);
