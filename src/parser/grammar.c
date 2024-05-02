@@ -58,6 +58,19 @@ grammar_print(struct parser_grammar *g)
     }
 }
 
+void
+parser_terminals_print(struct parser_grammar *g, struct bitset *first)
+{
+  printf("{");
+
+  for (ssize_t j = 0, terminal = -1 ;  bitset_iterate(first, &terminal) ; j++ )
+       {
+         printf((0 == j)?"\"%s\"":", \"%s\"", index_rget(&g->terminals, terminal) );
+       }
+      
+  printf("}");
+}
+
 
 inline
 static

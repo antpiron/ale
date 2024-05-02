@@ -41,6 +41,8 @@ struct parser_grammar
   struct vector_grammar_rule rules;
 };
 
+void parser_terminals_print(struct parser_grammar *g, struct bitset *first);
+
 
 /* ===========
    First/follow
@@ -54,10 +56,21 @@ struct parser_first
 
 int parser_first_init(struct parser_first *pf, struct parser_grammar *g);
 void parser_first_destroy(struct parser_first *pf);
-void parser_terminals_print(struct parser_first *pf, struct bitset *first);
 void parser_first_print(struct parser_first *pf);
 
 void parser_first(struct parser_first *pf, struct bitset *first, size_t n, struct grammar_rule_node *nodes, struct bitset *follow);
+
+struct parser_follow
+{
+  struct parser_first *pfirst;
+  struct bitset *follow;
+};
+
+int parser_follow_init(struct parser_follow *pfollow, struct parser_first *pfirst);
+void parser_follow_destroy(struct parser_follow *pfollow);
+void parser_follow_print(struct parser_follow *pfollow);
+
+struct bitset * parser_follow(struct parser_follow *pfollow, size_t nt);
 
 /* ============ */
 /* Items */

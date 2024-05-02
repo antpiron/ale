@@ -1,20 +1,20 @@
 #include "ale/error.h"
 #include "ale/parser.h"
 
-   /*
-    A -> 'a' B C
-    A ->
-    B ->
-    B -> 'b'
-    C -> 'c'
-    first(A) = { 'c', 'b' }
-
-    first({}) = {EPS}
-    first(terminal) = {terminal}
-    first(NT) = {first(lhs) |  for all NT1 -> lhs}
-    first(NT A B ...) = first(NT)                                  if EPS not in first(NT)
-                      = (first{NT} - EPS) union first(A B ...)     if EPS in first(NT)
-   */
+/*
+  A -> 'a' B C
+  A ->
+  B ->
+  B -> 'b'
+  C -> 'c'
+  first(A) = { 'c', 'b' }
+    
+  first({}) = {EPS}
+  first(terminal) = {terminal}
+  first(NT) = {first(lhs) |  for all NT1 -> lhs}
+  first(NT A B ...) = first(NT)                                  if EPS not in first(NT)
+                    = (first{NT} - EPS) union first(A B ...)     if EPS in first(NT)
+*/
 int
 parser_first_init(struct parser_first *pf, struct parser_grammar *g)
 {
@@ -47,7 +47,8 @@ parser_first_init(struct parser_first *pf, struct parser_grammar *g)
 	  else
 	    {
 	      size_t dot = 0;
-	      size_t ones = bitset_ones(rule_first);
+	      // do not count if change is already set
+	      size_t ones = change ? 0 : bitset_ones(rule_first);
 
 	      for ( dot = 0 ; dot < rule->n_rhs ; dot++)
 		{
@@ -106,21 +107,6 @@ parser_first_destroy(struct parser_first *pf)
 }
 
 void
-parser_terminals_print(struct parser_first *pf, struct bitset *first)
-{
-  struct parser_grammar *g = pf->g;
-
-  printf("{");
-
-  for (ssize_t j = 0, terminal = -1 ;  bitset_iterate(first, &terminal) ; j++ )
-    	{
-	  printf((0 == j)?"\"%s\"":", \"%s\"", index_rget(&g->terminals, terminal) );
-	}
-      
-  printf("}");
-}
-  
-void
 parser_first_print(struct parser_first *pf)
 {
   struct parser_grammar *g = pf->g;
@@ -131,7 +117,7 @@ parser_first_print(struct parser_first *pf)
       
       printf("%3zu. first(%s) = ", i, index_rget(&g->nonterminals, i));
 
-      parser_terminals_print(pf, first);
+      parser_terminals_print(g, first);
       printf("\n");
     }
 }
@@ -168,20 +154,3 @@ parser_first(struct parser_first *pf, struct bitset *first,
       bitset_or(first, first, follow);
     }
 }
-
-/* int */
-/* parser_first(struct parser_grammar *g, */
-/* 	     size_t n, struct grammar_rule_node nodes[n], */
-/* 	     struct bitset *first) */
-/* { */
-/*   int ret = 0; */
-/*   struct bitset done; */
-  
-/*   bitset_init(&done, g->n_nonterminals); */
-  
-/*   // ret = parser_first_rec(g, n, nodes, first, &done); */
-  
-/*   bitset_destroy(&done); */
-  
-/*   return ret; */
-/* } */

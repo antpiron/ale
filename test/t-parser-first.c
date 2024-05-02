@@ -115,21 +115,21 @@ main(int argc, char *argv[argc])
   parser_first(&pf, &first, g.rules.data[0].n_rhs, g.rules.data[0].rhs.data, NULL);
   count = bitset_ones(&first);
   printf("first(A B C D) = ");
-  parser_terminals_print(&pf, &first);
+  parser_terminals_print(&g, &first);
   printf("\n");
   ERROR_UNDEF_FATAL_FMT(4 != count, "parser_first(): |first(A B C D)| == %zu != 4\n", count);
 
   parser_first(&pf, &first, g.rules.data[0].n_rhs - 1, g.rules.data[0].rhs.data + 1, NULL);
   count = bitset_ones(&first);
   printf("first(D) = ");
-  parser_terminals_print(&pf, &first);
+  parser_terminals_print(&g, &first);
   printf("\n");
   ERROR_UNDEF_FATAL_FMT(1 != count, "parser_first(): |first(B C D)| == %zu != 1\n", count);
 
   parser_first(&pf, &first, g.rules.data[0].n_rhs - 2, g.rules.data[0].rhs.data + 2, NULL);
   count = bitset_ones(&first);
   printf("first() = ");
-  parser_terminals_print(&pf, &first);
+  parser_terminals_print(&g, &first);
   printf("\n");
   ERROR_UNDEF_FATAL_FMT(1 != count, "parser_first(): |first(B C D)| == %zu != 1\n", count);
 
