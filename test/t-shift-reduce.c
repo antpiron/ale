@@ -79,7 +79,7 @@ action_table(size_t state, size_t token, void *cls)
       if ( 4 == state )
 	{
 	  pa.type = PARSER_ACTION_REDUCE;
-	  pa.reduce.lhs = NT_R; // RULE_R_a;
+	  pa.reduce.lhs = NT_R; // RULE_R_R_b;
 	  pa.reduce.rhs_n = 2;
 	  pa.reduce.callback = NULL;
 	}
@@ -132,10 +132,10 @@ main(int argc, char *argv[argc])
   parser_shift_reduce_init(&sr, goto_table, action_table, next_token);
 
   ret = parser_shift_reduce(&sr, value, &in);
-  ERROR_FATAL_FMT(0 != ret, "parser_shift_reduce() returner %d != 0\n", ret);
+  ERROR_FATAL_FMT(0 != ret, "parser_shift_reduce() returned %d != 0\n", ret);
 
   ret = parser_shift_reduce(&sr, value, &in_error);
-  ERROR_FATAL_FMT(0 == ret, "parser_shift_reduce() returner %d instead of error\n", ret);
+  ERROR_FATAL_FMT(0 == ret, "parser_shift_reduce() returned %d instead of error\n", ret);
  
   parser_shift_reduce_destroy(&sr);
 
