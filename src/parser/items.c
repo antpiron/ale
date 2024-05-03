@@ -47,6 +47,10 @@ parser_item_set_add(struct parser_item_set *item_set, size_t rule, size_t dot, s
 int
 parser_item_set_closure(struct parser_item_set *item_set, struct parser_grammar *g)
 {
+  struct bitset closure;
+
+  bitset_init(&closure,  g->n_rules);
+  
   for (size_t i = 0 ; i < item_set->n ; i++)
     {
       struct parser_item *item = item_set->items.data + i;
@@ -58,10 +62,16 @@ parser_item_set_closure(struct parser_item_set *item_set, struct parser_grammar 
 
 	  if (GRAMMAR_NON_TERMINAL == node->type)
 	    {
-	      // TODO: call parser_item_first() on item->dot + 1
+	      for (size_t j = 0 ; j < g->n_rules ; j++)
+		{
+		  if (node->index == g->rules.data[j].lhs)
+		    bitset_set(&closure, j);
+		}
 	    }
 	}
     }
+
+  bitset_destroy(&closure);
   
   return 0;
 }
