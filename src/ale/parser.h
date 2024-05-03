@@ -116,11 +116,16 @@ struct parser_item_set
 {
   size_t n;
   struct vector_parser_item items;
-  // TODO: use a graph structure
-  // size_t n_next;
-  // struct parser_item_set **next;
 };
 
+VECTOR_INIT(parser_item_set, struct parser_item_set)
+VECTOR_INIT(bitset, struct bitset)
+struct parser_item_set_graph
+{
+  size_t n;
+  struct vector_parser_item_set items_sets;
+  struct vector_bitset bitsets;
+};
 
 // grammar_item_first(struct parser_grammar *g, struct parser_item);
 

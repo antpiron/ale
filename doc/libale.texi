@@ -306,22 +306,22 @@ Iterate over the bitset @var{bs}. Return -1 if there is no more any bit set to o
 
 @deftypefn {C Function} {static inline void} @
                         bitset_xor (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
-Performs @var{dst} = @var{a} xor @var{b} on n bits, n being the minimum number of bits between @var{dst}, @var{a} and @var{b}.
+Performs @var{dst} = @var{a} xor @var{b} on n bits, n being the maximum number of bits between @var{dst}, @var{a} and @var{b}. Values outside a bitset range are considered unset.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
                         bitset_and (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
-Performs @var{dst} = @var{a} and @var{b} on n bits, n being the minimum number of bits between @var{dst}, @var{a} and @var{b}.
+Performs @var{dst} = @var{a} and @var{b} on n bits, n being the maximum number of bits between @var{dst}, @var{a} and @var{b}. Values outside a bitset range are considered unset.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
                         bitset_or (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
-Performs @var{dst} = @var{a} or @var{b} on n bits, n being the minimum number of bits between @var{dst}, @var{a} and @var{b}.
+Performs @var{dst} = @var{a} or @var{b} on n bits, n being the maximum number of bits between @var{dst}, @var{a} and @var{b}. Values outside a bitset range are considered unset.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
                         bitset_not (struct bitset @var{dst}, struct bitset @var{a})
-Performs @var{dst} = not @var{a}.
+Performs @var{dst} = not @var{a}. @var{dst} is resized to @var{a} length.
 @end deftypefn
 
 @deftypefn {C Function} {static inline size_t} @

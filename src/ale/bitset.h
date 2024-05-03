@@ -4,8 +4,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <unistd.h>
 
-#include "error.h"
+#include <ale/portability.h>
+#include <ale/error.h>
 
 struct bitset
 {
@@ -187,47 +189,29 @@ bitset_iterate(struct bitset *bs, ssize_t *state)
   return 0;
 }
 
-static inline void
-bitset_xor(struct bitset *dst, struct bitset *a, struct bitset *b)
-{
-  size_t s = b->n;
-  if (a->n < s)
-    s = a->n;
-  // if (dst->n < s)
-  //  s = dst->n;
 
-  bitset_grow(dst, s);
-  for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
-    dst->buf[i] = a->buf[i] ^ b->buf[i];
-}
+#define BITSET_OP(NAME, OP)						\
+  static inline void							\
+  bitset_##NAME(struct bitset *dst, struct bitset *a, struct bitset *b)	\
+  {									\
+    size_t max = MAX(dst->n, MAX(a->n, b->n));				\
+    size_t a64 = (a->n + 63) / 64;					\
+    size_t b64 = (b->n + 63) / 64;					\
+									\
+    bitset_grow(dst, max);				                \
+									\
+    for (size_t i = 0 ; i < (max + 63) / 64 ; i++)			\
+      {									\
+	uint64_t aa = (i < a64) ? a->buf[i] : 0;			\
+	uint64_t bb = (i < b64) ? b->buf[i] : 0;			\
+	dst->buf[i] = aa OP bb;						\
+      }									\
+   }
 
-static inline void
-bitset_and(struct bitset *dst, struct bitset *a, struct bitset *b)
-{
-  size_t s = b->n;
-  if (a->n < s)
-    s = a->n;
-  // if (dst->n < s)
-  //  s = dst->n;
-
-  bitset_grow(dst, s);
-  for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
-    dst->buf[i] = a->buf[i] & b->buf[i];
-}
-
-static inline void
-bitset_or(struct bitset *dst, struct bitset *a, struct bitset *b)
-{
-  size_t s = b->n;
-  if (a->n < s)
-    s = a->n;
-  // if (dst->n < s)
-  //  s = dst->n;
-
-  bitset_grow(dst, s);
-  for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
-    dst->buf[i] = a->buf[i] | b->buf[i];
-}
+BITSET_OP(xor, ^)
+BITSET_OP(and, &)
+BITSET_OP(or, |)
+  
 
 static inline void
 bitset_not(struct bitset *dst, struct bitset *a)
@@ -237,7 +221,7 @@ bitset_not(struct bitset *dst, struct bitset *a)
   size_t slast = (s-1) % 64;
   uint64_t mask = (slast == 63)?0ull-1ull:(1ull << (slast + 1)) - 1ull;
 
-  bitset_grow(dst, s);
+  bitset_resize_n(dst, s);
 
   for (size_t i = 0 ; i < (s + 63) / 64 ; i++)
     dst->buf[i] = ~ a->buf[i];
