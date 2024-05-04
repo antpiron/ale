@@ -173,21 +173,33 @@ static inline int
 bitset_iterate(struct bitset *bs, ssize_t *state)
 {
   size_t startpos = (*state < 0) ? 0 : *state + 1;
+  size_t startpos_mod = startpos % 64;
 
+  if (0 < startpos_mod &&
+      0 == ( bs->buf[startpos / 64] & ~( (1ull << startpos_mod ) - 1ull) ))
+    startpos += 64 - startpos_mod;
+      
   /* skip zeroes */
-  for ( ;  startpos < bs->n && 0 == bs->buf[startpos / 64] ; startpos += 64)
-    ;
-    
-  /* TODO: optimize */
-  for (size_t i = startpos ; i < bs->n ; i++)
+  for ( ;  startpos < bs->n ; startpos += 64)
     {
-      if ( bitset_isset(bs, i) )
+      uint64_t v = bs->buf[startpos / 64];
+      
+      if (0 != v)
 	{
-	  *state = (ssize_t) i;
+	  size_t c;
+
+	  v = v >> (startpos % 64);
+
+	  v = (v ^ (v - 1)) >> 1;  // Set v's trailing 0s to 1s and zero rest
+	  for (c = 0; v; c++)
+	    {
+	      v >>= 1;
+	    }
+	  *state = startpos + c;
 	  return 1;
 	}
     }
-
+  
   *state = (ssize_t) bs->n;
   
   return 0;
