@@ -172,11 +172,12 @@ bitset_isempty(struct bitset *bs)
 static inline int
 bitset_iterate(struct bitset *bs, ssize_t *state)
 {
-  ssize_t startpos = *state + 1;
+  size_t startpos = (*state < 0) ? 0 : *state + 1;
 
-  if (startpos < 0 )
-    startpos = 0;
-
+  /* skip zeroes */
+  for ( ;  startpos < bs->n && 0 == bs->buf[startpos / 64] ; startpos += 64)
+    ;
+    
   /* TODO: optimize */
   for (size_t i = startpos ; i < bs->n ; i++)
     {
@@ -186,6 +187,9 @@ bitset_iterate(struct bitset *bs, ssize_t *state)
 	  return 1;
 	}
     }
+
+  *state = (ssize_t) bs->n;
+  
   return 0;
 }
 

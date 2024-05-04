@@ -11,21 +11,30 @@
 #define HASH_DEFAULT_SIZE ( (1 << 16) + 1 )
 #define HASH_MAX_COL ( 1 << 5 )
 
-static inline size_t
-hash_func_int(int buf, const uint8_t *key)
-{
-  uint64_t hashed;
+#define HASH_SCALAR_FUNCTIONS(name,keytype)				\
+  static inline size_t							\
+  hash_func_##name(keytype buf, const uint8_t *key)			\
+  {									\
+    uint64_t hashed;							\
+									\
+    siphash((uint8_t *) &hashed, (uint8_t*) &buf, (uint64_t) sizeof(buf), key); \
+									\
+    return (size_t) hashed;						\
+  }									\
+									\
+  static inline int							\
+  equal_func_##name(keytype a, keytype b)				\
+  {									\
+    return a == b;							\
+  }
 
-  siphash((uint8_t *) &hashed, (uint8_t*) &buf, (uint64_t) sizeof(buf), key);
-  
-  return (size_t) hashed;
-}
+HASH_SCALAR_FUNCTIONS(int, int)
+HASH_SCALAR_FUNCTIONS(size_t, size_t)
+HASH_SCALAR_FUNCTIONS(ssize_t, ssize_t)
+HASH_SCALAR_FUNCTIONS(long, long)
+HASH_SCALAR_FUNCTIONS(longlong, long long)
 
-static inline int
-equal_func_int(int a, int b)
-{
-  return a == b;
-}
+
 
 static inline size_t
 hash_func_chars(char *buf, const uint8_t *key)

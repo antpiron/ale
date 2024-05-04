@@ -39,7 +39,9 @@ struct grammar_rule
 };
 
 VECTOR_INIT(grammar_rule, struct grammar_rule)
-
+// HASH_INIT(name, keytype, valuetype, equal_function, hash_function)
+HASH_INIT(nt, size_t, struct bitset, equal_func_size_t, hash_func_size_t)
+  
 struct parser_grammar
 {
   struct mem_pool pool;
@@ -47,6 +49,7 @@ struct parser_grammar
   ssize_t start_nt;
   struct index terminals, nonterminals;
   struct vector_grammar_rule rules;
+  struct hash_nt nonterminals_bitsets; 
 };
 
 void grammar_init(struct parser_grammar *g);
