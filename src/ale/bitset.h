@@ -176,10 +176,10 @@ bitset_iterate(struct bitset *bs, ssize_t *state)
   size_t startpos_mod = startpos % 64;
 
   if (0 < startpos_mod &&
-      0 == ( bs->buf[startpos / 64] & ~( (1ull << startpos_mod ) - 1ull) ))
+      0 == (bs->buf[startpos / 64] >> startpos_mod) )
     startpos += 64 - startpos_mod;
-      
-  /* skip zeroes */
+
+  /* here, if startpos is not divisible by 64 then some bits are non-null in the current uint64_t */
   for ( ;  startpos < bs->n ; startpos += 64)
     {
       uint64_t v = bs->buf[startpos / 64];
