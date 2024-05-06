@@ -5,7 +5,7 @@
 #include "ale/bitset.h"
 #include "ale/random.h"
 
-#define MAX_SET (1 << 22)
+#define MAX_SET (1ull << 30)
 #define MAX_SPARSE_SET (1 << 14)
 
 int
@@ -21,7 +21,7 @@ main(int argc, char *argv[argc])
  
   // set
   clock_gettime(CLOCK_MONOTONIC, &st);	
-  for (int i = 0 ; i < MAX_SET ; i++)
+  for (size_t i = 0 ; i < MAX_SET ; i++)
     {	
       bitset_set(&bs, i);
     }
@@ -47,7 +47,7 @@ main(int argc, char *argv[argc])
 
   // iterate sparse
   bitset_reset(&bs);
-  for (int i = 0 ; i < MAX_SPARSE_SET ; i++)
+  for (size_t i = 0 ; i < MAX_SPARSE_SET ; i++)
     {
       bitset_set(&bs, rd_rand_u64() % MAX_SET);
     }
