@@ -25,7 +25,9 @@
   static inline size_t							\
   hash_func_##name##_fast(keytype buf, const uint8_t *key)		\
   {									\
-    return (size_t) (buf ^ *(keytype *) key );				\
+    /* SIP_KEYLEN == 16 */						\
+    uint64_t lo = *(uint64_t*) key, hi = *(uint64_t*) (key + 8);	\
+    return (size_t) (buf ^ lo ^ hi);					\
   }									\
 									\
   static inline int							\
