@@ -21,6 +21,7 @@ grammar_init(struct parser_grammar *g)
    grammar_add_terminal(g, "");
    index_init(&g->nonterminals);
    vector_grammar_rule_init(&g->rules);
+   hash_nt_init(&g->nonterminals_bitsets);
 }
 
 void
@@ -29,7 +30,6 @@ grammar_set_start(struct parser_grammar *g, size_t start_nt)
   g->start_nt = start_nt;
 }
 
-
 void
 grammar_destroy(struct parser_grammar *g)
 {
@@ -37,6 +37,7 @@ grammar_destroy(struct parser_grammar *g)
   index_destroy(&g->terminals);
   index_destroy(&g->nonterminals);
   vector_grammar_rule_destroy(&g->rules);
+  hash_nt_destroy_full(&g->nonterminals_bitsets, NULL, bitset_destroy);
 }
 
 void
@@ -135,6 +136,11 @@ grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...)
   va_end(ap);
 
   vector_grammar_rule_set(&g->rules, g->n_rules, rule);
+
+  struct bitset *bs;
+  if ( hash_nt_get(&g->nonterminals_bitsets, lhs, &bs) )
+    ;
+    
 
   return g->n_rules++;
 }

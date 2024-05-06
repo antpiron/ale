@@ -8,6 +8,7 @@
 
 #include <ale/portability.h>
 #include <ale/error.h>
+#include <ale/memory.h>
 
 struct bitset
 {
@@ -24,6 +25,45 @@ bitset_init(struct bitset *bs, size_t n)
   ERROR_ERRNO_RET( NULL == (bs->buf = calloc( bs->alloc_size, sizeof(uint64_t)) ), -1);
   
   return 0;
+}
+
+static inline void
+bitset_destroy(struct bitset *bs)
+{
+  free(bs->buf);
+}
+
+static inline struct bitset*
+bitset_new(size_t n)
+{
+  struct bitset *bs = malloc(sizeof(struct bitset));
+  
+  ERROR_ERRNO_RET( NULL == bs, NULL);
+ 
+  ERROR_RET( -1 == bitset_init(bs, n), NULL);
+  
+  return bs;
+}
+
+static inline void
+bitset_free(struct bitset *bs)
+{
+  bitset_destroy(bs);
+  free(bs->buf);
+}
+
+static inline struct bitset*
+bitset_new_pool(struct mem_pool *pool, size_t n)
+{
+  struct bitset *bs = mem_malloc(pool, sizeof(struct bitset));
+  
+  ERROR_RET( NULL == bs, NULL);
+ 
+  ERROR_RET( -1 == bitset_init(bs, n), NULL);
+
+  mem_callback(pool, bs, (mem_callback_func_t) bitset_destroy);
+  
+  return bs;
 }
 
 static inline void
@@ -284,10 +324,5 @@ bitset_unsetrange(struct bitset *bs, size_t index, size_t len)
   bitset_unsetrange_no_grow(bs, index, len);
 }
 
-static inline void
-bitset_destroy(struct bitset *bs)
-{
-  free(bs->buf);
-}
 
 #endif

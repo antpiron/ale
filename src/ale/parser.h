@@ -40,7 +40,7 @@ struct grammar_rule
 
 VECTOR_INIT(grammar_rule, struct grammar_rule)
 // HASH_INIT(name, keytype, valuetype, equal_function, hash_function)
-HASH_INIT(nt, size_t, struct bitset, equal_func_size_t, hash_func_size_t)
+HASH_INIT(nt, size_t, struct bitset*, equal_func_size_t, hash_func_size_t_fast)
   
 struct parser_grammar
 {

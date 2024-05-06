@@ -262,37 +262,49 @@ Initialise the bitset @var{bs} to zero (unset) with a maximal size of @var{n} bi
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
-           bitset_free (struct bitset @var{bs})
+           bitset_destroy (struct bitset *@var{bs})
 
-Desallocate @var{bs}.
+Destroy the bitset @var{bs}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline struct bitset*} @
+           bitset_new (size_t @var{n})
+
+Return a point to a malloc allocated bitset initialized to zero (unset) with a maximal size of @var{n} bits. Return NULL on error and set error_errno accordingly.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
-           bitset_reset (struct bitset @var{bs})
+           bitset_free (struct bitset *@var{bs})
+
+Desallocate and destroy @var{bs}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline void} @
+           bitset_reset (struct bitset *@var{bs})
 
 Reset the bitset @var{bs}.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
-           bitset_set (struct bitset @var{bs}, size_t @var{index})
+           bitset_set (struct bitset *@var{bs}, size_t @var{index})
 
 Set the bit at position @var{index} of the bitset @var{bs}.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
-           bitset_unset (struct bitset @var{bs}, size_t @var{index})
+           bitset_unset (struct bitset *@var{bs}, size_t @var{index})
 
 Unset the bit at position @var{index} from the bitset @var{bs}.
 @end deftypefn
 
 @deftypefn {C Function} {static inline int} @
-           bitset_isset (struct bitset @var{bs}, size_t @var{index})
+           bitset_isset (struct bitset *@var{bs}, size_t @var{index})
 
 Test the bit at position @var{index} from the bitset @var{bs}. Return 1 if the bit is set, 0 otherwise.
 @end deftypefn
 
 @deftypefn {C Function} {static inline int} @
-           bitset_isempty (struct bitset @var{bs})
+           bitset_isempty (struct bitset *@var{bs})
 
 Test if the bitset @var{bs} is empty. Return 1 on emptiness, 0 otherwise.
 @end deftypefn
@@ -305,32 +317,32 @@ Iterate over the bitset @var{bs}. Return -1 if there is no more any bit set to o
 
 
 @deftypefn {C Function} {static inline void} @
-                        bitset_xor (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
+                        bitset_xor (struct bitset *@var{dst}, struct bitset *@var{a}, struct bitset *@var{b})
 Performs @var{dst} = @var{a} xor @var{b} on n bits, n being the maximum number of bits between @var{dst}, @var{a} and @var{b}. Values outside a bitset range are considered unset.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
-                        bitset_and (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
+                        bitset_and (struct bitset *@var{dst}, struct bitset *@var{a}, struct bitset *@var{b})
 Performs @var{dst} = @var{a} and @var{b} on n bits, n being the maximum number of bits between @var{dst}, @var{a} and @var{b}. Values outside a bitset range are considered unset.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
-                        bitset_or (struct bitset @var{dst}, struct bitset @var{a}, struct bitset @var{b})
+                        bitset_or (struct bitset *@var{dst}, struct bitset *@var{a}, struct bitset *@var{b})
 Performs @var{dst} = @var{a} or @var{b} on n bits, n being the maximum number of bits between @var{dst}, @var{a} and @var{b}. Values outside a bitset range are considered unset.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
-                        bitset_not (struct bitset @var{dst}, struct bitset @var{a})
+                        bitset_not (struct bitset *@var{dst}, struct bitset *@var{a})
 Performs @var{dst} = not @var{a}. @var{dst} is resized to @var{a} length.
 @end deftypefn
 
 @deftypefn {C Function} {static inline size_t} @
-                        bitset_ones (struct bitset @var{bs})
+                        bitset_ones (struct bitset *@var{bs})
 Return the number of ones.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
-           bitset_setrange (struct bitset @var{bs}, size_t @var{index}, size_t @var{len})
+           bitset_setrange (struct bitset *@var{bs}, size_t @var{index}, size_t @var{len})
 
 Set @var{len} bits from position @var{index} of the bitset @var{bs}.
 @end deftypefn
