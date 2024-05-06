@@ -16,8 +16,8 @@ HASH_INIT(int_fast, int , int, equal_func_int, hash_func_int_fast)
     double diff, rate;							\
     struct timespec st, et;						\
 									\
-    printf("hash function = %s\n", #name);				\
-    hash_##name##_init_size(&hash, MAX_INSERT << 1);			\
+    printf("\nhash function = %s\n", #name);				\
+    hash_##name##_init_size(&hash, MAX_INSERT << 2);			\
 									\
     clock_gettime(CLOCK_MONOTONIC, &st);				\
     for (int i = 0 ; i < MAX_INSERT ; i++)				\
@@ -29,7 +29,7 @@ HASH_INIT(int_fast, int , int, equal_func_int, hash_func_int_fast)
     diff = (et.tv_sec - st.tv_sec) + (et.tv_nsec - st.tv_nsec) / 1e9;	\
     rate = MAX_INSERT / (diff * 1000 * 1000);				\
     									\
-    printf("\nSet %12.2F MKeys/sec",rate);				\
+    printf("Set %12.2F MKeys/sec",rate);				\
     									\
     									\
     clock_gettime(CLOCK_MONOTONIC, &st);				\
