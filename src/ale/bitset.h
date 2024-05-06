@@ -66,8 +66,12 @@ bitset_new_pool(struct mem_pool *pool, size_t n)
   return bs;
 }
 
-/* TODO: fix undefined behavior for << and >> when shifted by BITCHAR * sizeof(uint64_t)
-   If the value of the right operand is negative or is greater than or equal to the width of the promoted left operand, the behavior is undefined. */
+/* Be careful if changing code here,
+   undefined behavior for << and >> when shifted by BITCHAR * sizeof(uint64_t)
+   "If the value of the right operand is negative or is greater than or equal to the width of
+   the promoted left operand, the behavior is undefined."
+   Everything looks fine by now.
+*/
 static inline void
 bitset_setrange_no_grow(struct bitset *bs, size_t index, size_t len)
 {
