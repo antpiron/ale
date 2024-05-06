@@ -234,7 +234,75 @@ The following macro are used to send the error to the logging facility
 Sends to the logging facility an appropriate error message prefixed with @var{str} or @code{printf}-like variable length argument format by @var{fmt} if @var{test} is true. The log entry is sent @code{syslog(...)} with the level @var{level}.
 @end deffn
 
-@node Bitset, Vector, Error, Top
+@node Mempools, Bitset, Error, Top
+@chapter Memory pools
+
+This module provides a memory pool for fast allocation. All the memory allocated from a pool is unallocated at once. Callback to be called before destruction of the pool can be associated.
+
+@example
+
+#include <ale/memory.h>
+
+void
+callback(void *ptr)
+@{
+  printf("Hello end of the world!\n");
+@}
+
+int
+main(int argc, char *argv[ ]) 
+@{
+  struct mem_pool pool;
+  char *buf;
+
+  mem_init(&pool);
+
+  /* Allocate a buffer of 1024 char */
+  buf = mem_malloc(1024 * sizeof(char));     
+
+  /* Associate a destroy callback with the pool */
+  mem_callback((&pool, NULL, callback);
+
+  /* Call all the callback and deallocate the whole memory pool */
+  mem_destroy(&pool);
+
+  return EXIT_SUCCESS;
+@}
+
+@end example
+
+
+@deftypefn {C Function} {void} @
+           mem_init (struct mem_poolt *@var{pool})
+
+Initialize a memory pool.
+@end deftypefn
+
+@deftypefn {C Function} {void} @
+           mem_init_size (struct mem_pool *@var{pool}, size_t @var{n})
+
+Initialize a memory pool of @var{n} bytes. 
+@end deftypefn
+
+@deftypefn {C Function} {void} @
+           mem_destroy (struct mem_pool *@var{pool})
+
+Destroy a memory pool and call all the callback function.
+@end deftypefn
+
+@deftypefn {C Function} {void *} @
+           mem_malloc (struct mem_pool *@var{pool}, size_t @var{n})
+
+Return a @var{pool} allocated pointer to a @var{n} bytes buffer. 
+@end deftypefn
+
+@deftypefn {C Function} {void} @
+           mem_callback (struct mem_pool *@var{pool}, void *@var{ptr}, void (*@var{destroy})(void *@var{ptr}))
+
+Associate a callback *@var{destroy} to the @var{pool}. The callback will be call with @var{ptr} in parameter befor the pool is destroyed. 
+@end deftypefn
+
+@node Bitset, Vector, Mempools, Top
 @chapter Bitset
 
 @example
@@ -247,7 +315,7 @@ main(int argc, char *argv[ ])
   struct bitset bs;
 
   bitset_init(&bs, 1024);
-  bitset_free(bs);
+  bitset_destroy(&bs);
 
   return EXIT_SUCCESS;
 @}
@@ -270,13 +338,19 @@ Destroy the bitset @var{bs}.
 @deftypefn {C Function} {static inline struct bitset*} @
            bitset_new (size_t @var{n})
 
-Return a point to a malloc allocated bitset initialized to zero (unset) with a maximal size of @var{n} bits. Return NULL on error and set error_errno accordingly.
+Return a pointer to a malloc allocated bitset initialized to zero (unset) with a maximal size of @var{n} bits. Return NULL on error and set error_errno accordingly.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
            bitset_free (struct bitset *@var{bs})
 
 Desallocate and destroy @var{bs}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline struct bitset*} @
+           bitset_new_pool (struct mem_pool *@var{pool}, size_t @var{n})
+
+Return a pointer to a @var{pool} (@xref{Mempools}) allocated bitset initialized to zero (unset) with a maximal size of @var{n} bits. Return NULL on error and set error_errno accordingly.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
