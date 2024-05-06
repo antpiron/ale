@@ -22,6 +22,12 @@
     return (size_t) hashed;						\
   }									\
 									\
+  static inline size_t							\
+  hash_func_##name##_fast(keytype buf, const uint8_t *key)		\
+  {									\
+    return (size_t) (buf ^ *(keytype *) key );				\
+  }									\
+									\
   static inline int							\
   equal_func_##name(keytype a, keytype b)				\
   {									\
