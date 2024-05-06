@@ -66,6 +66,7 @@ bitset_new_pool(struct mem_pool *pool, size_t n)
   return bs;
 }
 
+/* TODO: fix undefined behavior for << and >> when shift by 0 or BITCHAR * sizeof(uint64_t) */
 static inline void
 bitset_setrange_no_grow(struct bitset *bs, size_t index, size_t len)
 {
