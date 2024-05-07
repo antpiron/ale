@@ -9,8 +9,8 @@
 int
 main(int argc, char *argv[argc])
 {
-#define LEN1 (60000)
-#define LEN2 (48000)
+#define LEN1 (1ull << 17)
+#define LEN2 (1ull << 18)
   double *x = malloc(sizeof(double) * LEN1);
   double *y = malloc(sizeof(double) * LEN2);
   double res, exp, delta;
