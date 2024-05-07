@@ -9,6 +9,15 @@
 //#include <sys/random.h>
 @RANDOM_HEADER@
 
+#ifndef MAX
+# define MAX(a,b) ( ((a) < (b)) ? (b) : (a))
+#endif
+
+#ifndef MIN
+# define MIN(a,b) ( ((a) <= (b)) ? (a) : (b))
+#endif
+
+
 #ifndef PATH_MAX
 # define PATH_MAX 4096
 #endif
