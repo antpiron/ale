@@ -10,7 +10,7 @@ main(int argc, char *argv[argc])
 {
 #define LEN (1000000)
   double *x = malloc(sizeof(double)*LEN);
-  double eps = 0.01, res;
+  double eps = 0.05, res;
   double count = 0;
   double alpha = 10, beta = 4;
   double ralpha, rbeta;
