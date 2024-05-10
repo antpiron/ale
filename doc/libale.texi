@@ -477,13 +477,23 @@ Destroy the structure.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
+                        vector_##name##_grow (struct vector_##name *@var{vector}, size_t @var{pos})
+Grow the vector to accomodate at least @var{pos} + 1 values.
+@end deftypefn
+
+@deftypefn {C Function} {static inline void} @
                         vector_##name##_set (struct vector_##name *@var{vector}, size_t @var{pos}, type @var{value})
 Set the element at position @var{pos} with the value @var{value}.
 @end deftypefn
 
 @deftypefn {C Function} {static inline type} @
-                        vector_##name##_get (struct vector_##name *@var{vector}, size_t @var{pos})
+                        vector_##name##_get (const struct vector_##name *@var{vector}, size_t @var{pos})
 Return the element at position @var{pos}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline type*} @
+                        vector_##name##_get_ptr (struct vector_##name *@var{vector}, size_t @var{pos})
+Return a pointer to the element at position @var{pos}. The returned pointed value can be uninitialized.
 @end deftypefn
 
 @node Single linked list, Hash, Vector, Top

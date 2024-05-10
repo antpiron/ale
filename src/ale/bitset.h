@@ -49,7 +49,7 @@ static inline void
 bitset_free(struct bitset *bs)
 {
   bitset_destroy(bs);
-  free(bs->buf);
+  free(bs);
 }
 
 static inline struct bitset*

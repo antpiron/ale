@@ -49,7 +49,7 @@
   }									\
   									\
   static inline void							\
-  vector_##name##_set(struct vector_##name *vector, size_t pos, type value) \
+  vector_##name##_grow(struct vector_##name *vector, size_t pos)	\
   {									\
     if (vector->size <= pos)						\
       {									\
@@ -58,6 +58,12 @@
   			  "Unable to allocate memory in vector_init()\n"); \
   	vector->size = newsize;						\
       }									\
+  }									\
+									\
+  static inline void							\
+  vector_##name##_set(struct vector_##name *vector, size_t pos, type value) \
+  {									\
+    vector_##name##_grow(vector, pos);					\
     vector->data[pos] = value;						\
   }									\
   									\
@@ -65,6 +71,13 @@
   vector_##name##_get(const struct vector_##name *vector, size_t pos)	\
   {									\
     return vector->data[pos];						\
+  }									\
+									\
+  static inline type*							\
+  vector_##name##_get_ptr(struct vector_##name *vector, size_t pos)	\
+  {									\
+    vector_##name##_grow(vector, pos);					\
+    return vector->data + pos;						\
   }									\
   									\
   static inline void							\
