@@ -488,12 +488,12 @@ Set the element at position @var{pos} with the value @var{value}.
 
 @deftypefn {C Function} {static inline type} @
                         vector_##name##_get (const struct vector_##name *@var{vector}, size_t @var{pos})
-Return the element at position @var{pos}.
+Return the element at position @var{pos}. If the element was not previously set, the result is undefined and can lead to a out-of-bound access.
 @end deftypefn
 
 @deftypefn {C Function} {static inline type*} @
                         vector_##name##_get_ptr (struct vector_##name *@var{vector}, size_t @var{pos})
-Return a pointer to the element at position @var{pos}. The returned pointed value can be uninitialized.
+Return a pointer to the element at position @var{pos}. The pointed value can be uninitialized.
 @end deftypefn
 
 @node Single linked list, Hash, Vector, Top
