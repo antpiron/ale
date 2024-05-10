@@ -9,7 +9,6 @@ parser_follow_init(struct parser_follow *pfollow, struct parser_first *pfirst)
   struct bitset *follow = malloc(sizeof(struct bitset) * g->n_nonterminals);
   struct bitset first;
   int change;
-  size_t start_nt = g->start_nt < 0 ? 0 :  g->start_nt;
 
   pfollow->pfirst = pfirst;
   pfollow->follow = follow;
@@ -19,7 +18,8 @@ parser_follow_init(struct parser_follow *pfollow, struct parser_first *pfirst)
 
   bitset_init(&first, g->n_terminals);
 
-  bitset_set(follow + start_nt,  GRAMMAR_EOF);
+  /* set start rule follow to $ */
+  bitset_set(follow,  GRAMMAR_EOF);
     
   
   do
@@ -86,8 +86,11 @@ parser_follow_print(struct parser_follow *pfollow)
   for (size_t i = 0 ; i < g->n_nonterminals ; i++)
     {
       struct bitset *follow = pfollow->follow + i;
-      
-      printf("%3zu. follow(%s) = ", i, index_rget(&g->nonterminals, i));
+
+      if (0 == i)
+	printf("     follow(%s) = ", "[Start]");
+      else
+	printf("%3zu. follow(%s) = ", i, index_rget(&g->nonterminals, i));
 
       parser_terminals_print_full(g, follow, 1);
       printf("\n");

@@ -49,6 +49,8 @@ main(int argc, char *argv[argc])
   C = grammar_add_nonterminal(&g, "C");
   D = grammar_add_nonterminal(&g, "D");
 
+  grammar_set_start(&g, S);
+  
   grammar_add_rule_va(&g,
 		      S,
 		      G_NT(&g, "E"),
@@ -91,6 +93,9 @@ main(int argc, char *argv[argc])
 		      D,
 		      G_T(&g, "d"),
 		      NULL);
+
+  grammar_print(&g);
+  printf("\n");
 
   parser_first_init(&pfirst, &g);
   parser_follow_init(&pfollow, &pfirst);

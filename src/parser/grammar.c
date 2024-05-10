@@ -12,24 +12,39 @@
 void
 grammar_init(struct parser_grammar *g)
 {
-   mem_init(&g->pool);
+  size_t S;
+  mem_init(&g->pool);
+  
+  g->n_terminals = g->n_nonterminals = g->n_rules = 0;
+  g->start_nt = -1;
 
-   g->n_terminals = g->n_nonterminals = g->n_rules = 0;
-   g->start_nt = -1;
-   index_init(&g->terminals);
-   /* Add epsilon at index 0 */
-   grammar_add_terminal(g, "");
-   /* Add augmented rule at index 0 */
-   /* grammar_add_nonterminal(g, ""); */
-   index_init(&g->nonterminals);
-   vector_grammar_rule_init(&g->rules);
-   vector_nt_init(&g->nonterminals_bitsets);
+  index_init(&g->terminals);
+  /* Add epsilon at index 0 */
+  grammar_add_terminal(g, "");
+
+  index_init(&g->nonterminals);
+  vector_grammar_rule_init(&g->rules);
+
+  /* Add augmented rule at index 0 */
+  S = grammar_add_nonterminal(g, "");
+  grammar_add_rule_va(g,
+		      S,
+		      NULL); 
+
+  vector_nt_init(&g->nonterminals_bitsets);
 }
 
 void
 grammar_set_start(struct parser_grammar *g, size_t start_nt)
 {
   g->start_nt = start_nt;
+
+  vector_grammar_rule_node_set(&g->rules.data[0].rhs,
+			       0,
+			       (struct grammar_rule_node) {
+				 .type = GRAMMAR_NON_TERMINAL,
+				 .index = start_nt});
+  g->rules.data[0].n_rhs = 1;
 }
 
 void
@@ -57,11 +72,16 @@ grammar_destroy(struct parser_grammar *g)
 
 void
 grammar_print(struct parser_grammar *g)
-{
+{  
   for (size_t i = 0 ; i < g->n_rules ; i++)
     {
       struct grammar_rule *rule = g->rules.data + i;
-      printf("%3zu. %s ::=", i, index_rget(&g->nonterminals, rule->lhs));
+
+      if ( 0 == i )
+	printf("     %-12s ::=", "[Start]");
+      else
+	printf("%3zu. %-12s ::=", i, index_rget(&g->nonterminals, rule->lhs));
+      
       for (size_t j = 0 ; j < rule->n_rhs ; j++)
 	{
 	  struct grammar_rule_node *node = rule->rhs.data + j;
@@ -70,6 +90,7 @@ grammar_print(struct parser_grammar *g)
 	  else if (GRAMMAR_TERMINAL == node->type)
 	    printf(" '%s'", index_rget(&g->terminals, node->index));
 	}
+      
       printf("\n");
     }
 }
@@ -126,6 +147,7 @@ grammar_add_nonterminal(struct parser_grammar *g, const char *name)
   size_t old_n = g->n_nonterminals;
   ssize_t ret = index_lookup_or_add(&g->nonterminals, name, &g->n_nonterminals);
 
+  /* New non terminal, initialize the bitset to rules for fast mapping */
   if (g->n_nonterminals != old_n)
     {
       struct bitset *bs = vector_nt_get_ptr(&g->nonterminals_bitsets, ret);
@@ -161,8 +183,8 @@ grammar_add_rule_va(struct parser_grammar *g, size_t lhs, ...)
 
   vector_grammar_rule_set(&g->rules, g->n_rules, rule);
   
-  struct bitset *bs = vector_nt_get_ptr(&g->nonterminals_bitsets, lhs);
-  bitset_set(bs, g->n_rules);
+  bitset_set(vector_nt_get_ptr(&g->nonterminals_bitsets, lhs),
+	     g->n_rules);
 
 
   return g->n_rules++;
