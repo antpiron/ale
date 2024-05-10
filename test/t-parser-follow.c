@@ -6,13 +6,13 @@
 #include "ale/parser.h"
 
 int
-is_in_first(struct parser_first *pf, size_t nt, const char *str)
+is_in_follow(struct parser_follow *pf, size_t nt, const char *str)
 {
   size_t terminal = -1;
   size_t count = 0;
-  ssize_t elem = index_get(&pf->g->terminals, str);
+  ssize_t elem = index_get(&pf->pfirst->g->terminals, str);
   
-  while ( bitset_iterate(pf->first + nt, &terminal) )
+  while ( bitset_iterate(pf->follow + nt, &terminal) )
     {
       if (elem == terminal )
 	return 1;
@@ -102,6 +102,11 @@ main(int argc, char *argv[argc])
 
   parser_follow_print(&pfollow);
 
+  ERROR_UNDEF_FATAL(! is_in_follow(&pfollow, S, ""), "parser_follow_init(): $ is not in follow(S)\n");
+  ERROR_UNDEF_FATAL(is_in_follow(&pfollow, E, ""), "parser_follow_init(): $ is in follow(E)\n");
+  ERROR_UNDEF_FATAL(! is_in_follow(&pfollow, E, "d"), "parser_follow_init(): $ is not in follow(E)\n");
+  ERROR_UNDEF_FATAL(! is_in_follow(&pfollow, D, ""), "parser_follow_init(): $ is not in follow(D)\n");
+   
     
   parser_follow_destroy(&pfollow);
   parser_first_destroy(&pfirst);
