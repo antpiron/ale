@@ -20,7 +20,6 @@ parser_follow_init(struct parser_follow *pfollow, struct parser_first *pfirst)
 
   /* set start rule follow to $ */
   bitset_set(follow,  GRAMMAR_EOF);
-    
   
   do
     {
@@ -41,7 +40,7 @@ parser_follow_init(struct parser_follow *pfollow, struct parser_first *pfirst)
 		  
 		  bitset_reset(&first);
 		  
-		  parser_first(pfirst, &first, rule->n_rhs - dot + 1, rule->rhs.data + dot + 1, NULL);
+		  parser_first(pfirst, &first, rule->n_rhs - dot - 1, rule->rhs.data + dot + 1, NULL);
 
 		  if ( bitset_isset(&first, GRAMMAR_EPS) )
 		    {

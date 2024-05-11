@@ -18,12 +18,16 @@ grammar_init(struct parser_grammar *g)
   g->n_terminals = g->n_nonterminals = g->n_rules = 0;
   g->start_nt = -1;
 
+  vector_grammar_rule_init(&g->rules);
+
+
   index_init(&g->terminals);
+  index_init(&g->nonterminals);
+  vector_nt_init(&g->nonterminals_bitsets);
+
   /* Add epsilon at index 0 */
   grammar_add_terminal(g, "");
 
-  index_init(&g->nonterminals);
-  vector_grammar_rule_init(&g->rules);
 
   /* Add augmented rule at index 0 */
   S = grammar_add_nonterminal(g, "");
@@ -31,7 +35,6 @@ grammar_init(struct parser_grammar *g)
 		      S,
 		      NULL); 
 
-  vector_nt_init(&g->nonterminals_bitsets);
 }
 
 void
