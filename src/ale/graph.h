@@ -22,4 +22,5 @@ ssize_t graph_add_node(struct graph *g);
 ssize_t graph_add_edge(struct graph *g, size_t node1, size_t node2);
 int graph_iterate_edges(struct graph *g, size_t node, ssize_t *state);
 
+
 #endif

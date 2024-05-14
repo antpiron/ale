@@ -21,7 +21,7 @@ static inline int
 bitset_init(struct bitset *bs, size_t n)
 {
   bs->n = n;
-  bs->alloc_size = (n + 63) / 64;
+  bs->alloc_size = (0 == n) ? 1 : (n + 63) / 64;
   ERROR_ERRNO_RET( NULL == (bs->buf = calloc( bs->alloc_size, sizeof(uint64_t)) ), -1);
   
   return 0;
