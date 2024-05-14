@@ -4,6 +4,7 @@ AM_LFLAGS=-R
 
 LIBRARY_SOURCES=ale/error.h error.c ale/daemon.h daemon.c portability.c ale/portability.h.in ale/bitset.h ale/fileutils.h fileutils.c \
 	ale/stringutils.h stringutils.c ale/exparser.h exparser.c btree.c btree-funcs.c ale/btree.h sl_list.c ale/sl_list.h ale/hash.h ale/siphash24.h \
+	ale/graph.h graph.c \
 	ale/random.h \
 	random.c siphash24.c \
 	ale/knn.h knn.c ale/vector.h ale/skiplist.h netutils.c ale/netutils.h \

@@ -374,7 +374,7 @@ Unset the bit at position @var{index} from the bitset @var{bs}.
 @deftypefn {C Function} {static inline int} @
            bitset_isset (struct bitset *@var{bs}, size_t @var{index})
 
-Test the bit at position @var{index} from the bitset @var{bs}. Return 1 if the bit is set, 0 otherwise.
+Test the bit at position @var{index} from the bitset @var{bs}. Return 1 if the bit is set, 0 otherwise. Return 0 if @var{index} is outside the bitset range (@var{index} @geq{} @var{bs->n}).
 @end deftypefn
 
 @deftypefn {C Function} {static inline int} @

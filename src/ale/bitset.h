@@ -201,7 +201,8 @@ bitset_unset(struct bitset *bs, size_t index)
 static inline int
 bitset_isset(struct bitset *bs, size_t index)
 {
-  return ( bs->buf[index / 64] >> (index % 64) ) & 1ull;
+  
+  return (index < bs->n) ? ( ( bs->buf[index / 64] >> (index % 64) ) & 1ull ) : 0;
 }
 
 static inline int

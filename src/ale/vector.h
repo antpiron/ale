@@ -6,7 +6,7 @@
 #include <ale/error.h>
 
 #define VECTOR_DEFAULT_SIZE (256)
-#define VECTOR_MAX_INCREMENT (1 << 24)
+#define VECTOR_MAX_INCREMENT (1ll << 24)
 
 #define VECTOR_INIT(name,type)				\
   VECTOR_INIT_FULL(name,type,VECTOR_DEFAULT_SIZE)
