@@ -4,7 +4,9 @@
 #include "ale/error.h"
 #include "ale/graph.h"
 
-#define N (1ll << 8)
+#define N (1ull << 8)
+
+GRAPH_TRAVERSAL(test,int,NULL,NULL, void)
 
 int
 main(int argc, char *argv[argc])

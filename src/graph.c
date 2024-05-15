@@ -23,7 +23,7 @@ graph_add_node(struct graph *g)
 {
   struct bitset *bs = vector_edges_get_ptr(&g->edges, g->n_nodes);
 
-  ERROR_RET(bitset_init(bs, g->n_nodes + 1) < 0, -1);
+  ERROR_RET(bitset_init(bs, 0) < 0, -1);
   
   return g->n_nodes++;
 }

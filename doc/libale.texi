@@ -326,7 +326,7 @@ main(int argc, char *argv[ ])
 @deftypefn {C Function} {static inline int} @
            bitset_init (struct bitset *@var{bs}, size_t @var{n})
 
-Initialise the bitset @var{bs} to zero (unset) with a maximal size of @var{n} bits. Return -1 on error and set error_errno accordingly.
+Initialise the bitset @var{bs} to zero (unset) with a allocation size to fit @var{n} bits. If @var{n} is zero, the allocation is by default 64 bits. Return -1 on error and set error_errno accordingly.
 @end deftypefn
 
 @deftypefn {C Function} {static inline void} @
