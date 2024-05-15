@@ -6,7 +6,8 @@
 
 #define N (1ull << 8)
 
-GRAPH_TRAVERSAL(test,int,NULL,NULL, void)
+
+GRAPH_TRAVERSAL(test,int,1,1)
 
 int
 main(int argc, char *argv[argc])
