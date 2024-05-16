@@ -6,8 +6,10 @@
 
 #define N (1ull << 8)
 
+// #define POST_FUNC				\
+  
 
-GRAPH_TRAVERSAL(test,int,1,1)
+GRAPH_TRAVERSAL(test,++*(size_t*) gt->cls,printf("%zu ", node))
 
 int
 main(int argc, char *argv[argc])
@@ -47,7 +49,13 @@ main(int argc, char *argv[argc])
     }
 
   ERROR_UNDEF_FATAL_FMT(N + 1 != out_i, "FAIL:  graph_iterate_edges(root), out == %zd != %d\n",  out, N + 1);
-  
+
+  size_t n_nodes = 0;
+  size_t count = 0;
+  int ret = graph_traversal_test_dfs(&g, root, &count);
+  ERROR_FATAL_FMT(ret < 0, "FAIL: graph_traversal_test_dfs(root) returned %d\n", ret);
+  ERROR_UNDEF_FATAL_FMT(N + 1 != count, "FAIL: graph_traversal_test_dfs(root) count == %zu != %zu\n", count, N + 1);
+    
   graph_destroy(&g);
 
   free(nodes);

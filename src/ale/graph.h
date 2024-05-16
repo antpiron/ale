@@ -11,7 +11,8 @@ VECTOR_INIT(edges, struct bitset)
 #  define GRAPH_MAX_RECURSION_DEPTH (1ll << 10)
 #endif
   
-#define GRAPH_ERROR_OUT_OF_RANGE (1)
+enum { GRAPH_ERROR_OUT_OF_RANGE = 1,
+       GRAPH_ERROR_TOO_MANY_RECURSIVE_CALLS};
 
 struct graph
 {
@@ -34,39 +35,41 @@ struct graph_traversal
   void *cls;
 };
 
-#define GRAPH_TRAVERSAL(name,type,pre_func,post_func)			\
+#define GRAPH_TRAVERSAL(name,pre_func,post_func)			\
 									\
-  static type								\
+  static int								\
   graph_traversal_##name##_dfs_rec(struct graph_traversal *gt,		\
 				   size_t node, int max_rec_depth)	\
   {									\
-    type ret;								\
+    ERROR_CUSTOM_RET(max_rec_depth < 0,					\
+		     GRAPH_ERROR_TOO_MANY_RECURSIVE_CALLS,		\
+		     -1);						\
 									\
     bitset_set(&gt->marks, node);					\
     pre_func;								\
 									\
-    if (max_rec_depth > 0)						\
+    ssize_t out = -1;							\
+    while ( graph_iterate_edges(gt->g, node, &out) )			\
       {									\
-	ssize_t out = -1;						\
-									\
-	while ( graph_iterate_edges(gt->g, node, &out) )		\
+	if ( ! bitset_isset(&gt->marks, out) )				\
 	  {								\
-	    if ( ! bitset_isset(&gt->marks, out) )			\
-	      {								\
-		graph_traversal_##name##_dfs_rec(gt, out,		\
-						 max_rec_depth - 1);	\
-	      }								\
+	    int ret = graph_traversal_##name##_dfs_rec(gt,		\
+						       out,		\
+						       max_rec_depth - 1); \
+	    ERROR_RET(ret < 0, -1);					\
 	  }								\
       }									\
     									\
-    return post_func;							\
+    post_func;								\
+    									\
+    return 0;								\
   }									\
   									\
-  static type								\
+  static int								\
   graph_traversal_##name##_dfs(struct graph *g, size_t root, void *cls) \
   {									\
     struct graph_traversal gt;						\
-    type ret;								\
+    int ret;								\
 									\
     gt.g = g;								\
     gt.cls = cls;							\
