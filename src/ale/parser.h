@@ -9,6 +9,7 @@
 #include <ale/vector.h>
 #include <ale/symbols.h>
 #include <ale/bitset.h>
+#include <ale/graph.h>
 
 /* ============ */
 /* Grammar */
@@ -106,28 +107,39 @@ struct bitset * parser_follow(struct parser_follow *pfollow, size_t nt);
 /* ============ */
 /* Items */
 
+/* item follow types */
+enum { FOLLOW_UNINITIALIZED, FOLLOW_LR0, FOLLOW_SLR, FOLLOW_LR1 };
+
 struct parser_item
 {
   size_t rule;
   size_t dot;
   struct bitset follow;
+  unsigned int isCore : 1;
+  unsigned int followType : 2;
+  unsigned int plusFollow : 1; /* Used priority, associativity, ... rules to solve conflict */
 };
 
 VECTOR_INIT(parser_item, struct parser_item)
   
-struct parser_item_set
+struct parser_items
 {
   size_t n;
   struct vector_parser_item items;
 };
 
+struct parser_item_set
+{
+  size_t n;
+  struct parser_items *items;
+  struct bitset elems;
+};
+
 VECTOR_INIT(parser_item_set, struct parser_item_set)
-VECTOR_INIT(bitset, struct bitset)
 struct parser_item_set_graph
 {
   size_t n;
-  struct vector_parser_item_set items_sets;
-  struct vector_bitset bitsets;
+  struct vector_parser_item_set sets;
 };
 
 // grammar_item_first(struct parser_grammar *g, struct parser_item);
