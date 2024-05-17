@@ -37,6 +37,7 @@ This manual is for libale (version @value{VERSION}, @value{UPDATED}).
 * Error::
 * Bitset::
 * Vector::
+* Stack::
 * Single linked list::
 * Hash::
 * Skip list::
@@ -421,11 +422,11 @@ Return the number of ones.
 Set @var{len} bits from position @var{index} of the bitset @var{bs}.
 @end deftypefn
 
-@node Vector, Single linked list, Bitset, Top
+@node Vector, Stack, Bitset, Top
 @chapter Vector
 
 
-This module defines arrays called vectors which grows automatically as being set. There is as for C arrays no bound checking.
+This module defines arrays called vectors which grows automatically as being set. There is limited or no bound checking depending on the functions.
 
 @example
 
@@ -495,6 +496,117 @@ Return the element at position @var{pos}. If the element was not previously set,
                         vector_##name##_get_ptr (struct vector_##name *@var{vector}, size_t @var{pos})
 Return a pointer to the element at position @var{pos}. The pointed value can be uninitialized.
 @end deftypefn
+
+@node Stack, Single linked list, Vector, Top
+@chapter Stack
+
+This module augments vector with stack facilities. There is bound checking depending on stack operation but still limited or none on vector operation.
+
+@example
+
+#include "ale/stack.h"
+
+// Create a stack named int (first parameter) and composed of
+//    integers (second parameter).
+// The  type struct stack_int and functions stack_int_init,
+//    vector_int_destroy, ...
+// are defined
+STACK_INIT(int,int)
+
+int
+main(int argc, char *argv[argc])
+@{
+  struct stack_int stack;
+  int val;
+
+
+  stack_int_init(&stack);
+  
+  stack_int_push(&stack, 1);
+  val = stack_int_pop(&stack);
+  
+  stack_int_destroy(&stack);
+
+  return 0;
+@}
+
+@end example
+
+@deffn {C Macro} STACK_INIT_FULL (@var{name},@var{type},@var{initsize})
+Create a stack named @var{name} made of variable typed with @var{type} and with an initial allocated size @var{initsize}. The type struct stack_##@var{name} and functions stack_##@var{name}##_init, stack_##@var{name}##_destroy, stack_##@var{name}##_set, stack_##@var{name}##_get and so on are created by this macro.
+@end deffn
+
+@deffn {C Macro} STACK_INIT (@var{name},@var{type})
+Equivalent to @code{STACK_INIT_FULL(name,type,VECTOR_DEFAULT_SIZE)}.
+@end deffn
+
+@deftypefn {C Function} {static inline int} @
+                        stack_##name##_init (struct stack_##name *@var{stack})
+Initialize the structure. Return 0 on success. May kill the current process if unable to allocate memory.
+@end deftypefn
+
+@deftypefn {C Function} {static inline int} @
+                        stack_##name##_init_copy (struct stack_##name *@var{dest}, const struct stack_##name *@var{src})
+Initialize a copy the structure from @var{src}. Return 0 on success. May kill the current process if unable to allocate memory.
+@end deftypefn
+
+@deftypefn {C Function} {static inline void} @
+                        stack_##name##_destroy (struct stack_##name *@var{stack})
+Destroy the structure.
+@end deftypefn
+
+@deftypefn {C Function} {static inline int} @
+                        stack_##name##_isempty (struct stack_##name *@var{stack})
+Return 1 if the @var{stack} is empty, 0 otherwise.
+@end deftypefn
+
+@deftypefn {C Function} {static inline size_t} @
+                        stack_##name##_n        (struct stack_##name *@var{stack})
+Return the number of elements on the @var{stack}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline void} @
+                        stack_##name##_push (struct stack_##name *@var{stack}, stype @var{value})
+Push @var{value} on the @var{stack}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline type} @
+                        stack_##name##_top (const struct stack_##name *@var{stack})
+Return the element at the top of the @var{stack}. If the stack is empty, the program is halted with an error message.
+@end deftypefn
+
+@deftypefn {C Function} {static inline *type} @
+                        stack_##name##_top_ptr  (const struct stack_##name *@var{stack})
+Return a pointer to the top element of the @var{stack}. If the stack is empty, return NULL and set @var{error}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline type} @
+                        stack_##name##_pop (const struct stack_##name *@var{stack})
+Pop and return the element at the top of the @var{stack}. If the stack is empty, the program is halted with an error message.
+@end deftypefn
+
+@deftypefn {C Function} {static inline *type} @
+                        stack_##name##_top_ptr  (const struct stack_##name *@var{stack})
+Pop and return a pointer to the top element of the @var{stack}. If the stack is empty, return NULL and set @var{error}. The pointed value is valid as long as no push operation is done.
+@end deftypefn
+
+The following functions are identical to the vector functions. They do not modify the number of elements on the stack.
+
+@deftypefn {C Function} {static inline void} @
+                        stack_##name##_set (struct stack_##name *@var{stack}, size_t @var{pos}, type @var{value})
+Set the element at position @var{pos} with the value @var{value}.
+@end deftypefn
+
+@deftypefn {C Function} {static inline type} @
+                        stack_##name##_get (const struct stack_##name *@var{stack}, size_t @var{pos})
+Return the element at position @var{pos}. If the element was not previously set, the result is undefined and can lead to a out-of-bound access.
+@end deftypefn
+
+@deftypefn {C Function} {static inline type*} @
+                        stack_##name##_get_ptr (struct stack_##name *@var{stack}, size_t @var{pos})
+Return a pointer to the element at position @var{pos}. The pointed value can be uninitialized.
+@end deftypefn
+
 
 @node Single linked list, Hash, Vector, Top
 @chapter Single linked list
