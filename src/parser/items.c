@@ -4,8 +4,7 @@
 int
 parser_items_init(struct parser_items *items)
 {
-  items->n = 0;
-  vector_parser_item_init(&items->items);
+  stack_parser_item_init(&items->items);
   
   return 0;
 }
@@ -13,11 +12,14 @@ parser_items_init(struct parser_items *items)
 void
 parser_items_destroy(struct parser_items *items)
 {
-  for (size_t i = 0 ; i < items->n ; i++)
-    if (FOLLOW_UNINITIALIZED != items->items.data[i].followType)
-      bitset_destroy(&items->items.data[i].follow);
+  while ( ! stack_parser_item_isempty(&items->items) )
+    {
+      struct parser_item *item = stack_parser_item_pop_ptr(&items->items);
+      if (FOLLOW_UNINITIALIZED != item->followType)
+	bitset_destroy(&item->follow);
+    }
   
-  vector_parser_item_destroy(&items->items);
+  stack_parser_item_destroy(&items->items);
  }
 
 ssize_t
@@ -25,23 +27,19 @@ parser_items_add(struct parser_items *items, size_t rule, size_t dot,
 		 unsigned int isCore,
 		 unsigned int followType, unsigned int plusFollow, struct bitset *follow)
 {
-  ssize_t index_ret = items->n++;
-  struct parser_item *item = vector_parser_item_get_ptr(&items->items, index_ret);
-  
-  item->rule = rule;
-  item->dot = dot;
-  item->isCore = isCore;
-  item->followType = followType;
-  item->plusFollow = plusFollow;
-  
+  struct parser_item item = { .rule = rule, .dot = dot, .isCore = isCore, .followType = followType,  .plusFollow = plusFollow };
+
   if (FOLLOW_UNINITIALIZED != followType)
     {
-      ERROR_RET( -1 == bitset_init(&item->follow, 64), -1);
+      ERROR_RET( -1 == bitset_init(&item.follow, 0), -1);
       if (NULL != follow)
 	{
-	  bitset_cpy(&item->follow, follow);
+	  bitset_cpy(&item.follow, follow);
 	}
     }
+
+  ssize_t index_ret = stack_parser_item_n(&items->items);
+  stack_parser_item_push(&items->items, item);
 
   return index_ret;
 }

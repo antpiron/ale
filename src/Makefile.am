@@ -7,7 +7,7 @@ LIBRARY_SOURCES=ale/error.h error.c ale/daemon.h daemon.c portability.c ale/port
 	ale/graph.h graph.c \
 	ale/random.h \
 	random.c siphash24.c \
-	ale/knn.h knn.c ale/vector.h ale/stack.h ale/skiplist.h netutils.c ale/netutils.h \
+	ale/knn.h knn.c ale/vector.h ale/stack.h ale/stack-scalar.h ale/skiplist.h netutils.c ale/netutils.h \
 	ale/stats.h stats/base.c stats/categorical.c stats/norm.c stats/student.c stats/binom.c stats/poisson.c stats/unif.c stats/entropy.c stats/kerneldensity.c\
 	stats/hyper.c stats/beta.c stats/gamma.c stats/kolmogorov.c stats/ecdf.c stats/permutation.c stats/F.c \
 	ale/stats-normalize.h stats/normalize.c \
@@ -22,7 +22,7 @@ noinst_LTLIBRARIES=libale-debug.la
 #noinst_lib_LTLIBRARIES=libale-debug.la
 libale_la_SOURCES = $(LIBRARY_SOURCES)
 include_HEADERS = ale.h
-pkginclude_HEADERS = ale/error.h ale/daemon.h ale/portability.h ale/bitset.h ale/fileutils.h ale/stringutils.h ale/exparser.h ale/btree.h ale/sl_list.h ale/hash.h ale/siphash24.h ale/knn.h ale/vector.h ale/skiplist.h ale/netutils.h ale/stats.h ale/math.h ale/algebra.h ale/process.h ale/matrix.h ale/index.h ale/memory.h ale/stats-normalize.h ale/ea.h ale/sort.h ale/optimisation.h ale/interpolation.h ale/random.h
+pkginclude_HEADERS = ale/error.h ale/daemon.h ale/portability.h ale/bitset.h ale/fileutils.h ale/stringutils.h ale/exparser.h ale/btree.h ale/sl_list.h ale/hash.h ale/siphash24.h ale/knn.h ale/vector.h ale/skiplist.h ale/netutils.h ale/stats.h ale/math.h ale/algebra.h ale/process.h ale/matrix.h ale/index.h ale/memory.h ale/stats-normalize.h ale/ea.h ale/sort.h ale/optimisation.h ale/interpolation.h ale/random.h ale/stack.h ale/stack-scalars.h ale/graph.h ale/parser.h 
 
 libale_debug_la_SOURCES = $(LIBRARY_SOURCES)
 libale_debug_la_CFLAGS=-g -O0 -fsanitize=bounds

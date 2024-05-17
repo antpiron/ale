@@ -7,6 +7,7 @@
 #include <ale/stringutils.h>
 #include <ale/index.h>
 #include <ale/vector.h>
+#include <ale/stack.h>
 #include <ale/symbols.h>
 #include <ale/bitset.h>
 #include <ale/graph.h>
@@ -120,12 +121,12 @@ struct parser_item
   unsigned int plusFollow : 1; /* Used priority, associativity, ... rules to solve conflict */
 };
 
-VECTOR_INIT(parser_item, struct parser_item)
-  
+
+STACK_INIT(parser_item, struct parser_item)
+
 struct parser_items
 {
-  size_t n;
-  struct vector_parser_item items;
+  struct stack_parser_item items;
 };
 
 struct parser_item_set
@@ -135,11 +136,10 @@ struct parser_item_set
   struct bitset elems;
 };
 
-VECTOR_INIT(parser_item_set, struct parser_item_set)
+STACK_INIT(parser_item_set, struct parser_item_set)
 struct parser_item_set_graph
 {
-  size_t n;
-  struct vector_parser_item_set sets;
+  struct stack_parser_item_set sets;
 };
 
 // grammar_item_first(struct parser_grammar *g, struct parser_item);

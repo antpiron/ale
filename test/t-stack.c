@@ -5,11 +5,8 @@
 
 #include "ale/error.h"
 #include "ale/stack.h"
+#include "ale/stack-scalars.h"
 
-
-STACK_INIT(int,int)
-/* check for no clash in names */
-STACK_INIT(long,long)
 
 int
 main(int argc, char *argv[argc])
