@@ -31,11 +31,13 @@ parser_items_add(struct parser_items *items, size_t rule, size_t dot,
 
   if (FOLLOW_UNINITIALIZED != followType)
     {
-      ERROR_RET( -1 == bitset_init(&item.follow, 0), -1);
       if (NULL != follow)
 	{
+	  ERROR_RET( -1 == bitset_init(&item.follow, follow->n), -1);
 	  bitset_cpy(&item.follow, follow);
 	}
+      else
+	ERROR_RET( -1 == bitset_init(&item.follow, 0), -1);
     }
 
   ssize_t index_ret = stack_parser_item_n(&items->items);

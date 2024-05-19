@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <unistd.h>
+#include <string.h>
 
 #include <ale/portability.h>
 #include <ale/error.h>
@@ -174,7 +174,10 @@ bitset_cpy(struct bitset *dst, struct bitset *src)
   bitset_grow(dst, s);
 
   size_t cpy_size = (s + 63) / 64;
-  memcpy(dst->buf, src->buf,  cpy_size * sizeof(uint64_t));
+  if ( cpy_size > 0 )
+    {
+      memcpy(dst->buf, src->buf,  cpy_size * sizeof(uint64_t));
+    }
   // Zeroes the rest
   size_t zero_size = dst->alloc_size - cpy_size;
   if ( zero_size > 0 )

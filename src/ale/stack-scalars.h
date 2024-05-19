@@ -10,7 +10,11 @@ STACK_INIT(char,char)
 STACK_INIT(short,short)
 STACK_INIT(int,int)
 STACK_INIT(long,long)
-  
+STACK_INIT(unsigned_char,unsigned char)
+STACK_INIT(unsigned_short,unsigned short)
+STACK_INIT(unsigned_int,unsigned int)
+STACK_INIT(unsigned_long,unsigned long)
+
 STACK_INIT(size_t,size_t)
 STACK_INIT(ssize_t,ssize_t)
      
@@ -25,5 +29,9 @@ STACK_INIT(int32_t,int32_t)
 STACK_INIT(uint32_t,uint32_t)
 STACK_INIT(int64_t,int64_t)
 STACK_INIT(uint64_t,uint64_t)
+
+STACK_INIT(float,float)
+STACK_INIT(double,double)
+STACK_INIT(long_double,long double)
 
 #endif
