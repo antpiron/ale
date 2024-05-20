@@ -5,6 +5,7 @@ int
 parser_items_init(struct parser_items *items)
 {
   stack_parser_item_init(&items->items);
+  graph_init(&items->genby);
   
   return 0;
 }
@@ -20,6 +21,7 @@ parser_items_destroy(struct parser_items *items)
     }
   
   stack_parser_item_destroy(&items->items);
+  graph_destroy(&items->genby);  
  }
 
 ssize_t
@@ -65,37 +67,45 @@ parser_item_set_add(struct parser_item_set *item_set, size_t item)
   return 0;
 }
 
-/* int */
-/* parser_item_set_closure(struct parser_item_set *item_set, struct parser_grammar *g) */
-/* { */
-/*   struct bitset closure; */
+int
+parser_item_set_closure(struct parser_item_set *item_set, struct parser_grammar *g)
+{
+  struct bitset closure;
+  bitset_init(&closure,  g->n_rules);
 
-/*   bitset_init(&closure,  g->n_rules); */
+  ssize_t  i = -1;
+  while ( bitset_iterate(&item_set->elems, &i) )
+    {
+      struct parser_item *item = stack_parser_item_get_ptr(&item_set->items->items, i);
+      struct grammar_rule *rule = g->rules.data + item->rule;
+
+      if (item->dot < rule->n_rhs)
+	{
+	  struct grammar_rule_node *node = rule->rhs.data + item->dot;
+
+	  if (GRAMMAR_NON_TERMINAL == node->type)
+	    {
+	      for (size_t j = 0 ; j < g->n_rules ; j++)
+		{
+		  if (node->index == g->rules.data[j].lhs)
+		    {
+		      /* Cannot return -1 when FOLLOW_UNINITIALIZED */
+		      ssize_t new_item_index = parser_items_add(item_set->items, j, 0, 0, FOLLOW_UNINITIALIZED, 0, NULL);
+
+		      /* TODO: update item_set->items->genby to reflect dependencies
+			 add edge from new_item_index to i
+		       */
+		      bitset_set(&closure, new_item_index);
+		    }
+		}
+	    }
+	}
+    }
+
+  bitset_destroy(&closure);
   
-/*   for (size_t i = 0 ; i < item_set->n ; i++) */
-/*     { */
-/*       struct parser_item *item = item_set->items.data + i; */
-/*       struct grammar_rule *rule = g->rules.data + item->rule; */
-
-/*       if (item->dot < rule->n_rhs) */
-/* 	{ */
-/* 	  struct grammar_rule_node *node = rule->rhs.data + item->dot; */
-
-/* 	  if (GRAMMAR_NON_TERMINAL == node->type) */
-/* 	    { */
-/* 	      for (size_t j = 0 ; j < g->n_rules ; j++) */
-/* 		{ */
-/* 		  if (node->index == g->rules.data[j].lhs) */
-/* 		    bitset_set(&closure, j); */
-/* 		} */
-/* 	    } */
-/* 	} */
-/*     } */
-
-/*   bitset_destroy(&closure); */
-  
-/*   return 0; */
-/* } */
+  return 0;
+}
 
 void
 parser_item_set_destroy(struct parser_item_set *item_set)
