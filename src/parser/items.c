@@ -71,7 +71,13 @@ int
 parser_item_set_closure(struct parser_item_set *item_set, struct parser_grammar *g)
 {
   struct bitset closure;
+  struct bitset todo;
+  struct bitset nt_todo;
+
+  /* index of items with the dot in front position */
   bitset_init(&closure,  g->n_rules);
+  bitset_init(&todo,  g->n_rules);
+  bitset_init(&nt_todo,  g->n_nonterminals);
 
   ssize_t  i = -1;
   while ( bitset_iterate(&item_set->elems, &i) )
@@ -79,30 +85,49 @@ parser_item_set_closure(struct parser_item_set *item_set, struct parser_grammar 
       struct parser_item *item = stack_parser_item_get_ptr(&item_set->items->items, i);
       struct grammar_rule *rule = g->rules.data + item->rule;
 
+      if (0 == item->dot)
+	bitset_set(&closure, item->rule);
+      
       if (item->dot < rule->n_rhs)
 	{
 	  struct grammar_rule_node *node = rule->rhs.data + item->dot;
 
 	  if (GRAMMAR_NON_TERMINAL == node->type)
 	    {
-	      for (size_t j = 0 ; j < g->n_rules ; j++)
-		{
-		  if (node->index == g->rules.data[j].lhs)
-		    {
-		      /* Cannot return -1 when FOLLOW_UNINITIALIZED */
-		      ssize_t new_item_index = parser_items_add(item_set->items, j, 0, 0, FOLLOW_UNINITIALIZED, 0, NULL);
-
-		      /* TODO: update item_set->items->genby to reflect dependencies
-			 add edge from new_item_index to i
-		       */
-		      bitset_set(&closure, new_item_index);
-		    }
-		}
+	      bitset_set(&nt_todo, node->index);
 	    }
 	}
     }
 
+  /* TODO: use nonterminals_bitsets from grammar */
+  for (size_t i = 0 ; i < g->n_rules ; i++)
+    {
+      if ( ! bitset_isset(&closure, i) && bitset_isset(&nt_todo, g->rules.data[i].lhs) )
+	bitset_set(&todo, i);
+    }
+    
+  bitset_destroy(&nt_todo);
+
+  /* TODO: code this */
+  i = -1; 
+  while ( bitset_iterate(&todo, &i) )
+    {
+      struct grammar_rule *rule = g->rules.data + i;
+      if ( bitset_isset(&todo, rule->lhs) )
+	{
+	  /* Cannot return -1 when FOLLOW_UNINITIALIZED */
+	  ssize_t new_item_index = parser_items_add(item_set->items, i, 0, 0, FOLLOW_UNINITIALIZED, 0, NULL);
+	  
+	  /* TODO: update item_set->items->genby to reflect dependencies
+	     add edge from new_item_index to i
+	  */
+	  bitset_set(&closure, i);
+	  bitset_set(&item_set->elems, new_item_index);
+	}
+    }
+
   bitset_destroy(&closure);
+  bitset_destroy(&todo);
   
   return 0;
 }
