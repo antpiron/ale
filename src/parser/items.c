@@ -5,7 +5,7 @@ int
 parser_items_init(struct parser_items *items)
 {
   stack_parser_item_init(&items->items);
-  graph_init(&items->genby);
+  graph_init(&items->generated_from);
   
   return 0;
 }
@@ -21,7 +21,7 @@ parser_items_destroy(struct parser_items *items)
     }
   
   stack_parser_item_destroy(&items->items);
-  graph_destroy(&items->genby);  
+  graph_destroy(&items->generated_from);  
  }
 
 ssize_t
@@ -54,7 +54,6 @@ parser_items_add(struct parser_items *items, size_t rule, size_t dot,
 void
 parser_item_set_init(struct parser_item_set *item_set, struct parser_items *items)
 {
-  item_set->n = 0;
   item_set->items = items;
   bitset_init(&item_set->elems, 0);
 }
@@ -67,67 +66,65 @@ parser_item_set_add(struct parser_item_set *item_set, size_t item)
   return 0;
 }
 
+ssize_t
+parser_item_set_get(struct parser_item_set *item_set, size_t rule, size_t dot)
+{
+  for (ssize_t  item_i = -1 ; bitset_iterate(&item_set->elems, &item_i) ;  )
+    {
+      struct parser_item *item = stack_parser_item_get_ptr(&item_set->items->items, item_i);
+
+      if (item->rule == rule && item->dot == dot)
+	return item_i;
+    }
+
+  return -1;
+}
+
 int
 parser_item_set_closure(struct parser_item_set *item_set, struct parser_grammar *g)
 {
-  struct bitset closure;
-  struct bitset todo;
-  struct bitset nt_todo;
+  struct bitset items_todo;
 
-  /* index of items with the dot in front position */
-  bitset_init(&closure,  g->n_rules);
-  bitset_init(&todo,  g->n_rules);
-  bitset_init(&nt_todo,  g->n_nonterminals);
-
-  ssize_t  i = -1;
-  while ( bitset_iterate(&item_set->elems, &i) )
+  bitset_init(&items_todo,  item_set->elems.n);
+  bitset_cpy(&items_todo, &item_set->elems);
+ 
+  while ( bitset_ones(&items_todo) )
     {
-      struct parser_item *item = stack_parser_item_get_ptr(&item_set->items->items, i);
-      struct grammar_rule *rule = g->rules.data + item->rule;
-
-      if (0 == item->dot)
-	bitset_set(&closure, item->rule);
-      
-      if (item->dot < rule->n_rhs)
+      for (ssize_t  item_i = -1 ; bitset_iterate(&items_todo, &item_i) ;  )
 	{
-	  struct grammar_rule_node *node = rule->rhs.data + item->dot;
+	  struct parser_item *item = stack_parser_item_get_ptr(&item_set->items->items, item_i);
+	  struct grammar_rule *rule = g->rules.data + item->rule;
 
-	  if (GRAMMAR_NON_TERMINAL == node->type)
+	  bitset_set(&item_set->elems, item_i);
+	  bitset_unset(&items_todo, item_i);
+	  
+	  if (item->dot < rule->n_rhs)
 	    {
-	      bitset_set(&nt_todo, node->index);
+	      struct grammar_rule_node *node = rule->rhs.data + item->dot;
+	      
+	      if (GRAMMAR_NON_TERMINAL == node->type)
+		{
+		  struct bitset *rules = vector_nt_get_ptr(&g->nonterminals_bitsets, node->index);
+		  
+		  for (ssize_t rule_i = -1 ; bitset_iterate(rules, &rule_i) ; )
+		    {
+		      ssize_t child_item_i = parser_item_set_get(item_set, rule_i, 0);
+
+		      if ( child_item_i < 0)
+			{
+			  child_item_i = parser_items_add(item_set->items, rule_i, 0, 0, FOLLOW_UNINITIALIZED, 0, NULL);
+			  
+			  bitset_set(&items_todo, child_item_i);
+			  
+			}
+		      /* TODO: graph_add_edge(&new_item->generated_from, new_item_i, item_i); */
+		    }
+		}
 	    }
 	}
     }
 
-  /* TODO: use nonterminals_bitsets from grammar */
-  for (size_t i = 0 ; i < g->n_rules ; i++)
-    {
-      if ( ! bitset_isset(&closure, i) && bitset_isset(&nt_todo, g->rules.data[i].lhs) )
-	bitset_set(&todo, i);
-    }
-    
-  bitset_destroy(&nt_todo);
-
-  /* TODO: code this */
-  i = -1; 
-  while ( bitset_iterate(&todo, &i) )
-    {
-      struct grammar_rule *rule = g->rules.data + i;
-      if ( bitset_isset(&todo, rule->lhs) )
-	{
-	  /* Cannot return -1 when FOLLOW_UNINITIALIZED */
-	  ssize_t new_item_index = parser_items_add(item_set->items, i, 0, 0, FOLLOW_UNINITIALIZED, 0, NULL);
-	  
-	  /* TODO: update item_set->items->genby to reflect dependencies
-	     add edge from new_item_index to i
-	  */
-	  bitset_set(&closure, i);
-	  bitset_set(&item_set->elems, new_item_index);
-	}
-    }
-
-  bitset_destroy(&closure);
-  bitset_destroy(&todo);
+  bitset_destroy(&items_todo);
   
   return 0;
 }

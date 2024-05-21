@@ -126,7 +126,7 @@ STACK_INIT(parser_item, struct parser_item)
 
 struct parser_items
 {
-  struct graph genby;
+  struct graph generated_from;
   struct stack_parser_item items;
 };
 
