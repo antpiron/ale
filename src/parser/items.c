@@ -117,7 +117,11 @@ parser_item_set_closure(struct parser_item_set *item_set, struct parser_grammar 
 			  bitset_set(&items_todo, child_item_i);
 			  
 			}
-		      /* TODO: graph_add_edge(&new_item->generated_from, new_item_i, item_i); */
+		      
+		      ERROR_RET(graph_get_node(&item_set->items->generated_from, item_i, 1) < 0 ||
+				graph_get_node(&item_set->items->generated_from, child_item_i, 1) < 0,
+				-1);
+		      graph_add_edge(&item_set->items->generated_from, child_item_i, item_i);
 		    }
 		}
 	    }
