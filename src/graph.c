@@ -5,46 +5,64 @@
 void
 graph_init(struct graph *g)
 {
-  g->n_nodes = g->n_edges = 0;
-  vector_edges_init(&g->edges);
+  bitset_init(&g->nodes, 0);
+  stack_edges_init(&g->edges);
 }
 
 void
 graph_destroy(struct graph *g)
 {
-  for (size_t i = 0 ; i < g->n_nodes ; i++)
-    bitset_destroy(g->edges.data + i);
+  for (ssize_t i = -1 ; bitset_iterate(&g->nodes, &i) ;)
+    {
+      bitset_destroy(stack_edges_get_ptr(&g->edges, i));
+    }
   
-  vector_edges_destroy(&g->edges);
+  stack_edges_destroy(&g->edges);
+  bitset_destroy(&g->nodes);
+}
+
+ssize_t
+graph_get_node(struct graph *g, size_t node, int create)
+{
+  if ( ! bitset_isset(&g->nodes, node) )
+    {
+      ERROR_CUSTOM_RET(! create, GRAPH_ERROR_OUT_OF_RANGE, -1);
+      
+      struct bitset *bs = stack_edges_get_ptr(&g->edges, node);
+      
+      ERROR_RET(bitset_init(bs, 0) < 0, -1);
+
+      bitset_set(&g->nodes, node);
+    }
+  
+  return node;
 }
 
 ssize_t
 graph_add_node(struct graph *g)
 {
-  struct bitset *bs = vector_edges_get_ptr(&g->edges, g->n_nodes);
-
-  ERROR_RET(bitset_init(bs, 0) < 0, -1);
-  
-  return g->n_nodes++;
+  return graph_get_node(g, g->nodes.n, 1);
 }
 
-ssize_t
+int
 graph_add_edge(struct graph *g, size_t node1, size_t node2)
 {
-  ERROR_CUSTOM_RET(node1 >= g->n_nodes || node1 >= g->n_nodes, GRAPH_ERROR_OUT_OF_RANGE, -1);
+  ERROR_CUSTOM_RET( ! bitset_isset(&g->nodes, node1) || ! bitset_isset(&g->nodes, node2), GRAPH_ERROR_OUT_OF_RANGE, -1);
+
+  struct bitset *bs = stack_edges_get_ptr(&g->edges, node1);
   
-  bitset_set(g->edges.data + node1, node2);
+  bitset_set(bs, node2);
   
-  return g->n_edges++;
+  return 0;
 }
 
 int
 graph_iterate_edges(struct graph *g, size_t node, ssize_t *state)
 {
-  if (node >= g->n_nodes)
+  if (! bitset_isset(&g->nodes, node))
     return 0;
   
-  struct bitset *bs = vector_edges_get_ptr(&g->edges, node);
+  struct bitset *bs = stack_edges_get_ptr(&g->edges, node);
   
   return bitset_iterate(bs, state);
 }
@@ -52,9 +70,9 @@ graph_iterate_edges(struct graph *g, size_t node, ssize_t *state)
 ssize_t
 graph_n_out(struct graph *g, size_t node)
 {
-  ERROR_CUSTOM_RET(node >= g->n_nodes, GRAPH_ERROR_OUT_OF_RANGE, -1);
+  ERROR_CUSTOM_RET(! bitset_isset(&g->nodes, node), GRAPH_ERROR_OUT_OF_RANGE, -1);
 
-  struct bitset *bs = vector_edges_get_ptr(&g->edges, node);
+  struct bitset *bs = stack_edges_get_ptr(&g->edges, node);
   
   return bitset_ones(bs);
 }

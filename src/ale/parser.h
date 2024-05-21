@@ -132,7 +132,6 @@ struct parser_items
 
 struct parser_item_set
 {
-  size_t n;
   struct parser_items *items;
   struct bitset elems;
 };
