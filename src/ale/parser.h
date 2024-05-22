@@ -115,10 +115,11 @@ struct parser_item
 {
   size_t rule;
   size_t dot;
+  struct bitset generatedFrom;
   struct bitset follow;
   unsigned int isCore : 1;
   unsigned int followType : 2;
-  unsigned int plusFollow : 1; /* Used priority, associativity, ... rules to solve conflict */
+  unsigned int plusFollow : 1; /* Use priority, associativity, ... rules to solve conflict */
 };
 
 
@@ -132,15 +133,44 @@ struct parser_items
 
 struct parser_item_set
 {
+  int isClosed;
   struct parser_items *items;
   struct bitset elems;
 };
 
 STACK_INIT(parser_item_set, struct parser_item_set)
-struct parser_item_set_graph
+struct parser_graph
 {
-  struct stack_parser_item_set sets;
+  struct parser_grammar *g;
+  struct stack_parser_item items;    /* a pool of items */
+  struct stack_parser_item_set sets; /* A pool of item sets */
 };
+
+void parser_graph_init(struct parser_graph *graph, struct parser_grammar *g);
+void parser_graph_destroy(struct parser_graph *graph);
+
+int parser_graph_build(struct parser_graph *graph);
+/* TODO: define proper interface */
+int parser_graph_srTables(struct parser_graph *graph, void *goto_table, void *action, void *lexer);
+
+ssize_t parser_graph_addSet(struct parser_graph *graph);
+int parser_graph_setClosure(struct parser_graph *graph, size_t set);
+int parser_graph_iterateEdges(struct parser_graph *graph, size_t set, struct grammar_rule_node *state);
+int parser_graph_getNext(struct parser_graph *graph, size_t set, struct grammar_rule_node *node);
+int parser_graph_interateConflicts(struct parser_graph *graph, size_t set, ssize_t *state);
+			 
+ssize_t parser_graph_addItem(struct parser_graph *graph, size_t set,
+			     size_t rule, size_t dot,  unsigned int isCore);
+ssize_t parser_graph_getItem(struct parser_graph *graph, size_t set,
+			     size_t rule, size_t dot);
+ssize_t parser_graph_getItemOrSet(struct parser_graph *graph, size_t set,
+				  size_t rule, size_t dot);
+int parser_graph_setItemFollow(struct parser_graph *graph, size_t item,
+			       unsigned int followType, unsigned int plusFollow, struct bitset *follow);
+struct bitset* parser_graph_getItemFollow_ptr(struct parser_graph *graph, size_t item);
+
+
+
 
 // grammar_item_first(struct parser_grammar *g, struct parser_item);
 
