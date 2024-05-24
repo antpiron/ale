@@ -586,7 +586,7 @@ Pop and return the element at the top of the @var{stack}. If the stack is empty,
 @end deftypefn
 
 @deftypefn {C Function} {static inline *type} @
-                        stack_##name##_top_ptr  (const struct stack_##name *@var{stack})
+                        stack_##name##_pop_ptr  (const struct stack_##name *@var{stack})
 Pop and return a pointer to the top element of the @var{stack}. If the stack is empty, return NULL and set @var{error}. The pointed value is valid as long as no push operation is done.
 @end deftypefn
 
