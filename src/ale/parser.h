@@ -144,6 +144,8 @@ struct parser_graph
   struct parser_grammar *g;
   struct stack_parser_item items;    /* a pool of items */
   struct stack_parser_item_set sets; /* A pool of item sets */
+  int isSlrFollowComputed;
+  struct parser_follow slr_follow;   /* Each nonterminal follow */
 };
 
 void parser_graph_init(struct parser_graph *graph, struct parser_grammar *g);
