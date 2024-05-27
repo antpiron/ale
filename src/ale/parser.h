@@ -159,7 +159,7 @@ ssize_t parser_graph_addSet(struct parser_graph *graph);
 int parser_graph_setClosure(struct parser_graph *graph, size_t set);
 int parser_graph_iterateEdges(struct parser_graph *graph, size_t set, struct grammar_rule_node *state);
 int parser_graph_getNext(struct parser_graph *graph, size_t set, struct grammar_rule_node *node);
-int parser_graph_interateConflicts(struct parser_graph *graph, size_t set, ssize_t *state);
+int parser_graph_iterateConflicts(struct parser_graph *graph, size_t set, ssize_t *state);
 			 
 ssize_t parser_graph_addItem(struct parser_graph *graph, size_t set,
 			     size_t rule, size_t dot,  unsigned int isCore);
