@@ -159,8 +159,10 @@ int parser_graph_srTables(struct parser_graph *graph, void *goto_table, void *ac
 
 ssize_t parser_graph_addSet(struct parser_graph *graph);
 int parser_graph_setClosure(struct parser_graph *graph, size_t set);
-int parser_graph_iterateEdges(struct parser_graph *graph, size_t set, struct grammar_rule_node *state);
-int parser_graph_getNext(struct parser_graph *graph, size_t set, struct grammar_rule_node *node);
+int parser_graph_iterateTEdges(struct parser_graph *graph, size_t set, ssize_t *state);
+int parser_graph_iterateNTEdges(struct parser_graph *graph, size_t set, ssize_t *state);
+ssize_t parser_graph_getTNextSet(struct parser_graph *graph, size_t set, size_t edge);
+ssize_t parser_graph_getNTNextSet(struct parser_graph *graph, size_t set, size_t edge);
 int parser_graph_iterateConflicts(struct parser_graph *graph, size_t set, ssize_t *state);
 			 
 ssize_t parser_graph_addItem(struct parser_graph *graph, size_t set,
