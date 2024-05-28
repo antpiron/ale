@@ -148,6 +148,8 @@ struct parser_graph
   struct parser_follow slr_follow;   /* Each nonterminal follow */
 };
 
+enum {PARSER_ERROR_NOT_FOUND = 1};
+
 void parser_graph_init(struct parser_graph *graph, struct parser_grammar *g);
 void parser_graph_destroy(struct parser_graph *graph);
 
