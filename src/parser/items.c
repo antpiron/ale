@@ -227,7 +227,8 @@ parser_graph_setClosure(struct parser_graph *graph, size_t set)
 			  bitset_set(&items_todo, child_item_i);
 			}
 		      
-		      bitset_set(&item->generatedFrom, item_i);
+		      struct parser_item *child_item = stack_parser_item_get_ptr(&graph->items, child_item_i);
+		      bitset_set(&child_item->generatedFrom, item_i);
 		    }
 		}
 	    }
