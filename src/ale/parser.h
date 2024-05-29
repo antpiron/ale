@@ -166,11 +166,11 @@ ssize_t parser_graph_getNTNextSet(struct parser_graph *graph, size_t set, size_t
 int parser_graph_iterateConflicts(struct parser_graph *graph, size_t set, ssize_t *state);
 			 
 ssize_t parser_graph_addItem(struct parser_graph *graph, size_t set,
-			     size_t rule, size_t dot,  unsigned int isCore);
+			     size_t rule, size_t dot,  unsigned int isCore, struct bitset *generatedFrom);
 ssize_t parser_graph_getItem(struct parser_graph *graph, size_t set,
 			     size_t rule, size_t dot);
-ssize_t parser_graph_getItemOrSet(struct parser_graph *graph, size_t set,
-				  size_t rule, size_t dot);
+ssize_t parser_graph_getItemOrAdd(struct parser_graph *graph, size_t set,
+				  size_t rule, size_t dot, struct bitset *generatedFrom);
 int parser_graph_setItemFollow(struct parser_graph *graph, size_t item,
 			       unsigned int followType, unsigned int plusFollow, struct bitset *follow);
 struct bitset* parser_graph_getItemFollow_ptr(struct parser_graph *graph, size_t item);

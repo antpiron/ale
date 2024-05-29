@@ -187,13 +187,67 @@ parser_graph_addSet(struct parser_graph *graph)
   return index_ret;
 }
 
+int
+parser_graph_setClosure(struct parser_graph *graph, size_t set)
+{
+  struct bitset items_todo;
+  struct parser_item_set *item_set = stack_parser_item_set_get_ptr(&graph->sets, set);
+  struct parser_grammar *g = graph->g;
+  
+  
+  bitset_init(&items_todo,  item_set->elems.n);
+  bitset_cpy(&items_todo, &item_set->elems);
+ 
+  while ( bitset_ones(&items_todo) )
+    {
+      for (ssize_t  item_i = -1 ; bitset_iterate(&items_todo, &item_i) ;  )
+	{
+	  struct parser_item *item = stack_parser_item_get_ptr(&item_set->items->items, item_i);
+	  struct grammar_rule *rule = g->rules.data + item->rule;
+
+	  bitset_set(&item_set->elems, item_i);
+	  bitset_unset(&items_todo, item_i);
+	  
+	  if (item->dot < rule->n_rhs)
+	    {
+	      struct grammar_rule_node *node = rule->rhs.data + item->dot;
+	      
+	      if (GRAMMAR_NON_TERMINAL == node->type)
+		{
+		  struct bitset *rules = vector_nt_get_ptr(&g->nonterminals_bitsets, node->index);
+		  
+		  for (ssize_t rule_i = -1 ; bitset_iterate(rules, &rule_i) ; )
+		    {
+		      ssize_t child_item_i = parser_graph_getItem(graph, set, rule_i, 0);
+
+		      if ( child_item_i < 0)
+			{
+			  child_item_i = parser_graph_addItem(graph, set, rule_i, 0, 0, NULL);
+			  
+			  bitset_set(&items_todo, child_item_i);
+			}
+		      
+		      bitset_set(&item->generatedFrom, item_i);
+		    }
+		}
+	    }
+	}
+    }
+
+  bitset_destroy(&items_todo);
+  
+  return 0;
+}
+
 ssize_t
 parser_graph_addItem(struct parser_graph *graph, size_t set,
-		     size_t rule, size_t dot,  unsigned int isCore)
+		     size_t rule, size_t dot,  unsigned int isCore, struct bitset *generatedFrom)
 {
   struct parser_item item = { .rule = rule, .dot = dot, .isCore = isCore, .followType = FOLLOW_UNINITIALIZED,  .plusFollow = 0 };
 
   bitset_set(&item.generatedFrom, 0);
+  if (NULL != generatedFrom)
+    bitset_cpy(&item.generatedFrom, generatedFrom);
 
   ssize_t index_ret = stack_parser_item_n(&graph->items);
   stack_parser_item_push(&graph->items, item);
@@ -225,14 +279,14 @@ parser_graph_getItem(struct parser_graph *graph, size_t set,
 }
 
 ssize_t
-parser_graph_getItemOrSet(struct parser_graph *graph, size_t set,
-			  size_t rule, size_t dot)
+parser_graph_getItemOrAdd(struct parser_graph *graph, size_t set,
+			  size_t rule, size_t dot, struct bitset *generatedFrom)
 {
   ssize_t  index_ret = parser_graph_getItem(graph, set, rule, dot);
 
   if (index_ret < 0)
     {
-      index_ret = parser_graph_addItem(graph, set, rule, dot, 0);
+      index_ret = parser_graph_addItem(graph, set, rule, dot, 0, generatedFrom);
     }
 
   return index_ret;
