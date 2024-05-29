@@ -195,14 +195,14 @@ parser_graph_setClosure(struct parser_graph *graph, size_t set)
   struct parser_grammar *g = graph->g;
   
   
-  bitset_init(&items_todo,  item_set->elems.n);
+  bitset_init(&items_todo,  stack_parser_item_n(&graph->items));
   bitset_cpy(&items_todo, &item_set->elems);
  
   while ( bitset_ones(&items_todo) )
     {
       for (ssize_t  item_i = -1 ; bitset_iterate(&items_todo, &item_i) ;  )
 	{
-	  struct parser_item *item = stack_parser_item_get_ptr(&item_set->items->items, item_i);
+	  struct parser_item *item = stack_parser_item_get_ptr(&graph->items, item_i);
 	  struct grammar_rule *rule = g->rules.data + item->rule;
 
 	  bitset_set(&item_set->elems, item_i);
