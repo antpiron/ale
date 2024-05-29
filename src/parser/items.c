@@ -235,6 +235,8 @@ parser_graph_setClosure(struct parser_graph *graph, size_t set)
     }
 
   bitset_destroy(&items_todo);
+
+  item_set->isClosed = 1;
   
   return 0;
 }
