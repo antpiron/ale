@@ -7,6 +7,7 @@
 #include "ale/sort.h"
 #include "ale/math.h"
 #include "ale/algebra.h"
+#include "ale/portability.h"
 #include <math.h>
 
 #define ORDER 16

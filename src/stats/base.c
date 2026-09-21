@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include "ale/portability.h"
 #include "ale/stats.h"
 #include "ale/math.h"
 #include "ale/error.h"

@@ -6,6 +6,7 @@
 #include "ale/stats.h"
 #include "ale/sort.h"
 #include "ale/math.h"
+#include "ale/portability.h"
 #include <math.h>
 
 #define EPS (0.0000000001)

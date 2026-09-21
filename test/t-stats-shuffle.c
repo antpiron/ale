@@ -5,6 +5,7 @@
 #include "ale/error.h"
 #include "ale/stats.h"
 #include "ale/sort.h"
+#include "ale/portability.h"
 #include <math.h>
 
 #define ORDER 16

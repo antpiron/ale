@@ -13,13 +13,27 @@
 #include "ale/process.h"
 
 
+/* dirname() may return a pointer to a static buffer (macOS, BSD) that the
+   next call overwrites: copy the result back into path to make it reentrant.
+   path must have room for at least 2 bytes, dirname("") is "." */
+static char *
+path_dirname(char *path)
+{
+  char *dir = dirname(path);
+
+  memmove(path, dir, strlen(dir) + 1);
+
+  return path;
+}
+
 int
 rmpath(const char *dname, const char *pathname)
 {
   size_t dlen = strlen(dname);
   size_t plen = strlen(pathname);
   char fullpath[dlen+plen+2];
-  char path_copy[plen + 1];
+  // +2: NUL and path_dirname("") == "."
+  char path_copy[plen + 2];
   char *next_dir;
   
   SUCCESS_RET( 0 ==  strcmp(pathname, ".") || 0 == strcmp(pathname, "/") );
@@ -31,7 +45,7 @@ rmpath(const char *dname, const char *pathname)
   ERROR_ERRNO_RET( -1 == rmdir(fullpath), -1);
 
   strcpy(path_copy, pathname);
-  next_dir = dirname(path_copy);
+  next_dir = path_dirname(path_copy);
 
   ERROR_RET(-1 == rmpath(dname, next_dir), -1);
  
@@ -44,7 +58,8 @@ unlink_path(const char *dname, const char *pathname)
   size_t dlen = strlen(dname);
   size_t plen = strlen(pathname);
   char fullpath[dlen+plen+2];
-  char path_copy[plen + 1];
+  // +2: NUL and path_dirname("") == "."
+  char path_copy[plen + 2];
   char *next_dir;
   int ret;
 
@@ -55,7 +70,7 @@ unlink_path(const char *dname, const char *pathname)
   ERROR_ERRNO_RET( -1 == unlink(fullpath), -1);
 
   strcpy(path_copy, pathname);
-  next_dir = dirname(path_copy);
+  next_dir = path_dirname(path_copy);
 
   ret = rmpath(dname, next_dir);
   SUCCESS_RET(-1 == ret && ale_error.type == ERR_ERRNO && ENOTEMPTY == errno);
@@ -67,7 +82,8 @@ unlink_path(const char *dname, const char *pathname)
 int
 mkpath(const char *pathname, mode_t mode)
 {
-  char path_copy[strlen(pathname)+1];
+  // +2: NUL and path_dirname("") == "."
+  char path_copy[strlen(pathname)+2];
   char *next_dir;
 
   SUCCESS_RET( 0 ==  strcmp(pathname, ".") || 0 == strcmp(pathname, "/") );
@@ -75,11 +91,12 @@ mkpath(const char *pathname, mode_t mode)
   SUCCESS_RET( 0 == access(pathname, F_OK) );
 
   strcpy(path_copy, pathname);
-  next_dir = dirname(path_copy);
+  next_dir = path_dirname(path_copy);
 
   ERROR_RET(-1 == mkpath(next_dir, mode) && EEXIST != errno, -1);
 
-  ERROR_ERRNO_RET(-1 == mkdir(pathname, mode), -1);
+  // EEXIST: created concurrently since access()
+  ERROR_ERRNO_RET(-1 == mkdir(pathname, mode) && EEXIST != errno, -1);
   
   return 0;
 }
@@ -87,7 +104,8 @@ mkpath(const char *pathname, mode_t mode)
 FILE*
 mkpath_fopen(const char *pathname, const char *mode)
 {
-  char path_copy[strlen(pathname)+1];
+  // +2: NUL and path_dirname("") == "."
+  char path_copy[strlen(pathname)+2];
   char *next_dir;
   mode_t mode_dir = S_IRWXU;
   FILE *file;
@@ -95,7 +113,7 @@ mkpath_fopen(const char *pathname, const char *mode)
   int flags = O_RDWR;
 
   strcpy(path_copy, pathname);
-  next_dir = dirname(path_copy);
+  next_dir = path_dirname(path_copy);
   
   ERROR_RET(-1 == mkpath(next_dir, mode_dir), NULL);
 

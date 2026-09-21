@@ -71,5 +71,6 @@ char* portability_strcasestr(const char *haystack, const char *needle);
 @FADVISE_FUNC@
 @RANDOM_FUNC@
 @STRCASESTR_FUNC@
+@QSORT_R_FUNC@
 
 #endif

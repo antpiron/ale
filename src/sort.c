@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "ale/sort.h"
+#include "ale/portability.h"
 #include <stdio.h>
 
 struct indirect_closure

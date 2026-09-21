@@ -86,12 +86,111 @@ else
    STRCASESTR_FUNC="char* strcasestr(const char *haystack, const char *needle);"
 fi
 
+# qsort_r argument order: POSIX 2024 / glibc / musl / FreeBSD >= 14 use
+# qsort_r(base, nmemb, size, compar, arg) with compar(a, b, arg), while
+# macOS and older BSDs use qsort_r(base, nmemb, size, arg, compar) with
+# compar(arg, a, b). The library is written against the POSIX 2024 order.
+# The test programs mimic the library sources (_GNU_SOURCE, no strict
+# POSIX level) so that qsort_r is visible on every platform.
+m4_define([ALE_QSORT_R_PROLOGUE], [[
+#undef _POSIX_C_SOURCE
+#undef _XOPEN_SOURCE
+#define _GNU_SOURCE
+#include <stdlib.h>
+typedef int (*ale_cmp_posix_t)(const void *, const void *, void *);
+typedef int (*ale_cmp_bsd_t)(void *, const void *, const void *);
+]])
+
+AC_CACHE_CHECK([for POSIX 2024 qsort_r], [ale_cv_func_qsort_r_posix],
+  [AC_COMPILE_IFELSE([AC_LANG_SOURCE(ALE_QSORT_R_PROLOGUE[[
+_Static_assert(_Generic(&qsort_r,
+                        void (*)(void *, size_t, size_t, ale_cmp_posix_t, void *): 1,
+                        default: 0),
+               "qsort_r does not follow POSIX 2024");
+]])], [ale_cv_func_qsort_r_posix=yes], [ale_cv_func_qsort_r_posix=no])])
+
+QSORT_R_FUNC=""
+if test "x$ale_cv_func_qsort_r_posix" != xyes; then
+   AC_CACHE_CHECK([for BSD qsort_r], [ale_cv_func_qsort_r_bsd],
+     [AC_COMPILE_IFELSE([AC_LANG_SOURCE(ALE_QSORT_R_PROLOGUE[[
+_Static_assert(_Generic(&qsort_r,
+                        void (*)(void *, size_t, size_t, void *, ale_cmp_bsd_t): 1,
+                        default: 0),
+               "qsort_r does not follow BSD");
+]])], [ale_cv_func_qsort_r_bsd=yes], [ale_cv_func_qsort_r_bsd=no])])
+
+   if test "x$ale_cv_func_qsort_r_bsd" != xyes; then
+      AC_MSG_ERROR([qsort_r not found (neither POSIX 2024 nor BSD argument order)])
+   fi
+
+   AC_DEFINE([HAVE_QSORT_R_BSD], [1], [Defined if qsort_r uses the BSD argument order])
+   QSORT_R_FUNC="#include <stdlib.h>
+void portability_qsort_r(void *base, size_t nmemb, size_t size,
+                         int (*compar)(const void *, const void *, void *),
+                         void *arg);
+#define qsort_r portability_qsort_r"
+fi
+
 AC_SUBST(RANDOM_FUNC)
 AC_SUBST(RANDOM_HEADER)
 AC_SUBST(FADVISE_FUNC)
 AC_SUBST(STRCASESTR_FUNC)
+AC_SUBST(QSORT_R_FUNC)
+# multi-line value, only meant for portability.h, keep it out of Makefiles
+AM_SUBST_NOTMAKE(QSORT_R_FUNC)
 
 AC_OPENMP
+# Apple clang: the driver rejects -fopenmp but the frontend supports it
+# through -Xpreprocessor. The runtime (libomp, omp.h) is not shipped:
+# look for Homebrew or MacPorts and check that it compiles and links.
+if test "x$ac_cv_prog_c_openmp" = xunsupported; then
+case $host in
+ *-*-darwin*)
+	AC_MSG_CHECKING([for OpenMP with -Xpreprocessor -fopenmp and libomp])
+	ale_omp_found=no
+	for ale_omp_prefix in "`brew --prefix libomp 2>/dev/null`" /opt/homebrew/opt/libomp /usr/local/opt/libomp; do
+	   ale_omp_inc="$ale_omp_prefix/include"
+	   ale_omp_lib="$ale_omp_prefix/lib"
+	   if test -n "$ale_omp_prefix" && test -f "$ale_omp_inc/omp.h"; then
+	      break
+	   fi
+	done
+	# MacPorts layout
+	if test ! -f "$ale_omp_inc/omp.h" && test -f /opt/local/include/libomp/omp.h; then
+	   ale_omp_inc=/opt/local/include/libomp
+	   ale_omp_lib=/opt/local/lib/libomp
+	fi
+	if test -f "$ale_omp_inc/omp.h"; then
+	   ale_save_CFLAGS=$CFLAGS
+	   ale_save_LIBS=$LIBS
+	   CFLAGS="$CFLAGS -Xpreprocessor -fopenmp -I$ale_omp_inc"
+	   LIBS="$LIBS -L$ale_omp_lib -lomp"
+	   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#ifndef _OPENMP
+# error OpenMP not enabled
+#endif
+#include <omp.h>
+]], [[
+  int n = 0;
+#pragma omp parallel reduction(+:n)
+  n += omp_get_num_threads() > 0;
+  return 0 == n;
+]])],[ ale_omp_found=yes ],[])
+	   CFLAGS=$ale_save_CFLAGS
+	   if test "x$ale_omp_found" = xyes; then
+	      OPENMP_CFLAGS="-Xpreprocessor -fopenmp -I$ale_omp_inc"
+	   else
+	      LIBS=$ale_save_LIBS
+	   fi
+	fi
+	if test "x$ale_omp_found" = xyes; then
+	   AC_MSG_RESULT([yes ($ale_omp_lib)])
+	else
+	   AC_MSG_RESULT([no])
+	fi
+	;;
+esac
+fi
 AM_CFLAGS="$AM_CFLAGS $OPENMP_CFLAGS"
 AC_SUBST([AM_CFLAGS])
 

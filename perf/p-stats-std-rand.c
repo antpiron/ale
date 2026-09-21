@@ -31,11 +31,11 @@ main(int argc, char *argv[argc])
         
   printf("\nGenerated %12.2F MNumbers/sec, mean = %6.3f\n", rate, res / n);
 
+#ifdef _OPENMP
   res = 0;
   int n_threads = omp_get_max_threads();
   n = MAX_N * n_threads;
 
-#ifdef _OPENMP
   clock_gettime(CLOCK_MONOTONIC, &st);
 #pragma omp parallel for reduction (+:res)
   for (size_t i = 0 ; i < n ; i++)

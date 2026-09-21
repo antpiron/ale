@@ -11,6 +11,8 @@ main(int argc, char *argv[argc])
   struct stats_ecdf ecdf;
 #define LEN (200000)
   double x[LEN] = {0.0};
+  // ecdf keeps a pointer to x, samples must not overwrite it
+  static double y[LEN];
   double eps = 0.01, res;
   double count = 0;
 
@@ -21,16 +23,16 @@ main(int argc, char *argv[argc])
 
   for (int i = 0 ; i < LEN ; i++)
     {
-      res = x[i] = stats_ecdf_rand(&ecdf);
+      res = y[i] = stats_ecdf_rand(&ecdf);
       if (res < 0)
 	count++;
     }
 
   res = count / LEN;
   ERROR_UNDEF_FATAL_FMT(ale_cmp_double(0.5, res, eps), "FAIL: count(stats_ecdf_rand()) == %f != 0.5\n", res);
-  res = stats_mean(LEN, x);
+  res = stats_mean(LEN, y);
   ERROR_UNDEF_FATAL_FMT(ale_cmp_double(0, res, eps), "FAIL: mean(stats_ecdf_rand()) == %f != 0.0\n", res);
-  res = stats_sd(LEN, x);
+  res = stats_sd(LEN, y);
   ERROR_UNDEF_FATAL_FMT(ale_cmp_double(1.0, res, eps), "FAIL: sd(stats_ecdf_rand()) == %f != 1.0\n", res);
 
   stats_ecdf_destroy(&ecdf);

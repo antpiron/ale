@@ -1,3 +1,6 @@
+// macOS hides qsort_r when _POSIX_C_SOURCE is defined (config.h)
+#define _DARWIN_C_SOURCE
+
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -67,3 +70,32 @@ portability_strcasestr(const char *haystack, const char *needle)
   return result;
 }
 
+
+#ifdef HAVE_QSORT_R_BSD
+// portability.h redirects qsort_r to portability_qsort_r, use the libc one here
+#undef qsort_r
+
+struct portability_qsort_r_closure
+{
+  int (*compar)(const void *, const void *, void *);
+  void *arg;
+};
+
+static int
+portability_qsort_r_compar(void *arg, const void *p1, const void *p2)
+{
+  struct portability_qsort_r_closure *closure = arg;
+
+  return closure->compar(p1, p2, closure->arg);
+}
+
+void
+portability_qsort_r(void *base, size_t nmemb, size_t size,
+		    int (*compar)(const void *, const void *, void *),
+		    void *arg)
+{
+  struct portability_qsort_r_closure closure = {.compar = compar, .arg = arg};
+
+  qsort_r(base, nmemb, size, &closure, portability_qsort_r_compar);
+}
+#endif
